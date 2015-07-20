@@ -1,4 +1,11 @@
-﻿using UnityEngine;
+﻿/// <summary>
+/// Springs connect 2 particles and try to keep them a certain distance apart. They have 3 properties:
+/// Rest Length - the spring wants to be at this length and acts on the particles to push or pull them exactly this far apart at all times.
+///	Strength - If they are strong they act like a stick. If they are weak they take a long time to return to their rest length. ie Spring Constant
+///	Damping - If springs have high damping they don't overshoot and they settle down quickly, with low damping springs oscillate.
+/// </summary>
+
+using UnityEngine;
 using System.Collections;
 
 namespace ParticlePhysics2D {
@@ -9,11 +16,11 @@ namespace ParticlePhysics2D {
 		Particle2D a, b;
 		bool on;
 		
-		public Spring2D( Particle2D A, Particle2D B, float ks, float d, float r )
+		public Spring2D( Particle2D A, Particle2D B, float springConstant, float damping, float restLength )
 		{
-			springConstant = ks;
-			damping = d;
-			restLength = r;
+			this.springConstant = springConstant;
+			this.damping = damping;
+			this.restLength = restLength;
 			a = A;
 			b = B;
 			on = true;
