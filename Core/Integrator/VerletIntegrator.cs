@@ -5,6 +5,7 @@ namespace ParticlePhysics2D {
 	public class VerletIntegrator : IIntegrator {
 		
 		Simulation s;
+		float dt = 1f;
 		
 		public VerletIntegrator( Simulation s )
 		{
@@ -23,8 +24,10 @@ namespace ParticlePhysics2D {
 				if ( p.IsFree )
 				{
 					temp = p.Position;
-					p.Position = p.Position + (p.Position - p.PositionOld);
+					//p.Position = p.Position + (p.Position - p.PositionOld);
+					p.Position = p.Position + (p.Position - p.PositionOld)  * (t / dt) + p.Force / p.Mass * t * t;
 					p.PositionOld = temp;
+					dt = t;
 				}
 			}
 		}
@@ -32,3 +35,6 @@ namespace ParticlePhysics2D {
 	}
 
 }
+
+//Traditional Verlet : xi+1 = xi + (xi - xi-1) + a * dt * dt
+//Timt-Corrected Verlet :  xi+1 = xi + (xi - xi-1) * (dti / dti-1) + a * dti * dti
