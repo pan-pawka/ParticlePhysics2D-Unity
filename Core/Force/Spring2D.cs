@@ -11,16 +11,16 @@ using System.Collections;
 namespace ParticlePhysics2D {
 	public class Spring2D : IForce {
 		float springConstant;
-		float damping;
 		float restLength;
+		float restLength2;
 		Particle2D a, b;
 		bool on;
 		
-		public Spring2D( Particle2D A, Particle2D B, float springConstant, float damping, float restLength )
+		public Spring2D( Particle2D A, Particle2D B, float springConstant, float restLength )
 		{
 			this.springConstant = springConstant;
-			this.damping = damping;
 			this.restLength = restLength;
+			this.restLength2 = this.restLength * this.restLength;
 			a = A;
 			b = B;
 			on = true;
@@ -46,14 +46,14 @@ namespace ParticlePhysics2D {
 			return !on;
 		}
 		
-		public Particle2D getOneEnd()
+		public Particle2D ParticleA 
 		{
-			return a;
+			get {return a;}
 		}
 		
-		public Particle2D getTheOtherEnd()
+		public Particle2D ParticleB 
 		{
-			return b;
+			get {return b;}
 		}
 		
 		public float currentLength()
@@ -77,16 +77,6 @@ namespace ParticlePhysics2D {
 			springConstant = ks;
 		}
 		
-		public float Damping
-		{
-			get{return damping;}
-		}
-		
-		public void setDamping( float d )
-		{
-			damping = d;
-		}
-		
 		public void setRestLength( float l )
 		{
 			restLength = l;
@@ -96,47 +86,11 @@ namespace ParticlePhysics2D {
 		{	
 			if ( on && ( a.IsFree || b.IsFree ) )
 			{
-				float a2bX = a.Position.x - b.Position.x;
-				float a2bY = a.Position.y - b.Position.y;
-				
-				float a2bDistance = (float)Mathf.Sqrt( a2bX*a2bX + a2bY*a2bY  );
-				
-				if ( a2bDistance == 0 )
-				{
-					a2bX = 0;
-					a2bY = 0;
-				}
-				else
-				{
-					a2bX /= a2bDistance;
-					a2bY /= a2bDistance;
-				}
-				
-				
-				// spring force is proportional to how much it stretched 
-				
-				float springForce = -( a2bDistance - restLength ) * springConstant; 
-				
-				
-				// want velocity along line b/w a & b, damping force is proportional to this
-				
-				float Va2bX = a.Velocity.x - b.Velocity.x;
-				float Va2bY = a.Velocity.y - b.Velocity.y;
-				
-				float dampingForce = -damping * ( a2bX*Va2bX + a2bY*Va2bY );
-				
-				
-				// forceB is same as forceA in opposite direction
-				
-				float r = springForce + dampingForce;
-				
-				a2bX *= r;
-				a2bY *= r;
-				
-				if ( a.IsFree )
-					a.Force += new Vector2 (a2bX,a2bY);
-				if ( b.IsFree )
-					b.Force -= new Vector2 (a2bX,a2bY);
+				//faster square root approx from Advanced Character Physics
+				Vector2 delta = a.Position - b.Position;
+				delta *= restLength2 /(delta.sqrMagnitude + restLength2) - 0.5f;
+				if (a.IsFree) a.Force -= delta * springConstant;
+				if (a.IsFree) b.Force += delta * springConstant;
 			}
 		}
 		

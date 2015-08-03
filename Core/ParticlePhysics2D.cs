@@ -5,22 +5,23 @@ using System.Collections.Generic;
 
 namespace ParticlePhysics2D {
 
-	public enum IntegrationMedthod {RUNGE_KUTTA, MODIFIED_EULER, VERLET}
+	public enum IntegrationMedthod {RUNGE_KUTTA, MODIFIED_EULER, VERLET, GPUVERLET}
 
 	public class Simulation  {
 
-		protected static float DEFAULT_GRAVITY = 0;
-		protected static float DEFAULT_DRAG = 0.001f;	
+		protected static float DEFAULT_GRAVITY = 0f;
+		protected static float DEFAULT_DRAG = 0.001f;
 		
 		List <Particle2D> particles;
 		List <Spring2D> springs;
-		List <Attraction2D> attractions;
-		List<IForce> customForces;
+		List<AngleConstraint2D> angles;
 		
 		IIntegrator integrator;
 		
 		Vector2 gravity;
 		float drag;
+		public float damping = 0.99f;//used by verlet
+		
 		
 		bool hasDeadParticles = false;
 		
@@ -37,6 +38,11 @@ namespace ParticlePhysics2D {
 			case IntegrationMedthod.VERLET:
 				this.integrator = new VerletIntegrator( this ) as IIntegrator;
 				break;
+			case IntegrationMedthod.GPUVERLET:
+				this.integrator = new GPUVerletIntegrator(this) as IIntegrator;
+				break;
+			default:
+				return;
 			}
 		}
 		
@@ -45,7 +51,7 @@ namespace ParticlePhysics2D {
 			gravity = new Vector2 (x,y);
 		}
 		
-		// default down gravity
+		// default gravity is down
 		public void setGravity( float g )
 		{
 			gravity = new Vector2 (0f,g);
@@ -64,7 +70,7 @@ namespace ParticlePhysics2D {
 		{
 			particles.Clear();
 			springs.Clear();
-			attractions.Clear();
+			angles.Clear();
 		}
 		
 		#region Tick
@@ -87,9 +93,9 @@ namespace ParticlePhysics2D {
 		#endregion
 		
 		#region Particles
-		public Particle2D makeParticle( float mass, float x, float y, float z )
+		public Particle2D makeParticle(  float x, float y)
 		{
-			Particle2D p = new Particle2D( mass );
+			Particle2D p = new Particle2D( );
 			p.Position = new Vector2 (x,y);
 			particles.Add( p );
 			return p;
@@ -97,7 +103,7 @@ namespace ParticlePhysics2D {
 		
 		public Particle2D makeParticle()
 		{  
-			return makeParticle( 1.0f, 0f, 0f, 0f );
+			return makeParticle( 0f, 0f );
 		}
 		
 		public int numberOfParticles()
@@ -112,6 +118,19 @@ namespace ParticlePhysics2D {
 		
 		public void removeParticle( Particle2D p )
 		{
+			for (int i=springs.Count-1;i>=0;i--) {
+				if (springs[i].ParticleA == p || springs[i].ParticleB == p) {
+					Spring2D s = springs[i];
+					removeSpring(s);
+				}
+			}
+			
+//			for (int i=angles.Count-1;i>=0;i--) {
+//				if (angles[i].ParticleA == p || angles[i].ParticleM == p || angles[i].ParticleB == p) {
+//					AngleConstraint2D a = angles[i];
+//					removeAngleConstraint(a);
+//				}
+//			}
 			particles.Remove( p );
 		}
 		
@@ -119,9 +138,10 @@ namespace ParticlePhysics2D {
 		
 		#region Spring
 		
-		public Spring2D makeSpring( Particle2D a, Particle2D b, float ks, float d, float r )
+		public Spring2D makeSpring( Particle2D a, Particle2D b, float ks)
 		{
-			Spring2D s = new Spring2D( a, b, ks, d, r );
+			float r = Vector2.Distance(a.Position,b.Position);
+			Spring2D s = new Spring2D( a, b, ks, r );
 			springs.Add( s );
 			return s;
 		}
@@ -136,76 +156,43 @@ namespace ParticlePhysics2D {
 			return springs[i];
 		}
 		
-		public void removeSpring( int i )
-		{
-			springs.RemoveAt( i );
-		}
-		
 		public void removeSpring( Spring2D a )
 		{
+			for (int i=angles.Count-1;i>=0;i--) {
+				if (angles[i].ContainSpring(a)) angles.RemoveAt(i);
+			}
 			springs.Remove( a );
 		}
 		
 		#endregion
 		
-		#region Attraction
-		
-		public Attraction2D makeAttraction( Particle2D a, Particle2D b, float k, float minDistance )
+		#region Angle Constraints
+		public AngleConstraint2D makeAngleConstraint( Spring2D s1, Spring2D s2, float offset, float relax)
 		{
-			Attraction2D m = new Attraction2D( a, b, k, minDistance );
-			attractions.Add( m );
-			return m;
+			AngleConstraint2D angle = new AngleConstraint2D (s1,s2,offset,relax);
+			angles.Add( angle );
+			return angle;
 		}
 		
-		public int numberOfAttractions()
+		public int numberOfAngleConstraints()
 		{
-			return attractions.Count;
+			return angles.Count;
 		}
 		
-		public Attraction2D getAttraction( int i )
+		public AngleConstraint2D getAngleConstraint( int i )
 		{
-			return attractions[i];
+			return angles[i];
 		}
 		
-		public void removeAttraction( int i  )
+		public void removeAngleConstraint( int i )
 		{
-			attractions.RemoveAt( i );
+			angles.RemoveAt( i );
 		}
 		
-		public void removeAttraction( Attraction2D s )
+		public void removeAngleConstraint( AngleConstraint2D a )
 		{
-			attractions.Remove( s );
+			angles.Remove( a );
 		}
-		
-		#endregion
-		
-		#region Custom Force
-		
-		public void addCustomForce( IForce f )
-		{
-			customForces.Add( f );
-		}
-		
-		public int numberOfCustomForces()
-		{
-			return customForces.Count;
-		}
-		
-		public IForce getCustomForce( int i )
-		{
-			return customForces[i];
-		}
-		
-		public void removeCustomForce( int i )
-		{
-			customForces.RemoveAt(i);
-		}
-		
-		public void removeCustomForce( IForce f )
-		{
-			customForces.Remove( f );
-		}
-		
 		#endregion
 		
 		#region Simulation Constructor
@@ -215,8 +202,7 @@ namespace ParticlePhysics2D {
 			integrator = new RungeKuttaIntegrator( this ) as IIntegrator;
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
-			attractions = new List<Attraction2D> ();
-			customForces = new List<IForce> ();
+			angles = new List<AngleConstraint2D> ();
 			gravity = new Vector2 (0f,g);
 			drag = somedrag;
 		}
@@ -226,8 +212,7 @@ namespace ParticlePhysics2D {
 			integrator = new RungeKuttaIntegrator( this ) as IIntegrator;
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
-			attractions = new List<Attraction2D> ();
-			customForces = new List<IForce> ();
+			angles = new List<AngleConstraint2D> ();
 			gravity = new Vector2 (gx,gy);
 			drag = somedrag;
 		}
@@ -237,8 +222,7 @@ namespace ParticlePhysics2D {
 			integrator = new RungeKuttaIntegrator( this ) as IIntegrator;
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
-			attractions = new List<Attraction2D> ();
-			customForces = new List<IForce> ();
+			angles = new List<AngleConstraint2D> ();
 			gravity = new Vector2 (0f,Simulation.DEFAULT_GRAVITY);
 			drag = Simulation.DEFAULT_DRAG;
 		}
@@ -247,8 +231,7 @@ namespace ParticlePhysics2D {
 			setIntegrator(intergratorMethod);
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
-			attractions = new List<Attraction2D> ();
-			customForces = new List<IForce> ();
+			angles = new List<AngleConstraint2D> ();
 			gravity = new Vector2 (0f,g);
 			drag = Simulation.DEFAULT_DRAG;
 		}
@@ -257,8 +240,7 @@ namespace ParticlePhysics2D {
 			setIntegrator(intergratorMethod);
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
-			attractions = new List<Attraction2D> ();
-			customForces = new List<IForce> ();
+			angles = new List<AngleConstraint2D> ();
 			gravity = new Vector2 (0f,Simulation.DEFAULT_GRAVITY);
 			drag = Simulation.DEFAULT_DRAG;
 		}
@@ -267,7 +249,7 @@ namespace ParticlePhysics2D {
 		
 		#region Called by Integrator
 		/// <summary>
-		/// ApplyForces is called by Integrator to advanced the system
+		/// ApplyForces is called by Integrator to advanced the system, note that GPU Verlet Intergrator does not call this
 		/// </summary>
 		public void applyForces()
 		{
@@ -282,7 +264,7 @@ namespace ParticlePhysics2D {
 			
 			for ( int i = 0; i < particles.Count; ++i )
 			{
-				particles[i].Force += - particles[i].Velocity * drag;
+				particles[i].Force += - particles[i].Velocity * drag;//called by intergartors except for GPU Verlet one
 			}
 			
 			for ( int i = 0; i < springs.Count; i++ )
@@ -290,14 +272,9 @@ namespace ParticlePhysics2D {
 				springs[i].apply();
 			}
 			
-			for ( int i = 0; i < attractions.Count; i++ )
+			for ( int i = 0; i < angles.Count; i++ )
 			{
-				attractions[i].apply();
-			}
-			
-			for ( int i = 0; i < customForces.Count; i++ )
-			{
-				customForces[i].apply();
+				angles[i].apply();
 			}
 		}
 		
@@ -306,8 +283,8 @@ namespace ParticlePhysics2D {
 		/// </summary>
 		public void clearForces()
 		{
-			foreach (Particle2D p in particles) {
-				p.Force = Vector2.zero;
+			for (int i=0;i<particles.Count;i++) {
+				particles[i].Force = Vector2.zero;
 			}
 		}
 		

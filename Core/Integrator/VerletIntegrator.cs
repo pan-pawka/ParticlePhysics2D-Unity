@@ -25,7 +25,7 @@ namespace ParticlePhysics2D {
 				{
 					temp = p.Position;
 					//p.Position = p.Position + (p.Position - p.PositionOld);
-					p.Position = p.Position + (p.Position - p.PositionOld)  * (t / dt) + p.Force / p.Mass * t * t;
+					p.Position = p.Position + (p.Position - p.PositionOld) * s.damping  * (t / dt) + p.Force / p.Mass * t * t;
 					p.PositionOld = temp;
 					dt = t;
 				}

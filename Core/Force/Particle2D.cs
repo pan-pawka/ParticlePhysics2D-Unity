@@ -7,26 +7,21 @@ namespace ParticlePhysics2D {
 
 		Vector2 position;
 		Vector2 positionOld;
-		Vector2 velocity;
+		Vector2 velocity;//used by other integrators other than GPU one
 		Vector2 force;
-		float mass;
+		float mass = 1f;
 		float age;
 		bool dead;
 		bool isFixed;
 	
-		public Particle2D( float m )
+		public Particle2D()
 		{
 			position = Vector2.zero;
 			velocity = Vector2.zero;
 			force = Vector2.zero;
-			mass = m;
 			isFixed = false;
 			age = 0f;
 			dead = false;
-		}
-		
-		public Particle2D () {
-			new Particle2D (1f);
 		}
 		
 		public float distanceTo( Particle2D p ){
