@@ -28,7 +28,7 @@ namespace ParticlePhysics2D {
 					int i = (int)Math.Floor(angleDegrees / 360f);
 					return angleDegrees - i * 360f;
 				} else {
-					int i = (int)Math.Ceiling(angleDegrees / 360f);
+					int i = -(int)Math.Ceiling(angleDegrees / 360f) + 1;
 					return angleDegrees + i * 360f;
 				}
 			}
@@ -51,7 +51,7 @@ namespace ParticlePhysics2D {
 			return fastCos[indexClamp(Index(deg))];
 		}
 		
-		//rotate point t around point c for degree c
+		//rotate point t around point c for degree a
 		public static Vector2 RotateVector2(Vector2 t, Vector2 c, float a){
 			
 			float cosA = FastCos(a);

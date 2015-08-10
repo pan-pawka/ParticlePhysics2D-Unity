@@ -3,15 +3,17 @@ using System.Collections;
 using ParticlePhysics2D;
 
 namespace ParticlePhysics2D {
+
+	[System.Serializable]
 	public class AngleConstraint2D : IForce {
 		
-		Particle2D particleA, particleM, particleB;
-		float angle_Fixed; //constraint to this angle
+		[SerializeField] Particle2D particleA, particleM, particleB;
+		[SerializeField] float angle_Fixed; //constraint to this angle
 		float angle_Cur; // how much the angle is currently
-		float angle_Offset; // how much the angle is currently
+		[SerializeField] float angle_Offset; // how much the angle is currently
 		float relaxPercent = 0.1f;//default value
 		float k = 1f;
-		bool on;
+		[SerializeField] bool on;
 		
 		//setup by sticks
 		public AngleConstraint2D(Spring2D _spring1, Spring2D _spring2, float _offset, float _relaxPercent ) {

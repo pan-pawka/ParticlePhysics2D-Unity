@@ -1,33 +1,47 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 
 
 namespace ParticlePhysics2D {
 
 	public enum IntegrationMedthod {RUNGE_KUTTA, MODIFIED_EULER, VERLET, GPUVERLET}
 
+	[System.Serializable]
 	public class Simulation  {
 
 		protected static float DEFAULT_GRAVITY = 0f;
 		protected static float DEFAULT_DRAG = 0.001f;
 		
+		[SerializeField]
 		List <Particle2D> particles;
+		
+		[SerializeField]
 		List <Spring2D> springs;
+		
+		[SerializeField]
 		List<AngleConstraint2D> angles;
 		
-		IIntegrator integrator;
+		public IIntegrator integrator;
 		
+		[SerializeField]
+		IntegrationMedthod integrationMedthod = IntegrationMedthod.VERLET;
+		
+		[SerializeField]
 		Vector2 gravity;
+		
+		[SerializeField]
 		float drag;
+		
 		public float damping = 0.99f;//used by verlet
 		
 		
 		bool hasDeadParticles = false;
 		
-		public void setIntegrator( IntegrationMedthod integrator )
+		public void setIntegrator()
 		{
-			switch ( integrator )
+			switch ( integrationMedthod )
 			{
 			case IntegrationMedthod.RUNGE_KUTTA:
 				this.integrator = new RungeKuttaIntegrator( this ) as IIntegrator;
@@ -45,6 +59,13 @@ namespace ParticlePhysics2D {
 				return;
 			}
 		}
+		
+		public void setIntegrator(IntegrationMedthod integrator) 
+		{
+			integrationMedthod = integrator;
+			setIntegrator();
+		}
+		
 		
 		public void setGravity( float x, float y)
 		{
@@ -87,6 +108,7 @@ namespace ParticlePhysics2D {
 		
 		public void tick( float t )
 		{  
+			//if (integrator==null) setIntegrator(integrationMedthod);
 			integrator.step( t );
 		}
 		
@@ -95,8 +117,14 @@ namespace ParticlePhysics2D {
 		#region Particles
 		public Particle2D makeParticle(  float x, float y)
 		{
+			return makeParticle(new Vector2(x,y));
+		}
+		
+		public Particle2D makeParticle(  Vector2 pos)
+		{
 			Particle2D p = new Particle2D( );
-			p.Position = new Vector2 (x,y);
+			p.Position = pos;
+			p.PositionOld = pos;
 			particles.Add( p );
 			return p;
 		}
@@ -199,7 +227,7 @@ namespace ParticlePhysics2D {
 		
 		public Simulation( float g, float somedrag )
 		{
-			integrator = new RungeKuttaIntegrator( this ) as IIntegrator;
+			setIntegrator(integrationMedthod);
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
@@ -209,7 +237,7 @@ namespace ParticlePhysics2D {
 		
 		public Simulation( float gx, float gy, float somedrag )
 		{
-			integrator = new RungeKuttaIntegrator( this ) as IIntegrator;
+			setIntegrator(integrationMedthod);
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
@@ -219,7 +247,7 @@ namespace ParticlePhysics2D {
 		
 		public Simulation()
 		{
-			integrator = new RungeKuttaIntegrator( this ) as IIntegrator;
+			setIntegrator(integrationMedthod);
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
@@ -227,8 +255,8 @@ namespace ParticlePhysics2D {
 			drag = Simulation.DEFAULT_DRAG;
 		}
 		
-		public Simulation (float g,IntegrationMedthod intergratorMethod) {
-			setIntegrator(intergratorMethod);
+		public Simulation (float g,IntegrationMedthod integrationMedthod) {
+			setIntegrator(integrationMedthod);
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
@@ -236,8 +264,8 @@ namespace ParticlePhysics2D {
 			drag = Simulation.DEFAULT_DRAG;
 		}
 		
-		public Simulation (IntegrationMedthod intergratorMethod) {
-			setIntegrator(intergratorMethod);
+		public Simulation (IntegrationMedthod integrationMedthod) {
+			setIntegrator(integrationMedthod);
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
@@ -287,6 +315,38 @@ namespace ParticlePhysics2D {
 				particles[i].Force = Vector2.zero;
 			}
 		}
+		
+		#endregion
+		
+		#region Debug
+		public void DebugSpring(Matrix4x4 local2World) {
+			for (int t=0;t<springs.Count;t++) {
+				springs[t].DebugSpring(local2World);
+			}
+		}
+		public void DebugSpring() {
+			for (int t=0;t<springs.Count;t++) {
+				springs[t].DebugSpring();
+			}
+		}
+		
+		//use this inside the editor script
+		public void DebugParticle(Matrix4x4 local2World) {
+			for (int i=0;i<particles.Count;i++) {
+				Vector2 pos = local2World.MultiplyPoint3x4(particles[i].Position);
+				DebugExtension.DebugPoint(pos,Color.blue,2f);
+				Handles.Label(pos,new GUIContent(i.ToString()));
+			}
+		}
+		
+		public void DebugParticle() {
+			for (int i=0;i<particles.Count;i++) {
+				Vector2 pos = particles[i].Position;
+				DebugExtension.DebugPoint(pos,Color.blue,2f);
+				Handles.Label(pos,new GUIContent(i.ToString()));
+			}
+		}
+		
 		
 		#endregion
 		

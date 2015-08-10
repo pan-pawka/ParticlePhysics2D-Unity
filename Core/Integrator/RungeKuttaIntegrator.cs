@@ -169,7 +169,7 @@ public class RungeKuttaIntegrator  {
 		for ( int i = 0; i < s.numberOfParticles(); ++i )
 		{
 			Particle2D p = s.getParticle(i);
-			p.Age += deltaT;
+			//p.Age += deltaT;
 			if ( p.IsFree )
 			{
 				// update position

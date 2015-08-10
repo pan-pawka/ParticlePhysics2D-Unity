@@ -9,18 +9,20 @@ using UnityEngine;
 using System.Collections;
 
 namespace ParticlePhysics2D {
+	
+	[System.Serializable]
 	public class Spring2D : IForce {
-		float springConstant;
-		float restLength;
-		float restLength2;
-		Particle2D a, b;
-		bool on;
+		
+		[SerializeField] float springConstant;
+		[SerializeField] float restLength2;
+		[SerializeField] Particle2D a;
+		[SerializeField] Particle2D b;
+		[SerializeField] bool on;
 		
 		public Spring2D( Particle2D A, Particle2D B, float springConstant, float restLength )
 		{
 			this.springConstant = springConstant;
-			this.restLength = restLength;
-			this.restLength2 = this.restLength * this.restLength;
+			this.restLength2 = restLength * restLength;
 			a = A;
 			b = B;
 			on = true;
@@ -61,12 +63,6 @@ namespace ParticlePhysics2D {
 			return (a.Position-b.Position).magnitude;
 		}
 		
-		public float RestLength
-		{
-			get {return restLength;}
-			set {restLength = value;}
-		}
-		
 		public float strength()
 		{
 			return springConstant;
@@ -79,7 +75,7 @@ namespace ParticlePhysics2D {
 		
 		public void setRestLength( float l )
 		{
-			restLength = l;
+			restLength2 = l * l;
 		}
 		
 		public void apply()
@@ -102,6 +98,14 @@ namespace ParticlePhysics2D {
 		void setB( Particle2D p )
 		{
 			b = p;
+		}
+		
+		static Color springColor = Color.cyan - new Color (0f,0f,0f,0.2f);
+		public void DebugSpring(Matrix4x4 local2World){
+			Debug.DrawLine(local2World.MultiplyPoint3x4(a.Position),local2World.MultiplyPoint3x4(b.Position),springColor);
+		}
+		public void DebugSpring(){
+			Debug.DrawLine(a.Position,b.Position,springColor);
 		}
 	
 	}

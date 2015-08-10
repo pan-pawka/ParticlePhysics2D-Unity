@@ -3,16 +3,21 @@ using System.Collections;
 
 namespace ParticlePhysics2D {
 
+	[System.Serializable]
 	public class Particle2D  {
 
+		[SerializeField]
 		Vector2 position;
+		
+		[SerializeField]
 		Vector2 positionOld;
+		
 		Vector2 velocity;//used by other integrators other than GPU one
 		Vector2 force;
 		float mass = 1f;
-		float age;
-		bool dead;
-		bool isFixed;
+		
+		[SerializeField]
+		bool isFixed = false;
 	
 		public Particle2D()
 		{
@@ -20,8 +25,6 @@ namespace ParticlePhysics2D {
 			velocity = Vector2.zero;
 			force = Vector2.zero;
 			isFixed = false;
-			age = 0f;
-			dead = false;
 		}
 		
 		public float distanceTo( Particle2D p ){
@@ -42,8 +45,6 @@ namespace ParticlePhysics2D {
 		
 		void reset()
 		{
-			age = 0;
-			dead = false;
 			position = Vector2.zero;
 			velocity = Vector2.zero;
 			force = Vector2.zero;
@@ -64,7 +65,6 @@ namespace ParticlePhysics2D {
 
 		public Vector2 Force {get{return force;}set{force=value;}}
 		
-		public float Age {get{return age;}set {age = value;}}
 		
 	
 	}
