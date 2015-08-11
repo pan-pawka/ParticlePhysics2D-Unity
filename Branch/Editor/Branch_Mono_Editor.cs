@@ -16,15 +16,22 @@ public class Branch_Mono_Editor : Editor {
 	void OnEnable() {
 		temp = target as Branch_Mono;
 		sim = temp.sim;
-		Branch.lengthExit = temp.lengthExit;
-		Branch.angleOffsetMax = temp.angleOffsetMax;
-		Branch.angleOffsetMin = temp.angleOffsetMin;
-		Branch.lengthMax1 = temp.lengthMax1;
-		Branch.lengthMax2 = temp.lengthMax2;
-		Branch.lengthMin1 = temp.lengthMin1;
-		Branch.lengthMin2 = temp.lengthMin2;
-		Branch.lengthBranchAThreshold = temp.lengthBranchAThreshold;
-		Branch.lengthBranchBThreshold = temp.lengthBranchBThreshold;
+		if (sim==null) {
+			Branch.ResetParams(temp.length);
+			temp.ReGenerateBranch();
+		} else {
+			//Branch.lengthExit = temp.lengthExit;
+			Branch.angleOffsetMax = temp.angleOffsetMax;
+			Branch.angleOffsetMin = temp.angleOffsetMin;
+			Branch.lengthMax1 = temp.lengthMax1;
+			Branch.lengthMax2 = temp.lengthMax2;
+			Branch.lengthMin1 = temp.lengthMin1;
+			Branch.lengthMin2 = temp.lengthMin2;
+			Branch.lengthBranchAThreshold = temp.lengthBranchAThreshold;
+			Branch.lengthBranchBThreshold = temp.lengthBranchBThreshold;
+			Branch.lengthExitRatio = temp.lengthExitRatio;
+			Branch.lengthExit = temp.lengthExitRatio * temp.length;
+		}
 		
 		lastPMode = Tools.pivotMode;
 		lastRMode = Tools.pivotRotation;
@@ -41,7 +48,7 @@ public class Branch_Mono_Editor : Editor {
 	}
 	
 	void SaveParams() {
-		temp.lengthExit = Branch.lengthExit;
+		temp.lengthExitRatio = Branch.lengthExitRatio;
 		temp.angleOffsetMax = Branch.angleOffsetMax;
 		temp.angleOffsetMin = Branch.angleOffsetMin;
 		temp.lengthMax1 = Branch.lengthMax1;
@@ -56,12 +63,18 @@ public class Branch_Mono_Editor : Editor {
 	{
 		DrawDefaultInspector();
 		
+		if (sim==null) return;
+		
 		//Branch params
 		EditorGUILayout.LabelField("-----------------------------------------------------------------------------------------------------");
 		
 		//display how many particles are created in the Simulation
 		EditorGUILayout.HelpBox("Particle Count: "+sim.numberOfParticles(),MessageType.None);
 		
+		//display how many strings are created in the Simulation
+		EditorGUILayout.HelpBox("String Count: "+sim.numberOfSprings(),MessageType.None);
+		
+		//rotation
 		EditorGUILayout.BeginHorizontal();
 		bool rotateLeft = GUILayout.RepeatButton("Rotate Left",GUILayout.ExpandWidth(true));
 		if (rotateLeft) {
@@ -74,16 +87,18 @@ public class Branch_Mono_Editor : Editor {
 		EditorGUILayout.EndHorizontal();
 		
 		//exit length: how complex should the branch be
-		Branch.lengthExit = EditorGUILayout.Slider(
+		Branch.lengthExitRatio = EditorGUILayout.Slider(
 			new GUIContent("Length Exit","This generally controls how complex the branch is"),
-			Branch.lengthExit,
-			temp.length *0.01f,
-			temp.length 
+			Branch.lengthExitRatio,
+			0.02f,
+			0.99f 
 		);
+		Branch.lengthExit = temp.length * Branch.lengthExitRatio;
 		
 		//how wide
+		string range = "Angle Offset: " + (Branch.angleOffsetMin * Mathf.Rad2Deg).ToString("F1") + "-" + (Branch.angleOffsetMax * Mathf.Rad2Deg).ToString("F1");
 		EditorGUILayout.MinMaxSlider(
-			new GUIContent("Angle Offset","How much should the children branch be rotated from parent" ),
+			new GUIContent(range,"How much should the children branch be rotated from parent" ),
 			ref Branch.angleOffsetMin,
 			ref Branch.angleOffsetMax,
 			0f,
@@ -107,21 +122,23 @@ public class Branch_Mono_Editor : Editor {
 		);
 		
 		//above threshold
+		string t1 = "Above T. "+Branch.lengthMin1.ToString("F1") + "-" + Branch.lengthMax1.ToString("F1");
 		EditorGUILayout.MinMaxSlider(
-			new GUIContent("L. Factor Above Threshold","When children branch go over threshold, the factor multiplied to parent branch" ),
+			new GUIContent(t1,"When children branch go over threshold, the factor multiplied to parent branch" ),
 			ref Branch.lengthMin1,
 			ref Branch.lengthMax1,
 			0f,
-			1f
+			0.9f
 		);
 		
 		//above threshold
+		t1 = "Beblow T. "+Branch.lengthMin2.ToString("F1") + "-" + Branch.lengthMax2.ToString("F1");
 		EditorGUILayout.MinMaxSlider(
-			new GUIContent("L. Factor Below Threshold","When children branch go below threshold, the factor multiplied to parent branch" ),
+			new GUIContent(t1,"When children branch go below threshold, the factor multiplied to parent branch" ),
 			ref Branch.lengthMin2,
 			ref Branch.lengthMax2,
 			0f,
-			1f
+			0.9f
 		);
 			
 		reGenBranch = GUILayout.Button("Re-Generate Branch",GUILayout.ExpandWidth(true));
@@ -132,7 +149,7 @@ public class Branch_Mono_Editor : Editor {
 		
 		bool resetParam = false;
 		resetParam = GUILayout.Button("Reset Branch Generation Params",GUILayout.ExpandWidth(true));
-		if (resetParam) Branch.ResetParams();
+		if (resetParam) Branch.ResetParams(temp.length);
 		
 		//clear branch
 		bool clearBranch = GUILayout.Button("Clear Branchs",GUILayout.ExpandWidth(true));
@@ -140,6 +157,8 @@ public class Branch_Mono_Editor : Editor {
 			sim.clear();
 			sim.clearForces();
 			temp.branch = null;
+			temp.lineRenderer.Destroy();
+			temp.lineRenderer = null;
 			EditorUtility.SetDirty(temp);
 		}
 		

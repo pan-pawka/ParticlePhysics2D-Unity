@@ -18,10 +18,19 @@ namespace ParticlePhysics2D {
 		List<Vector3> vert;
 		
 		static Material mtl;
-		Material Mtl {
+		static Material Mtl {
 			get {
 				if (mtl==null) mtl = new Material (Shader.Find("ParticlePhysics2D/MeshLineRender"));
 				return mtl;
+			}
+			set {
+				if (value==null) {
+					if (Application.isEditor)
+						UnityEngine.Object.DestroyImmediate(mtl);
+					else UnityEngine.Object.Destroy(mtl);
+				} else {
+					mtl = value;
+				}
 			}
 		}
 		
@@ -47,6 +56,41 @@ namespace ParticlePhysics2D {
 			meshRenderer.SetPropertyBlock(mpb);
 			
 			
+			mesh = CreateMesh();
+		
+			meshFilter = caller.GetComponent<MeshFilter>();
+			if (meshFilter==null)
+				meshFilter = caller.AddComponent<MeshFilter>();
+			meshFilter.mesh = mesh;
+			//meshFilter.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
+			
+		}
+		
+		public void Render(){
+			if (mpb==null) {
+				mpb = new MaterialPropertyBlock ();
+				mpb.AddColor("_Color",color);
+			}
+			
+			if (mesh!=null) {
+				//get all the vertex world pos
+				vert = new List<Vector3> (sim.numberOfParticles());
+				for (int i=0;i<sim.numberOfParticles();i++) {
+					vert.Add(sim.getParticle(i).Position);
+				}
+				mesh.vertices = vert.ToArray();
+				mesh.RecalculateBounds();
+			}
+			
+			
+			
+		}
+		
+		public void SetColor(Color c) {
+			mpb.AddColor("_Color",c);
+		}
+		
+		Mesh CreateMesh () {
 			mesh = new Mesh ();
 			
 			//create vertex
@@ -67,35 +111,30 @@ namespace ParticlePhysics2D {
 			mesh.SetIndices(indices.ToArray(),MeshTopology.Lines,0);
 			mesh.RecalculateBounds();
 			mesh.MarkDynamic();
-		
-			meshFilter = caller.GetComponent<MeshFilter>();
-			if (meshFilter==null)
-				meshFilter = caller.AddComponent<MeshFilter>();
-			meshFilter.mesh = mesh;
-			//meshFilter.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
-			
+			return mesh;
 		}
 		
-		public void Render(){
-			if (mpb==null) {
-				mpb = new MaterialPropertyBlock ();
-				mpb.AddColor("_Color",color);
-			}
-			//Graphics.DrawMesh(mesh,Matrix4x4.identity,mtl,layer,cam,0,mpb,false,false);
-			
-			//get all the vertex world pos
-			vert = new List<Vector3> (sim.numberOfParticles());
-			for (int i=0;i<sim.numberOfParticles();i++) {
-				vert.Add(sim.getParticle(i).Position);
-			}
-			mesh.vertices = vert.ToArray();
-			mesh.RecalculateBounds();
-			
-			
+		public void Destroy() {
+			ObjDestroy(meshRenderer);
+			ObjDestroy(meshFilter);
+			ObjDestroy(mesh);
+			//Mtl = null;
 		}
 		
-		public void SetColor(Color c) {
-			mpb.AddColor("_Color",c);
+		void ObjDestroy(UnityEngine.Object obj) {
+			if (Application.isEditor) {
+				if (obj!=null)  UnityEngine.Object.DestroyImmediate(obj);
+			} else {
+				if (obj!=null) UnityEngine.Object.Destroy(obj);
+			}
+		}
+		
+		public void ResetMesh() {
+			if (mesh!=null) {
+				mesh.Clear();
+				ObjDestroy(mesh);
+			}
+			mesh = CreateMesh();
 		}
 		
 		
