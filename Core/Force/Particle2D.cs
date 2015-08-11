@@ -18,6 +18,13 @@ namespace ParticlePhysics2D {
 		
 		[SerializeField]
 		bool isFixed = false;
+		
+		[SerializeField]
+		bool isLeaf = false;
+		public bool IsLeaf {
+			get {return isLeaf;}
+			set {isLeaf = value;}
+		}
 	
 		public Particle2D()
 		{

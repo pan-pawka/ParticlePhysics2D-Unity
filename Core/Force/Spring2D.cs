@@ -1,4 +1,5 @@
 ﻿/// <summary>
+/////Yves Wang @ FISH, 2015, All rights reserved
 /// Springs connect 2 particles and try to keep them a certain distance apart. They have 3 properties:
 /// Rest Length - the spring wants to be at this length and acts on the particles to push or pull them exactly this far apart at all times.
 ///	Strength - If they are strong they act like a stick. If they are weak they take a long time to return to their rest length. ie Spring Constant
@@ -106,6 +107,8 @@ namespace ParticlePhysics2D {
 		}
 		public void DebugSpring(){
 			Debug.DrawLine(a.Position,b.Position,springColor);
+			if (a.IsLeaf) DebugExtension.DebugCircle(a.Position,Vector3.forward,Color.red,4f);
+			if (b.IsLeaf) DebugExtension.DebugCircle(b.Position,Vector3.forward,Color.red,4f);
 		}
 	
 	}

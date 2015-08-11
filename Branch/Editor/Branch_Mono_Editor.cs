@@ -10,6 +10,8 @@ public class Branch_Mono_Editor : Editor {
 	Branch_Mono temp;
 	
 	bool reGenBranch;
+	PivotMode lastPMode;
+	PivotRotation lastRMode;
 	
 	void OnEnable() {
 		temp = target as Branch_Mono;
@@ -23,9 +25,22 @@ public class Branch_Mono_Editor : Editor {
 		Branch.lengthMin2 = temp.lengthMin2;
 		Branch.lengthBranchAThreshold = temp.lengthBranchAThreshold;
 		Branch.lengthBranchBThreshold = temp.lengthBranchBThreshold;
+		
+		lastPMode = Tools.pivotMode;
+		lastRMode = Tools.pivotRotation;
+		Tools.pivotMode = PivotMode.Pivot;
+		Tools.pivotRotation = PivotRotation.Local;
+		
 	}
 	
 	void OnDisable() {
+		SaveParams();
+		Tools.pivotMode =lastPMode;
+		Tools.pivotRotation = lastRMode;
+		
+	}
+	
+	void SaveParams() {
 		temp.lengthExit = Branch.lengthExit;
 		temp.angleOffsetMax = Branch.angleOffsetMax;
 		temp.angleOffsetMin = Branch.angleOffsetMin;
@@ -35,7 +50,6 @@ public class Branch_Mono_Editor : Editor {
 		temp.lengthMin2 = Branch.lengthMin2;
 		temp.lengthBranchAThreshold = Branch.lengthBranchAThreshold;
 		temp.lengthBranchBThreshold = Branch.lengthBranchBThreshold;
-	
 	}
 
 	public override void OnInspectorGUI ()
@@ -43,7 +57,22 @@ public class Branch_Mono_Editor : Editor {
 		DrawDefaultInspector();
 		
 		//Branch params
-		EditorGUILayout.LabelField("-----------------------------------------------------");
+		EditorGUILayout.LabelField("-----------------------------------------------------------------------------------------------------");
+		
+		//display how many particles are created in the Simulation
+		EditorGUILayout.HelpBox("Particle Count: "+sim.numberOfParticles(),MessageType.None);
+		
+		EditorGUILayout.BeginHorizontal();
+		bool rotateLeft = GUILayout.RepeatButton("Rotate Left",GUILayout.ExpandWidth(true));
+		if (rotateLeft) {
+			temp.gameObject.transform.Rotate(0f,0f,5f,Space.Self); 
+		}
+		bool rotateRight = GUILayout.RepeatButton("Rotate Right",GUILayout.ExpandWidth(true));
+		if (rotateRight) { 
+			temp.gameObject.transform.Rotate(0f,0f,-5f,Space.Self);
+		}
+		EditorGUILayout.EndHorizontal();
+		
 		//exit length: how complex should the branch be
 		Branch.lengthExit = EditorGUILayout.Slider(
 			new GUIContent("Length Exit","This generally controls how complex the branch is"),
@@ -114,15 +143,17 @@ public class Branch_Mono_Editor : Editor {
 			EditorUtility.SetDirty(temp);
 		}
 		
-		EditorGUILayout.HelpBox("Particle Count: "+sim.numberOfParticles(),MessageType.None);
+		
+		
+		SaveParams();
 		
 	}
 	
 	public void OnSceneGUI() {
 		if (sim!=null) {
 			if (temp.debugIndex)
-				//sim.DebugParticle(temp.transform.localToWorldMatrix);
-				sim.DebugParticle();
+				sim.DebugParticle(temp.transform.localToWorldMatrix);
+				//sim.DebugParticle();
 		}
 	}
 }

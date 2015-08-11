@@ -10,7 +10,7 @@ public class Branch {
     float xPos;
 	float yPos;
 	float angle;
-	float length;
+	public float length;
    
     public Branch branchA;
     public Branch branchB;
@@ -39,10 +39,22 @@ public class Branch {
 			return new Vector2 (xPos,yPos);
 		}
 	}
+	
+	public float GetChildrenBranchPosX {
+		get {
+			return xPos + Mathf.Sin(angle) * length;
+		}
+	}
+	
+	public float GetChildrenBranchPosY {
+		get {
+			return yPos + Mathf.Cos(angle) * length;
+		}
+	}
      
     // Constructor 
     public Branch (Branch parent, float x, float y, float angleOffset, float length) {
-		branchesCount++;
+		Branch.branchesCount++;
         this.parent = parent;
         this.xPos = x;
         this.yPos = y;
@@ -52,9 +64,12 @@ public class Branch {
             angle = angleOffset;
         }
         this.length = length;
-        float xB = xPos + Mathf.Sin(angle) * length;
-        float yB = yPos + Mathf.Cos(angle) * length;
+		float xB = GetChildrenBranchPosX;
+		float yB = GetChildrenBranchPosY;
+        
+        //if this brancn has children branch
 		if(length > lengthExit) {
+			
 			if (length+Random.value * length  > lengthBranchAThreshold)
 				branchA = new Branch(this, xB, yB, Random.Range(-angleOffsetMin,-angleOffsetMax) + ((angle % TWO_PI) > Mathf.PI ? -1f/length : +1f/length), length* Random.Range(lengthMin1,lengthMax1));
 			else
@@ -65,12 +80,15 @@ public class Branch {
 			else 
 				branchB = new Branch(this, xB, yB, Random.Range(angleOffsetMin,angleOffsetMax) + ((angle % TWO_PI) > Mathf.PI ? -1f/length : +1f/length), length * Random.Range(lengthMin2,lengthMax2));
         }
+        //if this is a leaf branch
+        else {
+        
+        }
         minX = Mathf.Min(xB, minX);
         maxX = Mathf.Max(xB, maxX);
 		minY = Mathf.Min(yB, minY);
         maxY = Mathf.Max(yB, maxY);
     }
-     
      
     // Set scale 
     void setScale(float scale) {
@@ -99,6 +117,7 @@ public class Branch {
 		if (debugOn) DebugExtension.DebugPoint(thisPos,pointColor);
 		
     	//if it's not a leaf branch
+    	/*
         if(branchA != null) {
 			Vector2 posA = (localToWorld==default(Matrix4x4)) ? branchA.Position : (Vector2)localToWorld.MultiplyPoint3x4(branchA.Position);
         	if (debugOn) {
@@ -124,6 +143,28 @@ public class Branch {
         {
 			//draw leaf here
 			if (debugOn) DebugExtension.DebugCircle(thisPos,Vector3.forward,Color.magenta,2f);
+        }
+        */
+        
+        //if it's not a leaf branch
+        if (branchA!=null || branchB!=null) {
+        	Vector2 pos = (branchA==null) ? branchB.Position : branchA.Position;
+        	pos = (localToWorld==default(Matrix4x4)) ? pos : (Vector2)localToWorld.MultiplyPoint3x4(pos);
+        	if (debugOn) {
+        		Debug.DrawLine(thisPos,pos,branchColor);
+        	}
+        	if (branchA!=null) branchA.DebugRender(localToWorld);
+        	if (branchB!=null) branchB.DebugRender(localToWorld);
+        } 
+        //if it's a leaf branch
+        else {
+        	Vector2 pos = new Vector2 (GetChildrenBranchPosX,GetChildrenBranchPosY);
+			pos = (localToWorld==default(Matrix4x4)) ? pos : (Vector2)localToWorld.MultiplyPoint3x4(pos);
+			if (debugOn) {
+				Debug.DrawLine(thisPos,pos,branchColor);
+				DebugExtension.DebugCircle(pos,Vector3.forward,Color.magenta,2f);
+			}
+        
         }
     }
     

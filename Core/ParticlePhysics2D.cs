@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿//Yves Wang @ FISH, 2015, All rights reserved
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -37,7 +38,7 @@ namespace ParticlePhysics2D {
 		public float damping = 0.99f;//used by verlet
 		
 		
-		bool hasDeadParticles = false;
+		//bool hasDeadParticles = false;
 		
 		public void setIntegrator()
 		{
@@ -142,6 +143,26 @@ namespace ParticlePhysics2D {
 		public Particle2D getParticle( int i )
 		{
 			return particles[i];
+		}
+		
+		public int getParticleIndex(Particle2D p) {
+			for (int i=0;i<numberOfParticles();i++) {
+				if (particles[i] == p) {
+					//Debug.Log("YYY");
+					return i;
+				}
+			}
+			Debug.LogError("Cannot find particle for index");
+			return -1;
+			
+		}
+		
+		public Vector2 getParticlesCenter(){
+			Vector2 c = Vector2.zero;
+			for (int i=0;i<numberOfParticles();i++) {
+				c += getParticle(i).Position;
+			}
+			return c/numberOfParticles();
 		}
 		
 		public void removeParticle( Particle2D p )
