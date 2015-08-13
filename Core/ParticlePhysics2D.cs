@@ -9,7 +9,7 @@ namespace ParticlePhysics2D {
 
 	public enum IntegrationMedthod {RUNGE_KUTTA, MODIFIED_EULER, VERLET, GPUVERLET}
 
-	[System.Serializable]
+	[System.Serializable()]
 	public class Simulation  : ISerializationCallbackReceiver {
 
 		protected static float DEFAULT_GRAVITY = 0f;

@@ -77,7 +77,7 @@ public class Branch_Mono_Editor : Editor {
 		EditorGUILayout.HelpBox("Leaf Count: "+temp.leafCount,MessageType.None);
 		
 		//display how many strings are created in the Simulation
-		EditorGUILayout.HelpBox("String Count: "+sim.numberOfSprings(),MessageType.None);
+		EditorGUILayout.HelpBox("Spring Count: "+sim.numberOfSprings(),MessageType.None);
 		
 		//rotation
 		EditorGUILayout.BeginHorizontal();
@@ -162,6 +162,7 @@ public class Branch_Mono_Editor : Editor {
 			sim.clear();
 			sim.clearForces();
 			temp.branch = null;
+			temp.leafCount = 0;
 //			temp.lineRenderer.Destroy();
 //			temp.lineRenderer = null;
 			EditorUtility.SetDirty(temp);

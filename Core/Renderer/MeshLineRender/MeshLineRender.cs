@@ -63,6 +63,8 @@ namespace ParticlePhysics2D {
 			if (mesh!=null) {
 				//if the sim changes data topology
 				if (this.particleNumCache!=sim.numberOfParticles() || this.stringNumCache != sim.numberOfSprings()) {
+					//Debug.Log(this.particleNumCache);
+					//Debug.Log(sim.numberOfParticles());
 					mesh.Clear();
 					CreateMesh();
 					this.particleNumCache=sim.numberOfParticles();
@@ -72,6 +74,10 @@ namespace ParticlePhysics2D {
 					if (v!=null) {
 						mesh.vertices = v;
 						mesh.RecalculateBounds();
+					}
+					//
+					else {
+					
 					}
 				}
 				

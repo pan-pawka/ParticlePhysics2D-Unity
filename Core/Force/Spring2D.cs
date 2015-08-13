@@ -20,6 +20,11 @@ namespace ParticlePhysics2D {
 		[SerializeField] Particle2D b;
 		[SerializeField] bool on;
 		
+		Simulation sim;
+		public void SetSimulation(Simulation sim) {
+			this.sim = sim;
+		}
+		
 		public Spring2D( Particle2D A, Particle2D B, float springConstant, float restLength )
 		{
 			this.springConstant = springConstant;
