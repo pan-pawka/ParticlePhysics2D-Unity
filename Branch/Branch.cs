@@ -23,6 +23,8 @@ namespace ParticlePhysics2D {
 		float minY = float.PositiveInfinity;
 		float maxY = float.NegativeInfinity;
 		
+		int depth;
+		
 		public static bool debugOn = true;
 		public static Color pointColor = Color.green;
 		public static Color branchColor = Color.yellow;
@@ -32,10 +34,9 @@ namespace ParticlePhysics2D {
 		public static float lengthMin1 = 0.6f,lengthMax1 = 0.9f;
 		public static float lengthMin2 = 0.1f,lengthMax2 = 0.5f;
 		
-		public static float lengthExit = 10f,lengthBranchAThreshold = 3f,lengthBranchBThreshold = 3f;
-		public static float lengthExitRatio = 0.15f;
-		
-		const int maxBranchNum = 10000;
+		public static float lengthBranchAThreshold = 3f,lengthBranchBThreshold = 3f;
+		public static int maxDepth = 9;
+		public const int maxDepthLimit = 12;
 		
 		public Vector2 Position {
 			get {
@@ -56,8 +57,9 @@ namespace ParticlePhysics2D {
 		}
 		
 		// Constructor 
-		public Branch (Branch parent, float x, float y, float angleOffset, float length) {
+		public Branch (Branch parent, float x, float y, float angleOffset, float length, int depth) {
 			Branch.branchesCount++;//need to set to 0 outside the Ctor
+			this.depth = depth + 1;
 			this.parent = parent;
 			this.xPos = x;
 			this.yPos = y;
@@ -71,18 +73,23 @@ namespace ParticlePhysics2D {
 			float yB = GetChildrenBranchPosY;
 			
 			//if this brancn has children branch,
-			//limit it to maxBranchNum to prevent overshot
-			if(length > lengthExit && Branch.branchesCount <= maxBranchNum) {
+			//if(length > lengthExit ) {
+			if(this.depth <= Branch.maxDepth ) {
+//				//limit it to maxBranchNum to prevent overshot
+//				if (Branch.branchesCount > maxBranchNum) {
+//					Debug.LogError("Maximum branch num reached : "+maxBranchNum);
+//					return;
+//				}
 				
-				if (length+Random.value * length  > lengthBranchAThreshold)
-					branchA = new Branch(this, xB, yB, Random.Range(-angleOffsetMax,-angleOffsetMin) + ((angle % TWO_PI) < Mathf.PI ? -1f/length : +1f/length), length* Random.Range(lengthMin1,lengthMax1));
+				if (length * Random.Range(1f,10f)  > lengthBranchAThreshold)
+					branchA = new Branch(this, xB, yB,  AngleOffsetA, length* Random.Range(lengthMin1,lengthMax1),this.depth);
 				else
-					branchA = new Branch(this, xB, yB, Random.Range(-angleOffsetMax,-angleOffsetMin) + ((angle % TWO_PI) < Mathf.PI ? -1f/length : +1f/length), length* Random.Range(lengthMin2,lengthMax2));
+					branchA = new Branch(this, xB, yB,   AngleOffsetB, length* Random.Range(lengthMin2,lengthMax2),this.depth);
 				
-				if (length+Random.value * length  > lengthBranchBThreshold)
-					branchB = new Branch(this, xB, yB, Random.Range(angleOffsetMin,angleOffsetMax) + ((angle % TWO_PI) > Mathf.PI ? -1f/length : +1f/length), length * Random.Range(lengthMin1,lengthMax1));
+				if (length * Random.Range(1f,10f)  > lengthBranchBThreshold)
+					branchB = new Branch(this, xB, yB,  AngleOffsetB, length * Random.Range(lengthMin1,lengthMax1),this.depth);
 				else 
-					branchB = new Branch(this, xB, yB, Random.Range(angleOffsetMin,angleOffsetMax) + ((angle % TWO_PI) > Mathf.PI ? -1f/length : +1f/length), length * Random.Range(lengthMin2,lengthMax2));
+					branchB = new Branch(this, xB, yB,  AngleOffsetB, length * Random.Range(lengthMin2,lengthMax2),this.depth);
 			}
 			//if this is a leaf branch
 			else {
@@ -92,6 +99,28 @@ namespace ParticlePhysics2D {
 			maxX = Mathf.Max(xB, maxX);
 			minY = Mathf.Min(yB, minY);
 			maxY = Mathf.Max(yB, maxY);
+		}
+		
+		float AngleOffsetA {
+			get {
+				//return 0f;
+				return Random.Range(-angleOffsetMax,-angleOffsetMin) + ((angle % TWO_PI) < Mathf.PI ? -1f/length : +1f/length) ;//angle is always negative
+			}
+		}
+		
+		float AngleOffsetB {
+			get {
+				//return 0f;
+				return Random.Range(angleOffsetMin,angleOffsetMax) + ((angle % TWO_PI) > Mathf.PI ? -1f/length : +1f/length) ;//angle is always positive
+			}
+		}
+		
+		float LengthNoise ( float f) {
+			return Mathf.PerlinNoise(0f,length * f);
+		}
+		
+		float PositionNoise(float f) {
+			return Mathf.PerlinNoise(xPos*f,yPos*f);
 		}
 		
 		// Set scale 
@@ -108,8 +137,9 @@ namespace ParticlePhysics2D {
 			lengthMin2 = 0.1f; lengthMax2 = 0.5f;
 			
 			lengthBranchAThreshold = lengthBranchBThreshold = 3f;
-			lengthExitRatio = 0.15f;
-			lengthExit = lengthExitRatio * length;
+			//lengthExitRatio = 0.15f;
+			//lengthExit = lengthExitRatio * length;
+			maxDepth = 9;
 		}
 		
 		// Render 
@@ -120,7 +150,7 @@ namespace ParticlePhysics2D {
 				thisPos = localToWorld.MultiplyPoint3x4(this.Position);
 			else thisPos = this.Position;
 			
-			if (debugOn) DebugExtension.DebugPoint(thisPos,pointColor);
+			//if (debugOn) DebugExtension.DebugPoint(thisPos,pointColor);
 			
 			
 			//if it's not a leaf branch

@@ -31,6 +31,8 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	[HideInInspector] public float angleOffsetMin,angleOffsetMax;
 	[HideInInspector] public float lengthMin1,lengthMax1,lengthMin2,lengthMax2;
 	[HideInInspector] public float lengthBranchAThreshold,lengthBranchBThreshold;
+	[HideInInspector] public int maxDepth;
+	[HideInInspector] public int leafCount;
 	
 	void Start() {
 		
@@ -63,6 +65,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 			float yB = b.GetChildrenBranchPosY;
 			Particle2D temp = s.makeParticle(new Vector2(xB,yB));//temp is where the leaf is
 			temp.IsLeaf = true;
+			leafCount++;
 			s.makeSpring(p,temp,ks);
 		}
 		
@@ -73,12 +76,13 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		//Debug.Log(System.DateTime.Now);
 		Branch.branchesCount = 0;
 		//branch = new Branch (null,transform.position.x,transform.position.y,angle * Mathf.Deg2Rad,length);
-		branch = new Branch (null,0f,0f,0f,length);//grow tree in local co-ord
-		//Debug.Log("Branches : " + Branch.branchesCount);
+		branch = new Branch (null,0f,0f,0f,length,0);//grow tree in local co-ord
+		Debug.Log("Branches : " + Branch.branchesCount);
 		if (sim==null)
 			sim = new Simulation (IntegrationMedthod.VERLET);
 		sim.setGravity(0f,0f);
 		sim.clear();
+		leafCount = 0;
 		Particle2D start = sim.makeParticle (branch.Position);
 		CopyBranchTopology(start,branch,ref sim);
 		if (Application.isEditor) OnDrawGizmos();

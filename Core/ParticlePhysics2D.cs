@@ -15,14 +15,11 @@ namespace ParticlePhysics2D {
 		protected static float DEFAULT_GRAVITY = 0f;
 		protected static float DEFAULT_DRAG = 0.001f;
 		
-		[SerializeField]
-		List <Particle2D> particles;
+		[HideInInspector] [SerializeField] List <Particle2D> particles;
 		
-		[SerializeField]
-		List <Spring2D> springs;
+		[HideInInspector] [SerializeField] List <Spring2D> springs;
 		
-		[SerializeField]
-		List<AngleConstraint2D> angles;
+		[HideInInspector] [SerializeField] List<AngleConstraint2D> angles;
 		
 		public IIntegrator integrator;
 		

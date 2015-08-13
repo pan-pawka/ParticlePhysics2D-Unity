@@ -29,8 +29,9 @@ public class Branch_Mono_Editor : Editor {
 			Branch.lengthMin2 = temp.lengthMin2;
 			Branch.lengthBranchAThreshold = temp.lengthBranchAThreshold;
 			Branch.lengthBranchBThreshold = temp.lengthBranchBThreshold;
-			Branch.lengthExitRatio = temp.lengthExitRatio;
-			Branch.lengthExit = temp.lengthExitRatio * temp.length;
+			//Branch.lengthExitRatio = temp.lengthExitRatio;
+			//Branch.lengthExit = temp.lengthExitRatio * temp.length;
+			Branch.maxDepth = temp.maxDepth;
 		}
 		
 		lastPMode = Tools.pivotMode;
@@ -48,7 +49,7 @@ public class Branch_Mono_Editor : Editor {
 	}
 	
 	void SaveParams() {
-		temp.lengthExitRatio = Branch.lengthExitRatio;
+		temp.maxDepth = Branch.maxDepth;
 		temp.angleOffsetMax = Branch.angleOffsetMax;
 		temp.angleOffsetMin = Branch.angleOffsetMin;
 		temp.lengthMax1 = Branch.lengthMax1;
@@ -71,6 +72,9 @@ public class Branch_Mono_Editor : Editor {
 		//display how many particles are created in the Simulation
 		EditorGUILayout.HelpBox("Particle Count: "+sim.numberOfParticles(),MessageType.None);
 		
+		//display how many leaf
+		EditorGUILayout.HelpBox("Leaf Count: "+temp.leafCount,MessageType.None);
+		
 		//display how many strings are created in the Simulation
 		EditorGUILayout.HelpBox("String Count: "+sim.numberOfSprings(),MessageType.None);
 		
@@ -87,13 +91,13 @@ public class Branch_Mono_Editor : Editor {
 		EditorGUILayout.EndHorizontal();
 		
 		//exit length: how complex should the branch be
-		Branch.lengthExitRatio = EditorGUILayout.Slider(
-			new GUIContent("Length Exit","This generally controls how complex the branch is"),
-			Branch.lengthExitRatio,
-			0.02f,
-			0.99f 
+		Branch.maxDepth = EditorGUILayout.IntSlider(
+			new GUIContent("Max Depth","This generally controls how complex the branch is"),
+			Branch.maxDepth,
+			3,
+			Branch.maxDepthLimit 
 		);
-		Branch.lengthExit = temp.length * Branch.lengthExitRatio;
+		
 		
 		//how wide
 		string range = "Angle Offset: " + (Branch.angleOffsetMin * Mathf.Rad2Deg).ToString("F1") + "-" + (Branch.angleOffsetMax * Mathf.Rad2Deg).ToString("F1");
