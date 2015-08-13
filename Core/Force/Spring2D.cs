@@ -103,12 +103,16 @@ namespace ParticlePhysics2D {
 		
 		static Color springColor = Color.cyan - new Color (0f,0f,0f,0.2f);
 		public void DebugSpring(Matrix4x4 local2World){
-			Debug.DrawLine(local2World.MultiplyPoint3x4(a.Position),local2World.MultiplyPoint3x4(b.Position),springColor);
+			Vector2 aPos = local2World.MultiplyPoint3x4(a.Position);
+			Vector2 bPos = local2World.MultiplyPoint3x4(b.Position);
+			Debug.DrawLine(aPos,bPos,springColor);
+			//if (a.IsLeaf) DebugExtension.DebugCircle(aPos,Vector3.forward,Color.red,0.1f);
+			//if (b.IsLeaf) DebugExtension.DebugCircle(bPos,Vector3.forward,Color.red,0.1f);
 		}
 		public void DebugSpring(){
 			Debug.DrawLine(a.Position,b.Position,springColor);
-			if (a.IsLeaf) DebugExtension.DebugCircle(a.Position,Vector3.forward,Color.red,4f);
-			if (b.IsLeaf) DebugExtension.DebugCircle(b.Position,Vector3.forward,Color.red,4f);
+			if (a.IsLeaf) DebugExtension.DebugCircle(a.Position,Vector3.forward,Color.red,1f);
+			if (b.IsLeaf) DebugExtension.DebugCircle(b.Position,Vector3.forward,Color.red,1f);
 		}
 	
 	}

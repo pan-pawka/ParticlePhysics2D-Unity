@@ -15,7 +15,7 @@ public class Branch_Mono_Editor : Editor {
 	
 	void OnEnable() {
 		temp = target as Branch_Mono;
-		sim = temp.sim;
+		sim = temp.GetSimulation;
 		if (sim==null) {
 			Branch.ResetParams(temp.length);
 			temp.ReGenerateBranch();
@@ -157,8 +157,8 @@ public class Branch_Mono_Editor : Editor {
 			sim.clear();
 			sim.clearForces();
 			temp.branch = null;
-			temp.lineRenderer.Destroy();
-			temp.lineRenderer = null;
+//			temp.lineRenderer.Destroy();
+//			temp.lineRenderer = null;
 			EditorUtility.SetDirty(temp);
 		}
 		

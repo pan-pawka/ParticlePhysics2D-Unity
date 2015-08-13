@@ -25,13 +25,14 @@ namespace ParticlePhysics2D {
 			get {return isLeaf;}
 			set {isLeaf = value;}
 		}
+		
 	
 		public Particle2D()
 		{
-			position = Vector2.zero;
-			velocity = Vector2.zero;
-			force = Vector2.zero;
-			isFixed = false;
+			this.position = Vector2.zero;
+			this.velocity = Vector2.zero;
+			this.force = Vector2.zero;
+			this.isFixed = false;
 		}
 		
 		public float distanceTo( Particle2D p ){

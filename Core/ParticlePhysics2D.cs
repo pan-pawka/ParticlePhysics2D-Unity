@@ -95,6 +95,33 @@ namespace ParticlePhysics2D {
 			angles.Clear();
 		}
 		
+		#region Mesh Helper
+		
+		public int[] getIndices(){
+			if (particles.Count<2 || springs.Count<1) return null;
+			else {
+				List<int> indices = new List<int> ((particles.Count-1)*particles.Count);//for a sim with n particles, maximum （n-1)*n/2  edges,indices double
+				for (int i=0;i<springs.Count;i++) {
+					indices.Add(particles.IndexOf(springs[i].ParticleA));
+					indices.Add(particles.IndexOf(springs[i].ParticleB));
+				}
+				return indices.ToArray();
+			}
+		}
+		
+		public Vector3[] getVertices(){
+			if (particles.Count<2) {
+				return null;
+			} else {
+				Vector3[] vertices = new Vector3[particles.Count] ;
+				for (int i=0;i<particles.Count;i++) {
+					vertices[i] = particles[i].Position;
+				}
+				return vertices;
+			}
+		}
+		#endregion
+		
 		#region Tick
 		
 		/// <summary>
@@ -152,7 +179,7 @@ namespace ParticlePhysics2D {
 					return i;
 				}
 			}
-			Debug.LogError("Cannot find particle for index");
+			//Debug.LogError("Cannot find particle for index");
 			return -1;
 			
 		}

@@ -8,13 +8,16 @@ using System.Collections;
 using ParticlePhysics2D;
 
 [ExecuteInEditMode]
-public class Branch_Mono : MonoBehaviour {
+public class Branch_Mono : MonoBehaviour, IFormLayer {
 
 	[HideInInspector]
 	public Branch branch;
 	
-	[HideInInspector]
-	public Simulation sim;
+	[SerializeField]
+	Simulation sim;
+	public Simulation GetSimulation {
+		get {return sim;} 
+	}
 	
 	public float ks = 0.5f;
 	
@@ -22,9 +25,6 @@ public class Branch_Mono : MonoBehaviour {
 	public float length = 20f;
 	
 	public bool debugBranch = false,debugParticlePhysics = false,debugIndex = false;
-	
-	//[HideInInspector]
-	public MeshLineRender lineRenderer;
 	
 	//branch generation params
 	[HideInInspector] public float lengthExitRatio;
@@ -38,7 +38,7 @@ public class Branch_Mono : MonoBehaviour {
 	
 	void Update () {
 		
-		if (lineRenderer!=null) lineRenderer.Render();
+		//if (lineRenderer!=null) lineRenderer.Render();
 	}
 	
 	void LateUpdate(){
@@ -81,10 +81,6 @@ public class Branch_Mono : MonoBehaviour {
 		sim.clear();
 		Particle2D start = sim.makeParticle (branch.Position);
 		CopyBranchTopology(start,branch,ref sim);
-		
-		//create a line render
-		if (lineRenderer!=null) lineRenderer.ResetMesh();//if we already have a linerender, we need to reset the mesh data
-		lineRenderer = new MeshLineRender (this.sim,this.gameObject);
 		if (Application.isEditor) OnDrawGizmos();
 	}
 	
@@ -101,10 +97,7 @@ public class Branch_Mono : MonoBehaviour {
 	}
 	
 	void OnDestroy(){
-		if (lineRenderer!=null && this.gameObject!=null) { 
-			lineRenderer.Destroy();
-			lineRenderer = null;
-		}
+
 	}
 	
 	
