@@ -145,18 +145,21 @@ public class Branch_Mono_Editor : Editor {
 			0f,
 			0.9f
 		);
-			
+		
+		GUI.backgroundColor = Color.green * 0.8f;
 		reGenBranch = GUILayout.Button("Re-Generate Branch",GUILayout.ExpandWidth(true));
 		if (reGenBranch) {
 			temp.ReGenerateBranch();
 			EditorUtility.SetDirty(temp);
 		}
 		
+		GUI.backgroundColor = Color.cyan * 0.8f;
 		bool resetParam = false;
 		resetParam = GUILayout.Button("Reset Branch Generation Params",GUILayout.ExpandWidth(true));
 		if (resetParam) Branch.ResetParams(temp.length);
 		
 		//clear branch
+		GUI.backgroundColor = Color.red * 0.8f;
 		bool clearBranch = GUILayout.Button("Clear Branchs",GUILayout.ExpandWidth(true));
 		if (clearBranch) {
 			sim.clear();

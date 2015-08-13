@@ -13,18 +13,16 @@ namespace ParticlePhysics2D {
 		
 		#region Fields and Properties
 		Simulation sim;
-		[SerializeField] Mesh mesh;
+		[HideInInspector] [SerializeField] Mesh mesh;
 		[HideInInspector] [SerializeField] MeshRenderer meshRenderer;
 		[HideInInspector] [SerializeField] MeshFilter meshFilter;
-		[SerializeField] int particleNumCache;
+		[HideInInspector] [SerializeField] int particleNumCache;
 		[HideInInspector] [SerializeField] int stringNumCache;
+		[HideInInspector] [SerializeField] Color colorCache = Color.white;
 		
-		[HideInInspector] [SerializeField] Color colorCache;
 		public Color color = Color.white;
 		
-		
 		MaterialPropertyBlock mpb;
-		
 		
 		static Material mtl;
 		static Material Mtl {
@@ -52,13 +50,15 @@ namespace ParticlePhysics2D {
 		
 		void Start () {
 			this.sim = this.GetComponent<IFormLayer>().GetSimulation;
+			mpb = new MaterialPropertyBlock ();
+			SetColor(color);
 		}
 		
 		public void LateUpdate(){
-			if (mpb==null) {
-				mpb = new MaterialPropertyBlock ();
-				mpb.AddColor("_Color",color);
-			}
+//			if (mpb==null) {
+//				mpb = new MaterialPropertyBlock ();
+//				mpb.AddColor("_Color",color);
+//			}
 			
 			if (mesh!=null) {
 				//if the sim changes data topology
@@ -106,7 +106,7 @@ namespace ParticlePhysics2D {
 			meshRenderer.useLightProbes = false;
 			meshRenderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
 			meshRenderer.sharedMaterial = Mtl;
-			meshRenderer.hideFlags = HideFlags.NotEditable;
+			meshRenderer.hideFlags =  HideFlags.HideInInspector;
 			
 			mpb = new MaterialPropertyBlock ();
 			meshRenderer.GetPropertyBlock(mpb);
@@ -125,14 +125,14 @@ namespace ParticlePhysics2D {
 			if (meshFilter==null)
 				meshFilter = this.gameObject.AddComponent<MeshFilter>();
 			meshFilter.mesh = mesh;
-			meshFilter.hideFlags = HideFlags.NotEditable;
+			meshFilter.hideFlags =  HideFlags.HideInInspector;
 			
 		}
 		
 		
 		
 		public void SetColor(Color c) {
-			if (mpb==null) mpb = new MaterialPropertyBlock ();
+			//if (mpb==null) mpb = new MaterialPropertyBlock ();
 			if (meshRenderer) {
 				meshRenderer.GetPropertyBlock(mpb);
 				mpb.AddColor("_Color",c);

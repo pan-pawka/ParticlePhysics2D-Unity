@@ -25,10 +25,9 @@ namespace ParticlePhysics2D {
 		[NonSerialized] Particle2D a;
 		[NonSerialized] Particle2D b;
 		
-		[NonSerialized] Simulation sim;
 		// you need to SetSimulation in Simualtion class's OnAfterDeserialize() callback
-		public void SetSimulation(Simulation sim) {
-			this.sim = sim;
+		public void SetParticles(Simulation sim) {
+			//this.sim = sim;
 			a = sim.getParticle(indexA);
 			b = sim.getParticle(indexB);
 		}
@@ -37,7 +36,7 @@ namespace ParticlePhysics2D {
 		{
 			this.indexA = indexA;
 			this.indexB = indexB;
-			SetSimulation(sim);
+			SetParticles(sim);
 			this.springConstant = springConstant;
 			this.restLength2 = restLength * restLength;
 			on = true;

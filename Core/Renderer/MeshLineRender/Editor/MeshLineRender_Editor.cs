@@ -17,18 +17,21 @@ public class MeshLineRender_Editor :  Editor {
 	}
 	
 	public override void OnInspectorGUI (){
-		DrawDefaultInspector();
+		//DrawDefaultInspector();
 		EditorGUILayout.Space();
-		Color c = GUI.color;
+		Color cl = lr.color;
+		lr.color = EditorGUILayout.ColorField("Line Color",lr.color,GUILayout.ExpandWidth(true));
+		if (cl != lr.color) EditorUtility.SetDirty(lr);
+		EditorGUILayout.Space();
+		
 		GUI.backgroundColor = Color.red;
 		bool remove = GUILayout.Button(new GUIContent("Remove this renderer and its resources"),GUILayout.ExpandWidth(true));
-		if (remove) {
-			MeshLineRender lr = target as MeshLineRender;
+		if (remove && lr!=null) {
 			DestroyImmediate(lr);
 			lr.RemoveResources();
 			
 		}	
-		GUI.backgroundColor = c;
+		
 	}
 	
 }

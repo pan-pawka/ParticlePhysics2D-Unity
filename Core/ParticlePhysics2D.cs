@@ -7,7 +7,10 @@ using UnityEditor;
 
 namespace ParticlePhysics2D {
 
-	public enum IntegrationMedthod {RUNGE_KUTTA, MODIFIED_EULER, VERLET, GPUVERLET}
+	//public enum IntegrationMedthod {RUNGE_KUTTA, MODIFIED_EULER, VERLET, GPUVERLET}
+	//RUNGE_KUTTA and MODIFIED_EULER intergrator support are dropped, but the relevant script are maintained
+	//you can enable it by replacing the line below with the commented-out line above
+	public enum IntegrationMedthod {VERLET, GPUVERLET}
 
 	[System.Serializable]
 	public class Simulation  : ISerializationCallbackReceiver {
@@ -41,12 +44,12 @@ namespace ParticlePhysics2D {
 		{
 			switch ( integrationMedthod )
 			{
-			case IntegrationMedthod.RUNGE_KUTTA:
-				this.integrator = new RungeKuttaIntegrator( this ) as IIntegrator;
-				break;
-			case IntegrationMedthod.MODIFIED_EULER:
-				this.integrator = new ModifiedEulerIntegrator( this ) as IIntegrator;
-				break;
+//			case IntegrationMedthod.RUNGE_KUTTA:
+//				this.integrator = new RungeKuttaIntegrator( this ) as IIntegrator;
+//				break;
+//			case IntegrationMedthod.MODIFIED_EULER:
+//				this.integrator = new ModifiedEulerIntegrator( this ) as IIntegrator;
+//				break;
 			case IntegrationMedthod.VERLET:
 				this.integrator = new VerletIntegrator( this ) as IIntegrator;
 				break;
@@ -96,7 +99,7 @@ namespace ParticlePhysics2D {
 		public void OnBeforeSerialize()  {}
 		public void OnAfterDeserialize() {
 			for (int i=0;i<springs.Count;i++) {
-				springs[i].SetSimulation(this);
+				springs[i].SetParticles(this);
 			}
 		}
 		#endregion
