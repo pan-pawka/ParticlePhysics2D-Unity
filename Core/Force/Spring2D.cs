@@ -8,6 +8,7 @@
 
 using UnityEngine;
 using System.Collections;
+using System;
 
 namespace ParticlePhysics2D {
 	
@@ -16,22 +17,36 @@ namespace ParticlePhysics2D {
 		
 		[SerializeField] float springConstant;
 		[SerializeField] float restLength2;
-		[SerializeField] Particle2D a;
-		[SerializeField] Particle2D b;
+		
+		[SerializeField] int indexA;
+		[SerializeField] int indexB;
 		[SerializeField] bool on;
 		
-		Simulation sim;
+		[NonSerialized] Particle2D a;
+		[NonSerialized] Particle2D b;
+		
+		[NonSerialized] Simulation sim;
+		// you need to SetSimulation in Simualtion class's OnAfterDeserialize() callback
 		public void SetSimulation(Simulation sim) {
 			this.sim = sim;
+			a = sim.getParticle(indexA);
+			b = sim.getParticle(indexB);
 		}
 		
-		public Spring2D( Particle2D A, Particle2D B, float springConstant, float restLength )
+		public Spring2D( Simulation sim, int indexA, int indexB, float springConstant, float restLength )
 		{
+			this.indexA = indexA;
+			this.indexB = indexB;
+			SetSimulation(sim);
 			this.springConstant = springConstant;
 			this.restLength2 = restLength * restLength;
-			a = A;
-			b = B;
 			on = true;
+		}
+		
+		public Spring2D (Simulation sim, Particle2D a, Particle2D b, float springConstant, float restLength ) : 
+			this (sim,sim.getParticleIndex(a),sim.getParticleIndex(b),springConstant,restLength )
+		{
+			
 		}
 		
 		public void turnOff()
@@ -67,6 +82,7 @@ namespace ParticlePhysics2D {
 		public float currentLength()
 		{
 			return (a.Position-b.Position).magnitude;
+			//return (sim.getParticlePosition(indexA) - sim.getParticlePosition(indexB)).magnitude;
 		}
 		
 		public float strength()
@@ -94,16 +110,6 @@ namespace ParticlePhysics2D {
 				if (a.IsFree) a.Force -= delta * springConstant;
 				if (a.IsFree) b.Force += delta * springConstant;
 			}
-		}
-		
-		void setA( Particle2D p )
-		{
-			a = p;
-		}
-		
-		void setB( Particle2D p )
-		{
-			b = p;
 		}
 		
 		static Color springColor = Color.cyan - new Color (0f,0f,0f,0.2f);

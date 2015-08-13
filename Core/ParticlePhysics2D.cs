@@ -9,7 +9,7 @@ namespace ParticlePhysics2D {
 
 	public enum IntegrationMedthod {RUNGE_KUTTA, MODIFIED_EULER, VERLET, GPUVERLET}
 
-	[System.Serializable()]
+	[System.Serializable]
 	public class Simulation  : ISerializationCallbackReceiver {
 
 		protected static float DEFAULT_GRAVITY = 0f;
@@ -96,8 +96,7 @@ namespace ParticlePhysics2D {
 		public void OnBeforeSerialize()  {}
 		public void OnAfterDeserialize() {
 			for (int i=0;i<springs.Count;i++) {
-				springs[i].ParticleA = getParticleByPosition(springs[i].ParticleA.Position);
-				springs[i].ParticleB = getParticleByPosition(springs[i].ParticleB.Position);
+				springs[i].SetSimulation(this);
 			}
 		}
 		#endregion
@@ -199,6 +198,12 @@ namespace ParticlePhysics2D {
 			return null;
 		}
 		
+		public Vector2 getParticlePosition(int index) {
+			if (index>=0 && index <particles.Count) {
+				return particles[index].Position;
+			} else return Vector2.zero;
+		}
+		
 		public Vector2 getParticlesCenter(){
 			Vector2 c = Vector2.zero;
 			for (int i=0;i<numberOfParticles();i++) {
@@ -232,7 +237,7 @@ namespace ParticlePhysics2D {
 		public Spring2D makeSpring( Particle2D a, Particle2D b, float ks)
 		{
 			float r = Vector2.Distance(a.Position,b.Position);
-			Spring2D s = new Spring2D( a, b, ks, r );
+			Spring2D s = new Spring2D( this , a, b, ks, r );
 			springs.Add( s );
 			return s;
 		}
