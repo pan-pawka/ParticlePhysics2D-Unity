@@ -38,7 +38,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	
 	void Update () {
 		
-		//if (lineRenderer!=null) lineRenderer.Render();
+	
 	}
 	
 	void LateUpdate(){
@@ -70,11 +70,11 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	
 	//called by the editor script
 	public void ReGenerateBranch(){
-		Debug.Log(System.DateTime.Now);
+		//Debug.Log(System.DateTime.Now);
 		Branch.branchesCount = 0;
 		//branch = new Branch (null,transform.position.x,transform.position.y,angle * Mathf.Deg2Rad,length);
 		branch = new Branch (null,0f,0f,0f,length);//grow tree in local co-ord
-		Debug.Log("Branches : " + Branch.branchesCount);
+		//Debug.Log("Branches : " + Branch.branchesCount);
 		if (sim==null)
 			sim = new Simulation (IntegrationMedthod.VERLET);
 		sim.setGravity(0f,0f);

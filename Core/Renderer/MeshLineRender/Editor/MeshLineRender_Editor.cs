@@ -7,6 +7,15 @@ using ParticlePhysics2D;
 
 public class MeshLineRender_Editor :  Editor {
 	
+	MeshLineRender lr;
+	
+	void OnEnable() {
+		lr = target as MeshLineRender;
+		if (!lr.IsInitialized) {
+			lr.MeshLineRender_Ctor();
+		}
+	}
+	
 	public override void OnInspectorGUI (){
 		DrawDefaultInspector();
 		EditorGUILayout.Space();

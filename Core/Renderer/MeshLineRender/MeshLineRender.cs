@@ -12,11 +12,11 @@ namespace ParticlePhysics2D {
 	public class MeshLineRender : MonoBehaviour {
 		
 		#region Fields and Properties
-		[HideInInspector] [SerializeField] Simulation sim;
-		[HideInInspector] [SerializeField] Mesh mesh;
+		Simulation sim;
+		[SerializeField] Mesh mesh;
 		[HideInInspector] [SerializeField] MeshRenderer meshRenderer;
 		[HideInInspector] [SerializeField] MeshFilter meshFilter;
-		[HideInInspector] [SerializeField] int particleNumCache;
+		[SerializeField] int particleNumCache;
 		[HideInInspector] [SerializeField] int stringNumCache;
 		
 		[HideInInspector] [SerializeField] Color colorCache;
@@ -33,13 +33,25 @@ namespace ParticlePhysics2D {
 				return mtl;
 			}
 		}
+		
+		//if the data has been initialized already?called by editor
+		public bool IsInitialized {
+			get {
+				if ( mesh!=null && meshRenderer!=null && meshFilter!=null) {
+					//Debug.LogWarning("The Mesh Line Renderer's resources are initialized!");
+					return true;
+				} else {
+					Debug.Log("The Mesh Line Renderer's resources have not been initialized!");
+					return false;
+				}
+			}
+		}
 		#endregion
 		
 		#region Unity Methods
+		
 		void Start () {
-			if (IsInitialized==false) {
-				MeshLineRender_Ctor();
-			}
+			this.sim = this.GetComponent<IFormLayer>().GetSimulation;
 		}
 		
 		public void LateUpdate(){
@@ -73,16 +85,9 @@ namespace ParticlePhysics2D {
 		
 		#endregion
 		
-		//if the data has been initialized already?
-		bool IsInitialized {
-			get {
-				if (sim!=null && mesh!=null && meshRenderer!=null && meshFilter!=null) {
-					return true;
-				} else return false;
-			}
-		}
 		
-		void MeshLineRender_Ctor () {
+		//called by editor script to set up data
+		public void MeshLineRender_Ctor () {
 			
 			this.sim = this.GetComponent<IFormLayer>().GetSimulation;
 			this.particleNumCache = sim.numberOfParticles();
@@ -105,7 +110,9 @@ namespace ParticlePhysics2D {
 			
 			if (mesh==null) {
 				mesh = new Mesh ();
-				CreateMesh();	
+				CreateMesh();
+				this.particleNumCache = sim.numberOfParticles();
+				this.stringNumCache = sim.numberOfSprings();
 			}
 			
 			meshFilter = this.GetComponent<MeshFilter>();
@@ -120,9 +127,11 @@ namespace ParticlePhysics2D {
 		
 		public void SetColor(Color c) {
 			if (mpb==null) mpb = new MaterialPropertyBlock ();
-			meshRenderer.GetPropertyBlock(mpb);
-			mpb.AddColor("_Color",c);
-			meshRenderer.SetPropertyBlock(mpb);
+			if (meshRenderer) {
+				meshRenderer.GetPropertyBlock(mpb);
+				mpb.AddColor("_Color",c);
+				meshRenderer.SetPropertyBlock(mpb);
+			}
 		}
 		
 		void CreateMesh () {
@@ -151,6 +160,7 @@ namespace ParticlePhysics2D {
 				mesh.SetIndices(ic,MeshTopology.Lines,0);
 				mesh.RecalculateBounds();
 				mesh.MarkDynamic();
+				
 			}
 			
 		}
