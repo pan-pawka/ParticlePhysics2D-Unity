@@ -5,8 +5,10 @@ A fast and stable particle based physics 2D engine for Unity 3D.
 
 
 ### Brief
-ParticlePhysics2D for Unity is originally ported from JEFFREY BERNSTEIN's TRAER.PHYSICS 3.0.<br />
-With existing Modified Euler Intergration and Runge Kutta Integration, another Verlet Integration is also added.
+ParticlePhysics2D for Unity is originally ported from JEFFREY BERNSTEIN's TRAER.PHYSICS 3.0, with addition of a lot of unity-oriented features, for the purpose of crafting a overwhelming plants world in my game project called [FISH](http://fishartgame.com) <br />
+<del>With existing Modified Euler Intergration and Runge Kutta Integration, another Verlet Integration is also added.
+
+Only Verlet integration on both CPU and GPU is supported now, other integration methods are dropped.
 
 The system of ParticlePhysics2D bascially includes three layers of implementation.<br />
 
