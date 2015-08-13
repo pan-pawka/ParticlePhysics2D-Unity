@@ -4,7 +4,7 @@ using System.Collections;
 namespace ParticlePhysics2D {
 
 	[System.Serializable]
-	public class Particle2D  {
+	public class Particle2D   {
 
 		[SerializeField]
 		Vector2 position;

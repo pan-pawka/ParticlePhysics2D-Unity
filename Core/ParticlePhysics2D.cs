@@ -10,7 +10,7 @@ namespace ParticlePhysics2D {
 	public enum IntegrationMedthod {RUNGE_KUTTA, MODIFIED_EULER, VERLET, GPUVERLET}
 
 	[System.Serializable]
-	public class Simulation  {
+	public class Simulation  : ISerializationCallbackReceiver {
 
 		protected static float DEFAULT_GRAVITY = 0f;
 		protected static float DEFAULT_DRAG = 0.001f;
@@ -91,6 +91,16 @@ namespace ParticlePhysics2D {
 			springs.Clear();
 			angles.Clear();
 		}
+		
+		#region Serialization
+		public void OnBeforeSerialize()  {}
+		public void OnAfterDeserialize() {
+			for (int i=0;i<springs.Count;i++) {
+				springs[i].ParticleA = getParticleByPosition(springs[i].ParticleA.Position);
+				springs[i].ParticleB = getParticleByPosition(springs[i].ParticleB.Position);
+			}
+		}
+		#endregion
 		
 		#region Mesh Helper
 		
@@ -179,6 +189,14 @@ namespace ParticlePhysics2D {
 			//Debug.LogError("Cannot find particle for index");
 			return -1;
 			
+		}
+		
+		//this is a hacky method, used by serialization callback to rebuild the spring's references to its end particles.
+		public Particle2D getParticleByPosition(Vector2 pos) {
+			for (int i=0;i<particles.Count;i++) {
+				if (particles[i].Position == pos) return particles[i];
+			}
+			return null;
 		}
 		
 		public Vector2 getParticlesCenter(){

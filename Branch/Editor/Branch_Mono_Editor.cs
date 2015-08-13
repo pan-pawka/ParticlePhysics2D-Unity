@@ -19,6 +19,7 @@ public class Branch_Mono_Editor : Editor {
 		if (sim==null) {
 			Branch.ResetParams(temp.length);
 			temp.ReGenerateBranch();
+			this.sim = temp.GetSimulation;
 		} else {
 			//Branch.lengthExit = temp.lengthExit;
 			Branch.angleOffsetMax = temp.angleOffsetMax;

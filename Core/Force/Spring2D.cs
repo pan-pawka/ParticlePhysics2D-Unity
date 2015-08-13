@@ -51,12 +51,12 @@ namespace ParticlePhysics2D {
 		
 		public Particle2D ParticleA 
 		{
-			get {return a;}
+			get {return a;} set {a=value;}
 		}
 		
 		public Particle2D ParticleB 
 		{
-			get {return b;}
+			get {return b;} set {b=value;}
 		}
 		
 		public float currentLength()
