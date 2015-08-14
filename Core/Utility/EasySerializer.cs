@@ -86,7 +86,7 @@ public class EasySerializer {
 			stream = File.Open(filePath, FileMode.Open);
 		} 
 		
-		catch(FileNotFoundException e) {
+		catch {
 			return null;
 		}
 		

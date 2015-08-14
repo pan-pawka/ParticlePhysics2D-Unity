@@ -9,6 +9,7 @@ namespace ParticlePhysics2D {
 	
 	[RequireComponent(typeof(ParticlePhysics2D.IFormLayer),typeof(MeshRenderer),typeof(MeshFilter))]
 	[ExecuteInEditMode]
+	[AddComponentMenu("ParticlePhysics2D/Renderer/MeshLineRender",13)]
 	public class MeshLineRender : MonoBehaviour {
 		
 		#region Fields and Properties
@@ -49,9 +50,15 @@ namespace ParticlePhysics2D {
 		#region Unity Methods
 		
 		void Start () {
-			this.sim = this.GetComponent<IFormLayer>().GetSimulation;
-			mpb = new MaterialPropertyBlock ();
-			SetColor(color);
+			OnResetRender();
+		}
+		
+		void OnEnable() {
+			this.GetComponent<IFormLayer>().OnResetForm += OnResetRender;
+		}
+		
+		void OnDisable() {
+			this.GetComponent<IFormLayer>().OnResetForm -= OnResetRender;
 		}
 		
 		public void LateUpdate(){
@@ -91,6 +98,11 @@ namespace ParticlePhysics2D {
 		
 		#endregion
 		
+		void OnResetRender() {
+			this.sim = this.GetComponent<IFormLayer>().GetSimulation;
+			mpb = new MaterialPropertyBlock ();
+			SetColor(color);
+		}
 		
 		//called by editor script to set up data
 		public void MeshLineRender_Ctor () {
@@ -132,7 +144,7 @@ namespace ParticlePhysics2D {
 		
 		
 		public void SetColor(Color c) {
-			//if (mpb==null) mpb = new MaterialPropertyBlock ();
+			if (mpb==null) mpb = new MaterialPropertyBlock ();
 			if (meshRenderer) {
 				meshRenderer.GetPropertyBlock(mpb);
 				mpb.AddColor("_Color",c);
@@ -183,30 +195,6 @@ namespace ParticlePhysics2D {
 		
 	}
 	
-	public static class ObjExtension {
 	
-		public static void ObjDestroy(this UnityEngine.Object obj) {
-			
-			if (Application.isEditor) {
-				if (obj)  {
-					try {
-						UnityEngine.Object.DestroyImmediate(obj);	
-					} catch (System.Exception e) {
-						
-					}
-					
-				}
-			} else {
-				if (obj) {
-					try {
-						UnityEngine.Object.Destroy(obj);	
-					} catch (System.Exception e) {
-						
-					}	
-				}
-			}	
-			
-		}
-	}
 	
 }

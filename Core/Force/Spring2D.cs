@@ -111,7 +111,7 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		static Color springColor = Color.cyan - new Color (0f,0f,0f,0.2f);
+		static Color springColor = Color.cyan - new Color (0f,0f,0f,0.5f);
 		public void DebugSpring(Matrix4x4 local2World){
 			Vector2 aPos = local2World.MultiplyPoint3x4(a.Position);
 			Vector2 bPos = local2World.MultiplyPoint3x4(b.Position);

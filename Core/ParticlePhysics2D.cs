@@ -207,6 +207,14 @@ namespace ParticlePhysics2D {
 			} else return Vector2.zero;
 		}
 		
+		public List<Particle2D> getLeafParticles() {
+			List<Particle2D> lf = new List<Particle2D> (particles.Count / 2 + 1);
+			for (int i=0;i<particles.Count;i++) {
+				if (particles[i].IsLeaf) lf.Add(particles[i]);
+			}
+			return lf;
+		}
+		
 		public Vector2 getParticlesCenter(){
 			Vector2 c = Vector2.zero;
 			for (int i=0;i<numberOfParticles();i++) {

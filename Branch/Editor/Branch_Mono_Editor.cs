@@ -17,22 +17,22 @@ public class Branch_Mono_Editor : Editor {
 		temp = target as Branch_Mono;
 		sim = temp.GetSimulation;
 		if (sim==null) {
-			Branch.ResetParams(temp.length);
-			temp.ReGenerateBranch();
+			BinaryTree.ResetParams(temp.length);
+			temp.ResetForm();
 			this.sim = temp.GetSimulation;
 		} else {
 			//Branch.lengthExit = temp.lengthExit;
-			Branch.angleOffsetMax = temp.angleOffsetMax;
-			Branch.angleOffsetMin = temp.angleOffsetMin;
-			Branch.lengthMax1 = temp.lengthMax1;
-			Branch.lengthMax2 = temp.lengthMax2;
-			Branch.lengthMin1 = temp.lengthMin1;
-			Branch.lengthMin2 = temp.lengthMin2;
-			Branch.lengthBranchAThreshold = temp.lengthBranchAThreshold;
-			Branch.lengthBranchBThreshold = temp.lengthBranchBThreshold;
+			BinaryTree.angleOffsetMax = temp.angleOffsetMax;
+			BinaryTree.angleOffsetMin = temp.angleOffsetMin;
+			BinaryTree.lengthMax1 = temp.lengthMax1;
+			BinaryTree.lengthMax2 = temp.lengthMax2;
+			BinaryTree.lengthMin1 = temp.lengthMin1;
+			BinaryTree.lengthMin2 = temp.lengthMin2;
+			BinaryTree.lengthBranchAThreshold = temp.lengthBranchAThreshold;
+			BinaryTree.lengthBranchBThreshold = temp.lengthBranchBThreshold;
 			//Branch.lengthExitRatio = temp.lengthExitRatio;
 			//Branch.lengthExit = temp.lengthExitRatio * temp.length;
-			Branch.maxDepth = temp.maxDepth;
+			BinaryTree.maxDepth = temp.maxDepth;
 		}
 		
 		lastPMode = Tools.pivotMode;
@@ -50,15 +50,15 @@ public class Branch_Mono_Editor : Editor {
 	}
 	
 	void SaveParams() {
-		temp.maxDepth = Branch.maxDepth;
-		temp.angleOffsetMax = Branch.angleOffsetMax;
-		temp.angleOffsetMin = Branch.angleOffsetMin;
-		temp.lengthMax1 = Branch.lengthMax1;
-		temp.lengthMax2 = Branch.lengthMax2;
-		temp.lengthMin1 = Branch.lengthMin1;
-		temp.lengthMin2 = Branch.lengthMin2;
-		temp.lengthBranchAThreshold = Branch.lengthBranchAThreshold;
-		temp.lengthBranchBThreshold = Branch.lengthBranchBThreshold;
+		temp.maxDepth = BinaryTree.maxDepth;
+		temp.angleOffsetMax = BinaryTree.angleOffsetMax;
+		temp.angleOffsetMin = BinaryTree.angleOffsetMin;
+		temp.lengthMax1 = BinaryTree.lengthMax1;
+		temp.lengthMax2 = BinaryTree.lengthMax2;
+		temp.lengthMin1 = BinaryTree.lengthMin1;
+		temp.lengthMin2 = BinaryTree.lengthMin2;
+		temp.lengthBranchAThreshold = BinaryTree.lengthBranchAThreshold;
+		temp.lengthBranchBThreshold = BinaryTree.lengthBranchBThreshold;
 	}
 
 	public override void OnInspectorGUI ()
@@ -92,82 +92,77 @@ public class Branch_Mono_Editor : Editor {
 		EditorGUILayout.EndHorizontal();
 		
 		//exit length: how complex should the branch be
-		Branch.maxDepth = EditorGUILayout.IntSlider(
+		BinaryTree.maxDepth = EditorGUILayout.IntSlider(
 			new GUIContent("Max Depth","This generally controls how complex the branch is"),
-			Branch.maxDepth,
+			BinaryTree.maxDepth,
 			3,
-			Branch.maxDepthLimit 
+			BinaryTree.maxDepthLimit 
 		);
 		
 		
 		//how wide
-		string range = "Angle Offset: " + (Branch.angleOffsetMin * Mathf.Rad2Deg).ToString("F1") + "-" + (Branch.angleOffsetMax * Mathf.Rad2Deg).ToString("F1");
+		string range = "Angle Offset: " + (BinaryTree.angleOffsetMin * Mathf.Rad2Deg).ToString("F1") + "-" + (BinaryTree.angleOffsetMax * Mathf.Rad2Deg).ToString("F1");
 		EditorGUILayout.MinMaxSlider(
 			new GUIContent(range,"How much should the children branch be rotated from parent" ),
-			ref Branch.angleOffsetMin,
-			ref Branch.angleOffsetMax,
+			ref BinaryTree.angleOffsetMin,
+			ref BinaryTree.angleOffsetMax,
 			0f,
 			1f
 		);
 		
 		//branch threshold A
-		Branch.lengthBranchAThreshold = EditorGUILayout.Slider(
+		BinaryTree.lengthBranchAThreshold = EditorGUILayout.Slider(
 			new GUIContent("Threshold A",""),
-			Branch.lengthBranchAThreshold,
+			BinaryTree.lengthBranchAThreshold,
 			0.01f,
 			temp.length
 		);
 		
 		//branch threshold A
-		Branch.lengthBranchBThreshold = EditorGUILayout.Slider(
+		BinaryTree.lengthBranchBThreshold = EditorGUILayout.Slider(
 			new GUIContent("Threshold B",""),
-			Branch.lengthBranchBThreshold,
+			BinaryTree.lengthBranchBThreshold,
 			0.01f,
 			temp.length
 		);
 		
 		//above threshold
-		string t1 = "Above T. "+Branch.lengthMin1.ToString("F1") + "-" + Branch.lengthMax1.ToString("F1");
+		string t1 = "Above T. "+BinaryTree.lengthMin1.ToString("F1") + "-" + BinaryTree.lengthMax1.ToString("F1");
 		EditorGUILayout.MinMaxSlider(
 			new GUIContent(t1,"When children branch go over threshold, the factor multiplied to parent branch" ),
-			ref Branch.lengthMin1,
-			ref Branch.lengthMax1,
-			0f,
-			0.9f
+			ref BinaryTree.lengthMin1,
+			ref BinaryTree.lengthMax1,
+			0.5f,
+			1f
 		);
 		
 		//above threshold
-		t1 = "Beblow T. "+Branch.lengthMin2.ToString("F1") + "-" + Branch.lengthMax2.ToString("F1");
+		t1 = "Beblow T. "+BinaryTree.lengthMin2.ToString("F1") + "-" + BinaryTree.lengthMax2.ToString("F1");
 		EditorGUILayout.MinMaxSlider(
 			new GUIContent(t1,"When children branch go below threshold, the factor multiplied to parent branch" ),
-			ref Branch.lengthMin2,
-			ref Branch.lengthMax2,
-			0f,
-			0.9f
+			ref BinaryTree.lengthMin2,
+			ref BinaryTree.lengthMax2,
+			0.5f,
+			1f
 		);
 		
 		GUI.backgroundColor = Color.green * 0.8f;
 		reGenBranch = GUILayout.Button("Re-Generate Branch",GUILayout.ExpandWidth(true));
 		if (reGenBranch) {
-			temp.ReGenerateBranch();
+			temp.ResetForm();
 			EditorUtility.SetDirty(temp);
 		}
 		
 		GUI.backgroundColor = Color.cyan * 0.8f;
 		bool resetParam = false;
 		resetParam = GUILayout.Button("Reset Branch Generation Params",GUILayout.ExpandWidth(true));
-		if (resetParam) Branch.ResetParams(temp.length);
+		if (resetParam) BinaryTree.ResetParams(temp.length);
 		
 		//clear branch
 		GUI.backgroundColor = Color.red * 0.8f;
 		bool clearBranch = GUILayout.Button("Clear Branchs",GUILayout.ExpandWidth(true));
 		if (clearBranch) {
-			sim.clear();
-			sim.clearForces();
-			temp.branch = null;
-			temp.leafCount = 0;
-//			temp.lineRenderer.Destroy();
-//			temp.lineRenderer = null;
+			temp.ClearForm();
 			EditorUtility.SetDirty(temp);
 		}
 		

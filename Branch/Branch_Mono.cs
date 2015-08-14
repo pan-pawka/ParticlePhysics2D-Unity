@@ -8,10 +8,11 @@ using System.Collections;
 using ParticlePhysics2D;
 
 [ExecuteInEditMode]
+[AddComponentMenu("ParticlePhysics2D/Forms/BinaryTree",13)]
 public class Branch_Mono : MonoBehaviour, IFormLayer {
 
 	[HideInInspector]
-	public Branch branch;
+	public BinaryTree branch;
 	
 	[SerializeField]
 	Simulation sim;
@@ -34,21 +35,17 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	[HideInInspector] public int maxDepth;
 	[HideInInspector] public int leafCount;
 	
-	void Start() {
-		
-	}
+	//some events
+	public event System.Action OnResetForm;//called by editor to invoke form reset
+	public event System.Action OnClearForm;
 	
-	void Update () {
-		
-	
-	}
 	
 	void LateUpdate(){
-		
+		OnDrawGizmosUpdate();
 	}
 	
 	//copy branch's topology to simulation
-	void CopyBranchTopology(Particle2D p, Branch b,ref Simulation s) {
+	void CopyBranchTopology(Particle2D p, BinaryTree b,ref Simulation s) {
 		
 		//if the branch has children
 		if (b.branchA!=null || b.branchB!=null) {
@@ -72,12 +69,10 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	}
 	
 	//called by the editor script
-	public void ReGenerateBranch(){
-		//Debug.Log(System.DateTime.Now);
-		Branch.branchesCount = 0;
-		//branch = new Branch (null,transform.position.x,transform.position.y,angle * Mathf.Deg2Rad,length);
-		branch = new Branch (null,0f,0f,0f,length,0);//grow tree in local co-ord
-		Debug.Log("Branches : " + Branch.branchesCount);
+	public void ResetForm(){
+	
+		branch = BinaryTree.GenerateBranch(length);
+		Debug.Log("Branches : " + BinaryTree.branchesCount);
 		if (sim==null)
 			sim = new Simulation (IntegrationMedthod.VERLET);
 		sim.setGravity(0f,0f);
@@ -85,10 +80,26 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		leafCount = 0;
 		Particle2D start = sim.makeParticle (branch.Position);
 		CopyBranchTopology(start,branch,ref sim);
-		if (Application.isEditor) OnDrawGizmos();
+		if (Application.isEditor) OnDrawGizmosUpdate();
+		
+		if (OnResetForm!=null) OnResetForm();//invokde the event
+		else {
+			Debug.Log("No one register OnResetForm");
+		}
+	}	
+	
+	public void ClearForm() {
+		sim.clear();
+		sim.clearForces();
+		this.branch = null;
+		this.leafCount = 0;
+		if (OnClearForm!=null) OnClearForm();//invoke the clear form event
+		else {
+			Debug.Log("No one register OnClearForm");
+		}
 	}
 	
-	void OnDrawGizmos() {
+	void OnDrawGizmosUpdate() {
 		
 		
 		if (debugBranch) {
@@ -103,6 +114,8 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	void OnDestroy(){
 
 	}
+	
+	
 	
 	
 }

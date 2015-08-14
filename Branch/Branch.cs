@@ -4,17 +4,22 @@
 using UnityEngine;
 
 namespace ParticlePhysics2D {
-	public class Branch {
+
+	[System.Serializable]
+	public class BinaryTree {
 		
 		// Variable definitions 
 		float xPos;
 		float yPos;
 		float angle;
-		public float length;
+		float length;
 		
-		public Branch branchA;
-		public Branch branchB;
-		public Branch parent;
+		public int leafIndex;
+		public int depth;
+		
+		[System.NonSerialized] public BinaryTree branchA;
+		[System.NonSerialized] public BinaryTree branchB;
+		[System.NonSerialized] public BinaryTree parent;
 		
 		static float TWO_PI = Mathf.PI * 0.5f;
 		
@@ -23,7 +28,7 @@ namespace ParticlePhysics2D {
 		float minY = float.PositiveInfinity;
 		float maxY = float.NegativeInfinity;
 		
-		int depth;
+		
 		
 		public static bool debugOn = true;
 		public static Color pointColor = Color.green;
@@ -32,7 +37,7 @@ namespace ParticlePhysics2D {
 		
 		public static float angleOffsetMin = 0.1f,angleOffsetMax = 0.5f;
 		public static float lengthMin1 = 0.6f,lengthMax1 = 0.9f;
-		public static float lengthMin2 = 0.1f,lengthMax2 = 0.5f;
+		public static float lengthMin2 = 0.5f,lengthMax2 = 0.7f;
 		
 		public static float lengthBranchAThreshold = 3f,lengthBranchBThreshold = 3f;
 		public static int maxDepth = 9;
@@ -56,9 +61,15 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		// Constructor 
-		public Branch (Branch parent, float x, float y, float angleOffset, float length, int depth) {
-			Branch.branchesCount++;//need to set to 0 outside the Ctor
+		public static BinaryTree GenerateBranch (float length) {
+			BinaryTree.branchesCount = 0;
+			return new BinaryTree (null,0f,0f,0f,length,0);
+		}
+		
+		// private Constructor 
+		private BinaryTree (BinaryTree parent, float x, float y, float angleOffset, float length, int depth) {
+			BinaryTree.branchesCount++;
+			this.leafIndex = BinaryTree.branchesCount;
 			this.depth = depth + 1;
 			this.parent = parent;
 			this.xPos = x;
@@ -72,24 +83,17 @@ namespace ParticlePhysics2D {
 			float xB = GetChildrenBranchPosX;
 			float yB = GetChildrenBranchPosY;
 			
-			//if this brancn has children branch,
-			//if(length > lengthExit ) {
-			if(this.depth <= Branch.maxDepth ) {
-//				//limit it to maxBranchNum to prevent overshot
-//				if (Branch.branchesCount > maxBranchNum) {
-//					Debug.LogError("Maximum branch num reached : "+maxBranchNum);
-//					return;
-//				}
-				
-				if (length * Random.Range(1f,10f)  > lengthBranchAThreshold)
-					branchA = new Branch(this, xB, yB,  AngleOffsetA, length* Random.Range(lengthMin1,lengthMax1),this.depth);
+			if(this.depth <= BinaryTree.maxDepth ) {
+
+				if (length * Random.Range(1f,2f)  > lengthBranchAThreshold)
+					branchA = new BinaryTree(this, xB, yB,  AngleOffsetA, length* Random.Range(lengthMin1,lengthMax1),this.depth);
 				else
-					branchA = new Branch(this, xB, yB,   AngleOffsetB, length* Random.Range(lengthMin2,lengthMax2),this.depth);
+					branchA = new BinaryTree(this, xB, yB,  AngleOffsetA, length* Random.Range(lengthMin2,lengthMax2),this.depth);
 				
-				if (length * Random.Range(1f,10f)  > lengthBranchBThreshold)
-					branchB = new Branch(this, xB, yB,  AngleOffsetB, length * Random.Range(lengthMin1,lengthMax1),this.depth);
+				if (length * Random.Range(1f,2f)  > lengthBranchBThreshold)
+					branchB = new BinaryTree(this, xB, yB,  AngleOffsetB, length * Random.Range(lengthMin1,lengthMax1),this.depth);
 				else 
-					branchB = new Branch(this, xB, yB,  AngleOffsetB, length * Random.Range(lengthMin2,lengthMax2),this.depth);
+					branchB = new BinaryTree(this, xB, yB,  AngleOffsetB, length * Random.Range(lengthMin2,lengthMax2),this.depth);
 			}
 			//if this is a leaf branch
 			else {
@@ -103,15 +107,19 @@ namespace ParticlePhysics2D {
 		
 		float AngleOffsetA {
 			get {
-				//return 0f;
-				return Random.Range(-angleOffsetMax,-angleOffsetMin) + ((angle % TWO_PI) < Mathf.PI ? -1f/length : +1f/length) ;//angle is always negative
+				//angle is always negative
+				return Random.Range(-angleOffsetMax,-angleOffsetMin) 
+						+ ((angle % TWO_PI) > -Mathf.PI/3f ? -1f/length : +1f/length) 
+						;
 			}
 		}
 		
 		float AngleOffsetB {
 			get {
-				//return 0f;
-				return Random.Range(angleOffsetMin,angleOffsetMax) + ((angle % TWO_PI) > Mathf.PI ? -1f/length : +1f/length) ;//angle is always positive
+				//angle is always positive
+				return Random.Range(angleOffsetMin,angleOffsetMax) 
+						+ ((angle % TWO_PI) > Mathf.PI/3f ? -1f/length : +1f/length)
+						;
 			}
 		}
 		
@@ -134,7 +142,7 @@ namespace ParticlePhysics2D {
 			angleOffsetMin = 0.1f; angleOffsetMax = 0.5f;
 			
 			lengthMin1 = 0.6f; lengthMax1 = 0.9f;
-			lengthMin2 = 0.1f; lengthMax2 = 0.5f;
+			lengthMin2 = 0.5f; lengthMax2 = 0.7f;
 			
 			lengthBranchAThreshold = lengthBranchBThreshold = 3f;
 			//lengthExitRatio = 0.15f;
