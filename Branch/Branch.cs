@@ -14,14 +14,14 @@ namespace ParticlePhysics2D {
 		float angle;
 		float length;
 		
-		public int leafIndex;
-		public int depth;
+		public int leafIndex;//the index of the particle created by this branch
+		public int depth;//the depth of this branch in the binarytree
 		
 		[System.NonSerialized] public BinaryTree branchA;
 		[System.NonSerialized] public BinaryTree branchB;
 		[System.NonSerialized] public BinaryTree parent;
 		
-		static float TWO_PI = Mathf.PI * 0.5f;
+		static float TWO_PI = Mathf.PI * 2f;
 		
 		float minX = float.PositiveInfinity;
 		float maxX = float.NegativeInfinity;
@@ -108,8 +108,8 @@ namespace ParticlePhysics2D {
 		float AngleOffsetA {
 			get {
 				//angle is always negative
-				return Random.Range(-angleOffsetMax,-angleOffsetMin) 
-						+ ((angle % TWO_PI) > -Mathf.PI/3f ? -1f/length : +1f/length) 
+				return Random.Range(-angleOffsetMin,-angleOffsetMax) 
+						+ ((angle % TWO_PI) > -Mathf.PI ? -1f/length : +1f/length) * 0.5f
 						;
 			}
 		}
@@ -118,7 +118,7 @@ namespace ParticlePhysics2D {
 			get {
 				//angle is always positive
 				return Random.Range(angleOffsetMin,angleOffsetMax) 
-						+ ((angle % TWO_PI) > Mathf.PI/3f ? -1f/length : +1f/length)
+						+ ((angle % TWO_PI) > Mathf.PI ? -1f/length : +1f/length) * 0.5f
 						;
 			}
 		}
@@ -147,7 +147,7 @@ namespace ParticlePhysics2D {
 			lengthBranchAThreshold = lengthBranchBThreshold = 3f;
 			//lengthExitRatio = 0.15f;
 			//lengthExit = lengthExitRatio * length;
-			maxDepth = 9;
+			maxDepth = 6;
 		}
 		
 		// Render 
