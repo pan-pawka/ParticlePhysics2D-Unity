@@ -11,8 +11,9 @@ using ParticlePhysics2D;
 [AddComponentMenu("ParticlePhysics2D/Forms/BinaryTree",13)]
 public class Branch_Mono : MonoBehaviour, IFormLayer {
 
-	[HideInInspector]
-	public BinaryTree branch;
+	BinaryTree branch;
+	[HideInInspector] [SerializeField] byte[] serializedBranch;
+	public BinaryTree GetBinaryTree {get{return branch;}}
 	
 	[SerializeField]
 	Simulation sim;
@@ -39,6 +40,11 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	public event System.Action OnResetForm;//called by editor to invoke form reset
 	public event System.Action OnClearForm;
 	
+	
+	
+	void Awake() {
+		branch = EasySerializer.DeserializeObjectFromBytes(serializedBranch) as BinaryTree;
+	}
 	
 	void LateUpdate(){
 		OnDrawGizmosUpdate();
@@ -81,6 +87,8 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		Particle2D start = sim.makeParticle (branch.Position);
 		CopyBranchTopology(start,branch,ref sim);
 		if (Application.isEditor) OnDrawGizmosUpdate();
+		
+		serializedBranch = EasySerializer.SerializeObjectToBytes(branch);
 		
 		if (OnResetForm!=null) OnResetForm();//invokde the event
 		else {

@@ -3,32 +3,33 @@
 
 using UnityEngine;
 
+
 namespace ParticlePhysics2D {
 
 	[System.Serializable]
 	public class BinaryTree {
 		
 		// Variable definitions 
-		float xPos;
-		float yPos;
-		float angle;
-		float length;
+		[System.NonSerialized] float xPos;
+		[System.NonSerialized] float yPos;
+		[System.NonSerialized] float angle;
+		[System.NonSerialized] float length;
 		
 		public int leafIndex;//the index of the particle created by this branch
 		public int depth;//the depth of this branch in the binarytree
 		
-		[System.NonSerialized] public BinaryTree branchA;
-		[System.NonSerialized] public BinaryTree branchB;
-		[System.NonSerialized] public BinaryTree parent;
+		public BinaryTree branchA;
+		public BinaryTree branchB;
+		public BinaryTree parent;
 		
 		static float TWO_PI = Mathf.PI * 2f;
-		
-		float minX = float.PositiveInfinity;
-		float maxX = float.NegativeInfinity;
-		float minY = float.PositiveInfinity;
-		float maxY = float.NegativeInfinity;
-		
-		
+//		
+//		[System.NonSerialized] float minX = float.PositiveInfinity;
+//		[System.NonSerialized] float maxX = float.NegativeInfinity;
+//		[System.NonSerialized] float minY = float.PositiveInfinity;
+//		[System.NonSerialized] float maxY = float.NegativeInfinity;
+//		
+//		
 		
 		public static bool debugOn = true;
 		public static Color pointColor = Color.green;
@@ -97,12 +98,13 @@ namespace ParticlePhysics2D {
 			}
 			//if this is a leaf branch
 			else {
+				branchA = branchB = null;
 				
 			}
-			minX = Mathf.Min(xB, minX);
-			maxX = Mathf.Max(xB, maxX);
-			minY = Mathf.Min(yB, minY);
-			maxY = Mathf.Max(yB, maxY);
+//			minX = Mathf.Min(xB, minX);
+//			maxX = Mathf.Max(xB, maxX);
+//			minY = Mathf.Min(yB, minY);
+//			maxY = Mathf.Max(yB, maxY);
 		}
 		
 		float AngleOffsetA {
