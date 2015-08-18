@@ -9,7 +9,7 @@ namespace ParticlePhysics2D {
 	[RequireComponent(typeof(ParticlePhysics2D.IFormLayer))]
 	[ExecuteInEditMode]
 	[AddComponentMenu("ParticlePhysics2D/Collision/LeafCollision2D",13)]
-	public class LeafCollider2D : ParticleCollision2D {
+	public sealed class LeafCollider2D : ParticleCollision2D {
 		
 		public float radius = 5f;
 		public bool isGizmoOn = false;
@@ -30,10 +30,11 @@ namespace ParticlePhysics2D {
 			this.leafParticles.Clear();
 		}
 		
-		void Start() {
+		protected override void Start() {
 			base.Start();
 			this.GetComponent<IFormLayer>().OnResetForm += OnResetCollision;
 			this.GetComponent<IFormLayer>().OnClearForm += OnClearCollision;
+			
 			OnResetCollision();
 			branch = (this.GetComponent<IFormLayer>() as Branch_Mono).GetBinaryTree;
 			this.sim = this.GetComponent<IFormLayer>().GetSimulation;
@@ -50,12 +51,12 @@ namespace ParticlePhysics2D {
 		}
 		
 		// Update is called once per frame
-		void Update () {
+		protected override void Update () {
 			base.Update();
 		}
 		
-		void LateUpdate() {
-			
+		protected override void LateUpdate() {
+			base.LateUpdate();
 		}
 		
 		void OnDrawGizmos() {

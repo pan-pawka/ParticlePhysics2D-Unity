@@ -6,8 +6,11 @@ using System.Collections;
 
 namespace ParticlePhysics2D {
 	
-	public class ParticleCollider2D : MonoBehaviour {
-			
+	[RequireComponent(typeof(Collider2D))]
+	public sealed class ParticleCollider2D : MonoBehaviour {
+		
+		public float radius = 5f;
+		
 		
 	}
 	
