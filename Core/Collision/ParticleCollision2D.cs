@@ -12,10 +12,20 @@ namespace ParticlePhysics2D {
 		public float lastUpdateTime;
 	
 		protected List<ParticleCollider2D> pCollider = new List<ParticleCollider2D> ();
+		public int PCollider2DCount {
+			get {
+				return pCollider.Count;
+			}
+		}
 
 		protected virtual void Start () {
 			this.GetComponent<CircleCollider2D>().isTrigger = true;
 			lastUpdateTime = Time.time;
+		}
+		
+		//derived class must override this method
+		protected virtual void BroadPhaseUpdate(float lastUpdateTime) {
+			this.lastUpdateTime = lastUpdateTime;
 		}
 			
 		protected virtual void Update () {}

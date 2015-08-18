@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿//Yves Wang @ FISH, 2015, All rights reserved
+
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -19,6 +21,16 @@ namespace ParticlePhysics2D {
 		
 		public static List<ParticleCollision2D> collisionHolders = new List<ParticleCollision2D> ();
 		
+		//how many particle collider2d in total, on which we need to perform narrow phase
+		static int narrowPhaseTotal {
+			get {
+				int t = 0;
+				for (int i=0;i<collisionHolders.Count;i++) {
+					t += collisionHolders[i].PCollider2DCount;
+				}
+				return t;
+			}
+		}
 		
 		// Use this for initialization
 		void Start () {
@@ -36,13 +48,14 @@ namespace ParticlePhysics2D {
 			framesCount = (int)(fixedTimestep * 1f / Time.deltaTime);
 			
 			//how many Broad Phase BVH update should we process in each update, a collision holder will have one BVH calculation
-			broadPhaseCount = (collisionHolders.Count < framesCount) ? 1 : collisionHolders.Count / framesCount + 1;
+			broadPhaseCount = Mathf.Min ( Mathf.CeilToInt((float) collisionHolders.Count / (float) framesCount), maxProcessNumber );
 			
-			//how many narrow phase update should we perform
+			//how many narrow phase update should we perform in each update
+			narrowPhaseCount = Mathf.Min( Mathf.CeilToInt((float) narrowPhaseTotal / (float) framesCount), maxProcessNumber );
 			
-			
-			
-			
+		}
+		
+		void LateUpdate() {
 			
 		}
 	}

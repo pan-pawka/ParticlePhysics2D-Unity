@@ -10,7 +10,7 @@ namespace ParticlePhysics2D {
 	public sealed class ParticleCollider2D : MonoBehaviour {
 		
 		public float radius = 5f;
-		
+		public float lastUpdateTime;
 		
 	}
 	
