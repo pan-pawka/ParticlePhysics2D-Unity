@@ -51,7 +51,7 @@ namespace ParticlePhysics2D {
 		}
 		
 		//the implementation
-		public override void BroadPhaseUpdate() {
+		protected override void BroadPhaseUpdate() {
 			
 		}
 		

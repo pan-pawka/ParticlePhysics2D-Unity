@@ -7,9 +7,8 @@ using System.Collections.Generic;
 namespace ParticlePhysics2D {
 	
 	[RequireComponent(typeof(CircleCollider2D))]
-	public class CollisionHolder2D : MonoBehaviour {
-	
-		public float lastUpdateTime;
+	public class CollisionHolder2D : CollisionObject {
+		
 		private CircleCollider2D circle;
 	
 		protected List<ParticleCollider2D> pCollider = new List<ParticleCollider2D> ();
@@ -17,10 +16,11 @@ namespace ParticlePhysics2D {
 		protected virtual void Start () {
 			this.GetComponent<CircleCollider2D>().isTrigger = true;
 			lastUpdateTime = Time.time;
+			this.UpdateMethod += BroadPhaseUpdate;
 		}
 		
 		//derived class must override this method
-		public virtual void BroadPhaseUpdate() {}
+		protected virtual void BroadPhaseUpdate() {}
 			
 		protected virtual void Update () {}
 		

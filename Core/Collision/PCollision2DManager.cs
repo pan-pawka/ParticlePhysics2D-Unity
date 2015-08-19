@@ -93,8 +93,6 @@ namespace ParticlePhysics2D {
 		int broadPhaseCount;
 		int narrowPhaseCount;
 		
-		public void Init() {}
-		
 		void FixedUpdate () {
 			
 			//Np = Ntotal * Time.deltaTime / fixedTimeStep;
@@ -110,7 +108,7 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<broadPhaseCount;i++) {
 				CollisionHolder2D p2d = collisionHolders[UpdateHead1];
 				while (timeNow - p2d.lastUpdateTime > fixedTimestep) {
-					p2d.BroadPhaseUpdate();
+					//p2d.();
 					p2d.lastUpdateTime += fixedTimestep;
 				}
 			}
@@ -119,10 +117,67 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<narrowPhaseCount;i++) {
 				ParticleCollider2D p2d = pCollider2D[UpdateHead2];
 				while (timeNow - p2d.lastUpdateTime > fixedTimestep ) {
-					p2d.NarrowPhaseUpdate();
+					//p2d.UpdateMethod();
 					p2d.lastUpdateTime += fixedTimestep;
 				}
 			}
+		}
+	}
+	
+	//Collision Processor
+	public sealed class CollisionProcessor {
+		
+		const float fixedTimestep = 1f/30f; //fps = 30
+		const int maxProcessNumber = 10;
+		const int DEFAULT_CAPACITY = 100;
+		private List<CollisionObject> objs = new List<CollisionObject> (DEFAULT_CAPACITY);
+		private int _updateHead = -1;
+		private int UpdateHead {
+			get {
+				_updateHead++;
+				if (_updateHead >= objs.Count) _updateHead = _updateHead % objs.Count;
+				return _updateHead;
+			}
+		}
+		
+		public void AddObject(CollisionObject obj) {
+			if (obj.indexInManager == -1) {
+				objs.Add(obj);
+				obj.indexInManager = objs.Count-1;
+				obj.lastUpdateTime = Time.realtimeSinceStartup;
+			}
+		}
+		
+		public void RemoveObject(CollisionObject obj) {
+			if (obj.indexInManager!=-1) {
+				CollisionObject thisOne = objs[obj.indexInManager];
+				CollisionObject lastOne = objs[objs.Count-1];
+				lastOne.indexInManager = obj.indexInManager;
+				Swap(lastOne,thisOne);
+				thisOne.indexInManager = -1;
+				objs.RemoveAt(objs.Count-1);
+			}
+		}
+		
+		int updateCount;
+		public void Update(float deltaTime) {
+			float f = Mathf.Clamp01(deltaTime / fixedTimestep);
+			updateCount = Mathf.Min(maxProcessNumber,(int)(objs.Count * f)); 
+			float timeNow = Time.realtimeSinceStartup;
+			
+			for (int i=0;i<updateCount;i++) {
+				CollisionObject obj = objs[UpdateHead];
+				while (timeNow - obj.lastUpdateTime > fixedTimestep) {
+					obj.UpdateMethod();
+					obj.lastUpdateTime += fixedTimestep;
+				}
+			}
+		}
+		
+		void Swap ( CollisionObject t1,CollisionObject t2) {
+			CollisionObject t = t1;
+			t1 = t2;
+			t2 = t;
 		}
 	}
 

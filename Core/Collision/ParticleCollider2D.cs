@@ -8,10 +8,8 @@ using System.Collections.Generic;
 namespace ParticlePhysics2D {
 	
 	[RequireComponent(typeof(Collider2D))]
-	public sealed class ParticleCollider2D : MonoBehaviour {
+	public sealed class ParticleCollider2D : CollisionObject  {
 		
-		public float radius = 5f;
-		public float lastUpdateTime;
 		List<CollisionHolder2D> collisionHolders = new List<CollisionHolder2D> (5);
 		
 		public void AttachToCollisionHolder(CollisionHolder2D c) {
@@ -25,16 +23,17 @@ namespace ParticlePhysics2D {
 		public int CollisionHolderCount {
 			get {return collisionHolders.Count;}
 		}
-		
-		public int indexInManager = -1;
 			
 		
-		public void NarrowPhaseUpdate() {
+		void NarrowPhaseUpdate() {
 			
 		}
 		
+		
+		
 		void Start() {
 			this.GetComponent<Collider2D>().isTrigger = true;
+			this.UpdateMethod += NarrowPhaseUpdate;
 		}
 		
 	}
