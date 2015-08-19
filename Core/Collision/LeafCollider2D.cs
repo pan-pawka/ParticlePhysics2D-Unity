@@ -9,7 +9,7 @@ namespace ParticlePhysics2D {
 	[RequireComponent(typeof(ParticlePhysics2D.IFormLayer))]
 	[ExecuteInEditMode]
 	[AddComponentMenu("ParticlePhysics2D/Collision/LeafCollision2D",13)]
-	public sealed class LeafCollider2D : ParticleCollision2D {
+	public sealed class LeafCollider2D : CollisionHolder2D {
 		
 		public float radius = 5f;
 		public bool isGizmoOn = false;
@@ -50,16 +50,20 @@ namespace ParticlePhysics2D {
 			
 		}
 		
+		//the implementation
+		public override void BroadPhaseUpdate() {
+			
+		}
+		
 		// Update is called once per frame
 		protected override void Update () {
 			base.Update();
 		}
 		
-		protected override void LateUpdate() {
-			base.LateUpdate();
-		}
 		
-		void OnDrawGizmos() {
+		
+		protected override void OnDrawGizmos() {
+			base.OnDrawGizmos();
 			if (isGizmoOn && leafParticles!=null) {
 				Vector2 pos;
 				for (int i=0;i<leafParticles.Count;i++) {
@@ -68,6 +72,8 @@ namespace ParticlePhysics2D {
 				}
 			}
 		}
+		
+		
 	}
 	
 }
