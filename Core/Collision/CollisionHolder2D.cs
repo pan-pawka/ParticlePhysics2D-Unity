@@ -7,19 +7,18 @@ using System.Collections.Generic;
 namespace ParticlePhysics2D {
 	
 	[RequireComponent(typeof(CircleCollider2D))]
-	public class CollisionHolder2D : CollisionObject {
-		
-		private CircleCollider2D circle;
+	public abstract class CollisionHolder2D : CollisionObject {
 		
 		//derived class must override and extend the start
 		protected override void Start () {
-			this.GetComponent<CircleCollider2D>().isTrigger = true;
+			base.Start();
 			this.UpdateMethod += BroadPhaseUpdate;
 			this.phaseType = PhaseType.Broad;
 		}
 		
 		//derived class must override this method
-		protected virtual void BroadPhaseUpdate() {}
+		//the broad phase implementation includes calculating the BVH
+		protected abstract void BroadPhaseUpdate();
 			
 		protected virtual void Update () {}
 		
@@ -39,11 +38,7 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		protected virtual void OnDrawGizmos() {
-			if (!circle) circle = this.GetComponent<CircleCollider2D>();
-			Vector2 center = transform.localToWorldMatrix.MultiplyPoint3x4(circle.offset);
-			DebugExtension.DrawCircle(center,Vector3.forward,Color.green,circle.radius);
-		}
+		
 	}
 }
 

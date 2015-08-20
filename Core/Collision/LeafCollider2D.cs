@@ -55,13 +55,6 @@ namespace ParticlePhysics2D {
 			
 		}
 		
-		// Update is called once per frame
-		protected override void Update () {
-			base.Update();
-		}
-		
-		
-		
 		protected override void OnDrawGizmos() {
 			base.OnDrawGizmos();
 			if (isGizmoOn && leafParticles!=null) {

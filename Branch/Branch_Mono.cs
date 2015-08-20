@@ -15,16 +15,12 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	[HideInInspector] [SerializeField] byte[] serializedBranch;
 	public BinaryTree GetBinaryTree {get{return branch;}}
 	
-	[SerializeField]
-	Simulation sim;
-	public Simulation GetSimulation {
-		get {return sim;} 
-	}
-	
-	public float ks = 0.5f;
+	[SerializeField] Simulation sim;
+	public Simulation GetSimulation { get {return sim;}}
 	
 	[Range(20f,150f)]
 	public float length = 20f;
+	public float ks = 0.5f;
 	
 	public bool debugBranch = false,debugParticlePhysics = false,debugIndex = false;
 	
@@ -39,7 +35,6 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	//some events
 	public event System.Action OnResetForm;//called by editor to invoke form reset
 	public event System.Action OnClearForm;
-	
 	
 	
 	void Awake() {
@@ -108,7 +103,6 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	}
 	
 	void OnDrawGizmosUpdate() {
-		
 		
 		if (debugBranch) {
 			if (branch!=null) branch.DebugRender(transform.localToWorldMatrix);

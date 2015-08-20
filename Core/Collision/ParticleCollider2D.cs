@@ -15,10 +15,12 @@ namespace ParticlePhysics2D {
 		}
 		
 		protected override void Start() {
-			this.GetComponent<Collider2D>().isTrigger = true;
+			base.Start();
 			this.UpdateMethod += NarrowPhaseUpdate;
 			this.phaseType = PhaseType.Narrow;
 		}
+		
+		
 		
 	}
 	

@@ -8,13 +8,14 @@ using System.Collections.Generic;
 namespace ParticlePhysics2D {
 	
 	//Collision Processor
+	[System.Serializable]
 	public sealed class CollisionProcessor {
 		
 		const float fixedTimestep = 1f/30f; //fps = 30
 		const int maxProcessNumber = 10;
 		const int DEFAULT_CAPACITY = 100;
 		bool isDebugOn = true;
-		
+		[SerializeField]
 		private List<CollisionObject> objs = new List<CollisionObject> (DEFAULT_CAPACITY);
 		private int _updateHead = -1;
 		private int UpdateHead {
@@ -34,17 +35,18 @@ namespace ParticlePhysics2D {
 				objs.Add(obj);
 				obj.indexInManager = objs.Count-1;
 				obj.lastUpdateTime = Time.realtimeSinceStartup;
+				//obj.beginUpdateTime = Time.realtimeSinceStartup;
 				if (isDebugOn) Debug.Log(obj.phaseType + " Object : " + obj.name + " is added to Manager");
 			}
 		}
 		
 		public void RemoveObject(CollisionObject obj) {
 			if (obj.indexInManager!=-1) {
-				CollisionObject thisOne = objs[obj.indexInManager];
-				CollisionObject lastOne = objs[objs.Count-1];
-				lastOne.indexInManager = obj.indexInManager;
-				Swap(lastOne,thisOne);
-				thisOne.indexInManager = -1;
+				CollisionObject temp = objs[obj.indexInManager];
+				objs[obj.indexInManager] = objs[objs.Count-1];
+				objs[objs.Count-1] = temp;
+				objs[obj.indexInManager].indexInManager = objs[objs.Count-1].indexInManager;
+				objs[objs.Count-1].indexInManager = -1;
 				objs.RemoveAt(objs.Count-1);
 				if (isDebugOn) Debug.Log(obj.phaseType + " Object : " + obj.name + " is removed from Manager");
 			}
@@ -52,24 +54,23 @@ namespace ParticlePhysics2D {
 		
 		int updateCount;
 		public void Update(float deltaTime) {
+			if (objs.Count<=0) return;
 			float f = Mathf.Clamp01(deltaTime / fixedTimestep);
-			updateCount = Mathf.Min(maxProcessNumber,(int)(objs.Count * f)); 
+			updateCount = Mathf.Clamp((int)(objs.Count * f) , 1 , maxProcessNumber);
 			float timeNow = Time.realtimeSinceStartup;
-			
 			for (int i=0;i<updateCount;i++) {
 				CollisionObject obj = objs[UpdateHead];
+				Debug.Log("Update for " + obj.name + " " + obj.phaseType);
 				while (timeNow - obj.lastUpdateTime > fixedTimestep) {
 					obj.UpdateMethod();
+					//obj.updateCount++;
 					obj.lastUpdateTime += fixedTimestep;
+					//if (obj.lastUpdateTime - obj.beginUpdateTime > 100f ) Debug.Break();
+					Debug.LogWarning("Update Happened " + obj.name + " " + obj.phaseType);
 				}
 			}
 		}
 		
-		void Swap ( CollisionObject t1,CollisionObject t2) {
-			CollisionObject t = t1;
-			t1 = t2;
-			t2 = t;
-		}
 	}
 	
 	
