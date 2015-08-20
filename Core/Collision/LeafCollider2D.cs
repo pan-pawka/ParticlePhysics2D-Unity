@@ -11,7 +11,7 @@ namespace ParticlePhysics2D {
 	[AddComponentMenu("ParticlePhysics2D/Collision/LeafCollision2D",13)]
 	public sealed class LeafCollider2D : CollisionHolder2D {
 		
-		public float radius = 5f;
+		public float radius = 1f;
 		public bool isGizmoOn = false;
 		public Color gizmoColor = Color.green;
 		

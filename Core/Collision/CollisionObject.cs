@@ -11,13 +11,11 @@ namespace ParticlePhysics2D {
 
 	public abstract class CollisionObject : MonoBehaviour {
 	
-		public int indexInManager = -1;
-		public float lastUpdateTime = 0f;
-//		public float beginUpdateTime = 0f;
-//		public int updateCount = 0;
+		[ReadOnly] public int indexInManager = -1;
+		[ReadOnly] public float lastUpdateTime = 0f;
+		[ReadOnly] public PhaseType phaseType;//derived class must specify the phase type
+
 		public Action UpdateMethod {get;set;}//must set the update method in start()
-		
-		public PhaseType phaseType;//derived class must specify the phase type
 		
 		const int DEFAULT_CONNECTION_NUM = 10;
 		

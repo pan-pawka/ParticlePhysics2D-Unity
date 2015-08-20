@@ -74,9 +74,6 @@ namespace ParticlePhysics2D {
 //		
 //		
 		
-		public static bool debugOn = true;
-		public static Color pointColor = Color.green;
-		public static Color branchColor = Color.yellow;
 		public static int branchesCount = 0;
 		
 		public static float angleOffsetMin = 0.1f,angleOffsetMax = 0.5f;
@@ -86,6 +83,15 @@ namespace ParticlePhysics2D {
 		public static float lengthBranchAThreshold = 3f,lengthBranchBThreshold = 3f;
 		public static int maxDepth = 9;
 		public const int maxDepthLimit = 12;
+		
+		//global debug option
+		public static Color pointColor = Color.green;
+		public static Color branchColor = Color.yellow - new Color (0f,0f,0f,0.3f);
+		public static Color leafColor = Color.magenta - new Color (0f,0f,0f,0.3f);
+		public static Color boundingCircleColor = Color.cyan - new Color (0f,0f,0f,0.3f);
+		
+		public static bool debugBranch = false,debugBranchLeaf = false, debugBranchBoundingCircle = false;
+		public static int debugBoundingCircleDepth = 0;
 		
 		public Vector2 Position {
 			get {
@@ -195,7 +201,8 @@ namespace ParticlePhysics2D {
 			maxDepth = 6;
 		}
 		
-		// Render 
+		// Render the branch in unity editor for debug purpose
+		// boundingCircleDepth = -1 means draw all of them
 		public void DebugRender(Matrix4x4 localToWorld = default(Matrix4x4)) {
 			
 			Vector2 thisPos;
@@ -210,9 +217,9 @@ namespace ParticlePhysics2D {
 			if (branchA!=null || branchB!=null) {
 				Vector2 pos = (branchA==null) ? branchB.Position : branchA.Position;
 				pos = (localToWorld==default(Matrix4x4)) ? pos : (Vector2)localToWorld.MultiplyPoint3x4(pos);
-				if (debugOn) {
-					Debug.DrawLine(thisPos,pos,branchColor);
-				}
+				
+				Debug.DrawLine(thisPos,pos,branchColor);
+				
 				if (branchA!=null) branchA.DebugRender(localToWorld);
 				if (branchB!=null) branchB.DebugRender(localToWorld);
 			} 
@@ -220,18 +227,16 @@ namespace ParticlePhysics2D {
 			else {
 				Vector2 pos = new Vector2 (GetChildrenBranchPosX,GetChildrenBranchPosY);
 				pos = (localToWorld==default(Matrix4x4)) ? pos : (Vector2)localToWorld.MultiplyPoint3x4(pos);
-				if (debugOn) {
-					Debug.DrawLine(thisPos,pos,branchColor);
-					DebugExtension.DebugCircle(pos,Vector3.forward,Color.magenta,length/10f);
-				}
-				
+				Debug.DrawLine(thisPos,pos,branchColor);
+				if (BinaryTree.debugBranchLeaf) DebugExtension.DebugCircle(pos,Vector3.forward,leafColor,length/10f);
 			}
 			
 			//debug bounding circle
-			if (boundingCircle.IsZero == false) {
+			if (BinaryTree.debugBranchBoundingCircle)
+			if (boundingCircle.IsZero == false && (BinaryTree.debugBoundingCircleDepth == -1 || BinaryTree.debugBoundingCircleDepth == depth)) {
 				Vector2 p = boundingCircle.position;
 				p = (localToWorld==default(Matrix4x4)) ? p : (Vector2)localToWorld.MultiplyPoint3x4(p);
-				DebugExtension.DebugCircle(p,Vector3.forward,Color.yellow, boundingCircle.radius);
+				DebugExtension.DebugCircle(p,Vector3.forward,boundingCircleColor, boundingCircle.radius);
 			}
 		}
 				

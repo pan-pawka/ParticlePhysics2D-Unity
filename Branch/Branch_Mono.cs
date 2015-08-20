@@ -23,7 +23,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	public float length = 20f;
 	public float ks = 0.5f;
 	
-	public bool debugBranch = false,debugParticlePhysics = false,debugIndex = false;
+	public bool debugParticlePhysics = false,debugIndex = false;
 	
 	//branch generation params
 	[HideInInspector] public float lengthExitRatio;
@@ -104,20 +104,20 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		}
 	}
 	
-	void OnDrawGizmosUpdate() {
-		
-		if (debugBranch) {
-			if (branch!=null) branch.DebugRender(transform.localToWorldMatrix);
-			else Debug.Log("branch is null");
-		}
+	public void OnDrawGizmosUpdate() {
 		if (debugParticlePhysics) {
 			if (sim!=null) sim.DebugSpring(transform.localToWorldMatrix);
+		}
+		if (BinaryTree.debugBranch) {
+			if (branch!=null) branch.DebugRender(transform.localToWorldMatrix);
+			else Debug.Log("branch is null");
 		}
 	}
 	
 	//a gizmo that is handy to pick up
-	void OnDrawGizmos() {
+	 void OnDrawGizmos() {
 		Gizmos.DrawSphere(transform.position,5f);
+		
 	}
 	
 	void OnDestroy(){

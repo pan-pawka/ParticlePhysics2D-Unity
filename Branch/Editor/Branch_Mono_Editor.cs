@@ -60,10 +60,29 @@ public class Branch_Mono_Editor : Editor {
 		temp.lengthBranchAThreshold = BinaryTree.lengthBranchAThreshold;
 		temp.lengthBranchBThreshold = BinaryTree.lengthBranchBThreshold;
 	}
+	
+//	Texture2D MakeTex(int width, int height, Color col) {
+//		var pix = new Color[width * height];
+//		for (int i = 0; i < pix.Length; i++) {
+//			pix[i] = col;
+//		}
+//		var result = new Texture2D(width, height);
+//		result.SetPixels(pix);
+//		result.Apply();
+//		return result;
+//	}
 
 	public override void OnInspectorGUI ()
 	{
 		DrawDefaultInspector();
+
+		//Branch Debug params
+		EditorGUILayout.LabelField("-------------------------------------------------------------------------------------------------");
+		BinaryTree.debugBranch = EditorGUILayout.Toggle("Debug Branch",BinaryTree.debugBranch,GUILayout.ExpandWidth(true));
+		BinaryTree.debugBranchLeaf = EditorGUILayout.Toggle("Debug Leaf",BinaryTree.debugBranchLeaf,GUILayout.ExpandWidth(true));
+		BinaryTree.debugBranchBoundingCircle = EditorGUILayout.Toggle("Debug Bounding Circle",BinaryTree.debugBranchBoundingCircle,GUILayout.ExpandWidth(true));
+		BinaryTree.debugBoundingCircleDepth = EditorGUILayout.IntSlider("Depth",BinaryTree.debugBoundingCircleDepth,-1,temp.maxDepth + 1);
+		if (BinaryTree.debugBranch) EditorUtility.SetDirty(temp);
 		
 		if (sim==null) return;
 		
@@ -165,7 +184,7 @@ public class Branch_Mono_Editor : Editor {
 			temp.ClearForm();
 			EditorUtility.SetDirty(temp);
 		}
-		
+		//EditorUtility.SetDirty(temp);
 		SaveParams();
 		
 	}
