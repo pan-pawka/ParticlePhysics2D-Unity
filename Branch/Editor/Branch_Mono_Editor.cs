@@ -166,8 +166,6 @@ public class Branch_Mono_Editor : Editor {
 			EditorUtility.SetDirty(temp);
 		}
 		
-		
-		
 		SaveParams();
 		
 	}

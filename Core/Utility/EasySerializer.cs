@@ -134,6 +134,7 @@ public sealed class VersionDeserializationBinder : SerializationBinder
 	} 
 }
 
+//USAGE EXAMPLE 1
 //using System;
 //using System.Runtime.Serialization;
 //
@@ -156,7 +157,7 @@ public sealed class VersionDeserializationBinder : SerializationBinder
 //}
 
 
-
+//USAGE EXAMPLE 2
 //using System;
 //
 //[System.SerializableAttribute()]

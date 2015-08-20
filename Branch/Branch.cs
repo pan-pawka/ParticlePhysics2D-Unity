@@ -2,12 +2,55 @@
 //Class that handles the branches 
 
 using UnityEngine;
-
+using UnityEngineInternal;
 
 namespace ParticlePhysics2D {
 
+	//bounding circle struct
+	public struct BoundingCircle {
+		public float radius;
+		public Vector2 position;
+		public BoundingCircle(Vector2 position, float radius) {
+			this.position = position;
+			this.radius = radius;
+		}
+		public static BoundingCircle zero {
+			get {
+				return new BoundingCircle (Vector2.zero,0f);
+			}
+		}
+		public static BoundingCircle GetFromTwo(BoundingCircle a,BoundingCircle b) {
+			BoundingCircle r = zero;
+			Vector2 d = a.position - b.position;
+			float dist = d.magnitude;
+			r.radius = (dist + a.radius + b.radius) /2f;
+			d = d * (r.radius - b.radius) / dist;
+			r.position = b.position + d;
+			return r;
+		}
+		public bool IsZero {
+			get {
+				if (this.position==Vector2.zero && this.radius == 0f) return true;
+				else return false;
+			}
+		}
+	}
+
 	[System.Serializable]
 	public class BinaryTree {
+	
+		//the leaf bounding radius for collison detection
+		[System.NonSerialized]
+		public BoundingCircle boundingCircle = BoundingCircle.zero;
+		public BoundingCircle GetBoundingCircle (Simulation sim,float leafColliderRadius){
+			if (branchA==null && branchB==null) {
+				this.boundingCircle = new BoundingCircle (sim.getParticlePosition(leafIndex),leafColliderRadius);
+				return this.boundingCircle;
+			} else {
+				this.boundingCircle = BoundingCircle.GetFromTwo(branchA.GetBoundingCircle(sim,leafColliderRadius),branchB.GetBoundingCircle(sim,leafColliderRadius));
+				return this.boundingCircle;
+			}
+		}
 		
 		// Variable definitions 
 		[System.NonSerialized] float xPos;
@@ -179,9 +222,16 @@ namespace ParticlePhysics2D {
 				pos = (localToWorld==default(Matrix4x4)) ? pos : (Vector2)localToWorld.MultiplyPoint3x4(pos);
 				if (debugOn) {
 					Debug.DrawLine(thisPos,pos,branchColor);
-					DebugExtension.DebugCircle(pos,Vector3.forward,Color.magenta,2f);
+					DebugExtension.DebugCircle(pos,Vector3.forward,Color.magenta,length/10f);
 				}
 				
+			}
+			
+			//debug bounding circle
+			if (boundingCircle.IsZero == false) {
+				Vector2 p = boundingCircle.position;
+				p = (localToWorld==default(Matrix4x4)) ? p : (Vector2)localToWorld.MultiplyPoint3x4(p);
+				DebugExtension.DebugCircle(p,Vector3.forward,Color.yellow, boundingCircle.radius);
 			}
 		}
 				

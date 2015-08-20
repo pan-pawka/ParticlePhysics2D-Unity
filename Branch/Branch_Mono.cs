@@ -11,6 +11,7 @@ using ParticlePhysics2D;
 [AddComponentMenu("ParticlePhysics2D/Forms/BinaryTree",13)]
 public class Branch_Mono : MonoBehaviour, IFormLayer {
 
+	
 	BinaryTree branch;
 	[HideInInspector] [SerializeField] byte[] serializedBranch;
 	public BinaryTree GetBinaryTree {get{return branch;}}
@@ -38,6 +39,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	
 	
 	void Awake() {
+		Debug.Log("Re construct branch from serialized bytes");
 		branch = EasySerializer.DeserializeObjectFromBytes(serializedBranch) as BinaryTree;
 	}
 	
@@ -73,7 +75,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	public void ResetForm(){
 	
 		branch = BinaryTree.GenerateBranch(length);
-		Debug.Log("Branches : " + BinaryTree.branchesCount);
+		//Debug.Log("Branches : " + BinaryTree.branchesCount);
 		if (sim==null)
 			sim = new Simulation (IntegrationMedthod.VERLET);
 		sim.setGravity(0f,0f);
@@ -82,12 +84,12 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		Particle2D start = sim.makeParticle (branch.Position);
 		CopyBranchTopology(start,branch,ref sim);
 		if (Application.isEditor) OnDrawGizmosUpdate();
-		
+		Debug.Log("Serialize branch to bytes");
 		serializedBranch = EasySerializer.SerializeObjectToBytes(branch);
 		
 		if (OnResetForm!=null) OnResetForm();//invokde the event
 		else {
-			Debug.Log("No one register OnResetForm");
+			//Debug.Log("No one register OnResetForm");
 		}
 	}	
 	
@@ -98,7 +100,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		this.leafCount = 0;
 		if (OnClearForm!=null) OnClearForm();//invoke the clear form event
 		else {
-			Debug.Log("No one register OnClearForm");
+			//Debug.Log("No one register OnClearForm");
 		}
 	}
 	
@@ -111,6 +113,11 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		if (debugParticlePhysics) {
 			if (sim!=null) sim.DebugSpring(transform.localToWorldMatrix);
 		}
+	}
+	
+	//a gizmo that is handy to pick up
+	void OnDrawGizmos() {
+		Gizmos.DrawSphere(transform.position,5f);
 	}
 	
 	void OnDestroy(){

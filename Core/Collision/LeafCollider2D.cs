@@ -16,7 +16,6 @@ namespace ParticlePhysics2D {
 		public Color gizmoColor = Color.green;
 		
 		BinaryTree branch;
-		float[] boundingSphereRadius;
 		
 		List<Particle2D> leafParticles;
 		Simulation sim;
@@ -24,6 +23,8 @@ namespace ParticlePhysics2D {
 		void OnResetCollision() {
 			this.sim = this.GetComponent<IFormLayer>().GetSimulation;
 			leafParticles = sim.getLeafParticles();
+			branch = (this.GetComponent<IFormLayer>() as Branch_Mono).GetBinaryTree;
+			branch.GetBoundingCircle(sim,radius);
 		}
 		
 		void OnClearCollision() {
@@ -32,27 +33,29 @@ namespace ParticlePhysics2D {
 		
 		protected override void Start() {
 			base.Start();
-			this.GetComponent<IFormLayer>().OnResetForm += OnResetCollision;
-			this.GetComponent<IFormLayer>().OnClearForm += OnClearCollision;
-			
 			OnResetCollision();
 			branch = (this.GetComponent<IFormLayer>() as Branch_Mono).GetBinaryTree;
 			this.sim = this.GetComponent<IFormLayer>().GetSimulation;
-			boundingSphereRadius = new float[sim.numberOfParticles()];
+			branch.GetBoundingCircle(sim,radius);
 		}
 
 		void OnDestroy() {
+			
+		}
+		
+		void OnEnable() {
+			this.GetComponent<IFormLayer>().OnResetForm += OnResetCollision;
+			this.GetComponent<IFormLayer>().OnClearForm += OnClearCollision;
+		}
+		
+		void OnDisable() {
 			this.GetComponent<IFormLayer>().OnResetForm -= OnResetCollision;
 			this.GetComponent<IFormLayer>().OnClearForm -= OnClearCollision;
 		}
 		
-		void GetBoundingSphereRadius(BinaryTree branch) {
-			
-		}
-		
-		//the implementation
+		//the broad phase implementation
 		protected override void BroadPhaseUpdate() {
-			
+			branch.GetBoundingCircle(sim,radius);
 		}
 		
 		protected override void OnDrawGizmos() {
