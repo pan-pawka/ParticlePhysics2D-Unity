@@ -37,7 +37,6 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	public event System.Action OnResetForm;//called by editor to invoke form reset
 	public event System.Action OnClearForm;
 	
-	
 	void Awake() {
 		Debug.Log("Re construct branch from serialized bytes");
 		branch = EasySerializer.DeserializeObjectFromBytes(serializedBranch) as BinaryTree;

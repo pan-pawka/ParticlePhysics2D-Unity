@@ -25,12 +25,20 @@ namespace ParticlePhysics2D {
 		[SerializeField] CollisionProcessor npProcessor = new CollisionProcessor (IsDebugOn);  //narrow phase processor
 
 		//generic add and remove
-		public void AddCollisionObject ( CollisionObject obj ) {
-			if (obj.phaseType == PhaseType.Broad) bpProcessor.AddObject(obj); else npProcessor.AddObject(obj);
+		public void AddCollisionObject ( CollisionHolder2D obj ) {
+			bpProcessor.AddObject(obj);
 		}
 		
-		public void RemoveCollisionObject ( CollisionObject obj) {
-			if (obj.phaseType == PhaseType.Broad) bpProcessor.RemoveObject(obj); else npProcessor.RemoveObject(obj);
+		public void AddCollisionObject( ParticleCollider2D obj) {
+			npProcessor.AddObject(obj);
+		}
+		
+		public void RemoveCollisionObject ( CollisionHolder2D obj) {
+			bpProcessor.RemoveObject(obj); 
+		}
+		
+		public void RemoveCollisionObject ( ParticleCollider2D obj) {
+			npProcessor.RemoveObject(obj);
 		}
 		
 		

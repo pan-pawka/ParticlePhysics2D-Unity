@@ -9,16 +9,28 @@ namespace ParticlePhysics2D {
 	[RequireComponent(typeof(CircleCollider2D))]
 	public abstract class CollisionHolder2D : CollisionObject {
 		
+		const int DEFAULT_CONNECTION_NUM = 10;
+		
+		public float leafRadius = 1f;
+		
+		protected CircleCollider2D circle;
+		
+		[HideInInspector]
+		public List<ParticleCollider2D> connection = new List<ParticleCollider2D> (DEFAULT_CONNECTION_NUM);
+		
 		//derived class must override and extend the start
-		protected override void Start () {
-			base.Start();
-			this.UpdateMethod += BroadPhaseUpdate;
-			this.phaseType = PhaseType.Broad;
+		protected virtual void Start () {
+			base.UpdateMethod += BroadPhaseUpdate;
+			circle = this.GetComponent<CircleCollider2D>();
+			circle.isTrigger = true;
 		}
 		
 		//derived class must override this method
 		//the broad phase implementation includes calculating the BVH
 		protected abstract void BroadPhaseUpdate();
+		
+		public abstract void TraverseBVHForCircle ( CircleCollider2D circle ) ;
+		public abstract void TraverseBVHForPolygon ( PolygonCollider2D poly ) ;
 			
 		protected virtual void Update () {}
 		
@@ -27,15 +39,21 @@ namespace ParticlePhysics2D {
 		protected virtual void OnTriggerEnter2D (Collider2D c) {
 			ParticleCollider2D pC2D = c.gameObject.GetComponent<ParticleCollider2D>();
 			if (pC2D) {
-				this.Connect(pC2D);
+				CollisionObject.Connect(this,pC2D);
 			}
 		}
 		
 		protected virtual void OnTriggerExit2D (Collider2D c) {
 			ParticleCollider2D pC2D = c.gameObject.GetComponent<ParticleCollider2D>();
 			if (pC2D) {
-				this.Disconnect(pC2D);
+				CollisionObject.Disconnect(this,pC2D);
 			}
+		}
+		
+		protected virtual void OnDrawGizmos() {
+			if (!circle) circle = this.GetComponent<CircleCollider2D>();
+			Vector2 center = transform.localToWorldMatrix.MultiplyPoint3x4(circle.offset);
+			DebugExtension.DrawCircle(center,Vector3.forward,Color.green * 0.5f,circle.radius);
 		}
 		
 		

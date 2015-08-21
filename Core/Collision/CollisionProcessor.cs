@@ -36,7 +36,7 @@ namespace ParticlePhysics2D {
 				obj.indexInManager = objs.Count-1;
 				obj.lastUpdateTime = Time.realtimeSinceStartup;
 				//obj.beginUpdateTime = Time.realtimeSinceStartup;
-				if (isDebugOn) Debug.Log(obj.phaseType + " Object : " + obj.name + " is added to Manager");
+				if (isDebugOn) Debug.Log( " Object : " + obj.name + " is added to Manager");
 			}
 		}
 		
@@ -48,7 +48,7 @@ namespace ParticlePhysics2D {
 				objs[obj.indexInManager].indexInManager = objs[objs.Count-1].indexInManager;
 				objs[objs.Count-1].indexInManager = -1;
 				objs.RemoveAt(objs.Count-1);
-				if (isDebugOn) Debug.Log(obj.phaseType + " Object : " + obj.name + " is removed from Manager");
+				if (isDebugOn) Debug.Log( " Object : " + obj.name + " is removed from Manager");
 			}
 		}
 		
@@ -60,13 +60,13 @@ namespace ParticlePhysics2D {
 			float timeNow = Time.realtimeSinceStartup;
 			for (int i=0;i<updateCount;i++) {
 				CollisionObject obj = objs[UpdateHead];
-				Debug.Log("Update for " + obj.name + " " + obj.phaseType);
+				//Debug.Log("Update for " + obj.name + " " + obj.phaseType);
 				while (timeNow - obj.lastUpdateTime > fixedTimestep) {
 					obj.UpdateMethod();
 					//obj.updateCount++;
 					obj.lastUpdateTime += fixedTimestep;
 					//if (obj.lastUpdateTime - obj.beginUpdateTime > 100f ) Debug.Break();
-					Debug.LogWarning("Update Happened " + obj.name + " " + obj.phaseType);
+					//Debug.LogWarning("Update Happened " + obj.name + " " + obj.phaseType);
 				}
 			}
 		}

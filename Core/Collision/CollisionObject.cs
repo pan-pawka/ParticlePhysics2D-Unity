@@ -7,55 +7,35 @@ using System.Collections.Generic;
 
 namespace ParticlePhysics2D {
 
-	public enum PhaseType {Broad, Narrow}
-
+	
 	public abstract class CollisionObject : MonoBehaviour {
 	
 		[ReadOnly] public int indexInManager = -1;
 		[ReadOnly] public float lastUpdateTime = 0f;
-		[ReadOnly] public PhaseType phaseType;//derived class must specify the phase type
 
 		public Action UpdateMethod {get;set;}//must set the update method in start()
 		
-		const int DEFAULT_CONNECTION_NUM = 10;
-		
-		[HideInInspector]
-		public List<CollisionObject> connection = new List<CollisionObject> (DEFAULT_CONNECTION_NUM);
-		
-		private CircleCollider2D circle;
-		
-		//derived class must extend Start to set the update method
-		protected virtual void Start(){
-			circle = this.GetComponent<CircleCollider2D>();
-			circle.isTrigger = true;
-		}
-		
-		//conenction between narrow phase obj and broad phase obj
-		protected void Connect(CollisionObject obj) {
-			if (this.phaseType != obj.phaseType && !connection.Contains(obj) && !obj.connection.Contains(this)) {
-				connection.Add(obj);
-				obj.connection.Add(this);
-				if (obj.connection.Count==1) PCollision2DManager.Instance.AddCollisionObject(obj);
-				if (this.connection.Count==1) PCollision2DManager.Instance.AddCollisionObject(this);
-				if (PCollision2DManager.IsDebugOn) Debug.Log(this.name + " try to connect with " + obj.name);
+		protected static void Connect(CollisionHolder2D obj1, ParticleCollider2D obj2) {
+			if (!obj1.connection.Contains(obj2) && !obj2.connection.Contains(obj1)) {
+				obj1.connection.Add(obj2);
+				obj2.connection.Add(obj1);
+				if (obj1.connection.Count==1) PCollision2DManager.Instance.AddCollisionObject(obj1);
+				if (obj2.connection.Count==1) PCollision2DManager.Instance.AddCollisionObject(obj2);
+				if (PCollision2DManager.IsDebugOn) Debug.Log(obj1.name + " try to connect with " + obj2.name);
 			}
 		}
 		
-		protected void Disconnect (CollisionObject obj) {
-			if (this.phaseType != obj.phaseType && connection.Contains(obj) && obj.connection.Contains(this)) {
-				connection.Remove(obj);
-				obj.connection.Remove(this);
-				if (connection.Count==0) PCollision2DManager.Instance.RemoveCollisionObject(this);
-				if (obj.connection.Count==0) PCollision2DManager.Instance.RemoveCollisionObject(obj);
-				if (PCollision2DManager.IsDebugOn) Debug.Log(this.name + " try to disconnect with " + obj.name);
+		protected static void Disconnect(CollisionHolder2D obj1, ParticleCollider2D obj2) {
+			if (obj1.connection.Contains(obj2) && obj2.connection.Contains(obj1)) {
+				obj1.connection.Remove(obj2);
+				obj2.connection.Remove(obj1);
+				if (obj1.connection.Count==0) PCollision2DManager.Instance.RemoveCollisionObject(obj1);
+				if (obj2.connection.Count==0) PCollision2DManager.Instance.RemoveCollisionObject(obj2);
+				if (PCollision2DManager.IsDebugOn) Debug.Log(obj1.name + " try to disconnect with " + obj2.name);
 			}
 		}
 		
-		protected virtual void OnDrawGizmos() {
-			if (!circle) circle = this.GetComponent<CircleCollider2D>();
-			Vector2 center = transform.localToWorldMatrix.MultiplyPoint3x4(circle.offset);
-			DebugExtension.DrawCircle(center,Vector3.forward,Color.green,circle.radius);
-		}
+		
 		
 		
 	}

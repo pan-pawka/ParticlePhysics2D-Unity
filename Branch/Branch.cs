@@ -9,30 +9,60 @@ namespace ParticlePhysics2D {
 	//bounding circle struct
 	public struct BoundingCircle {
 		public float radius;
+		private float radius2;
 		public Vector2 position;
 		public BoundingCircle(Vector2 position, float radius) {
 			this.position = position;
 			this.radius = radius;
+			this.radius2 = radius * radius;
 		}
 		public static BoundingCircle zero {
 			get {
 				return new BoundingCircle (Vector2.zero,0f);
 			}
 		}
+		//todo: optimize: do not instantiate new one
 		public static BoundingCircle GetFromTwo(BoundingCircle a,BoundingCircle b) {
-			BoundingCircle r = zero;
 			Vector2 d = a.position - b.position;
 			float dist = d.magnitude;
-			r.radius = (dist + a.radius + b.radius) /2f;
-			d = d * (r.radius - b.radius) / dist;
-			r.position = b.position + d;
-			return r;
+			float r = (dist + a.radius + b.radius) /2f;
+			return new BoundingCircle  (b.position + d * (r - b.radius) / dist , r );
 		}
 		public bool IsZero {
 			get {
 				if (this.position==Vector2.zero && this.radius == 0f) return true;
 				else return false;
 			}
+		}
+		public bool Overlaps(Vector2 pos, float radius) {
+			float m2 = (pos - this.position).sqrMagnitude;
+			float Rr = radius + this.radius;
+			if (m2 < Rr * Rr ) return true; else return false;
+		}
+		public bool Overlaps(CircleCollider2D cc) {
+			return Overlaps(cc.transform.position,cc.radius);
+		}
+		
+		//if the testing boudning circle overlpas with the tested circle,
+		//tested should be move by dir, and tesing one should be move by -dir, in order to satisfy.
+		public bool OverlapsResults(Vector2 pos, float radius, out Vector2 dir) {
+			dir = pos - this.position;
+			float m2 = dir.sqrMagnitude;
+			if (m2 > radius * radius + this.radius2) return false; else {
+				m2 = Mathf.Sqrt(m2);
+				float o = radius + this.radius - m2;
+				dir *= (o/m2);
+				return true;
+			}
+		}
+		
+		public bool OverlapsResults(CircleCollider2D cc, out Vector2 dir) {
+			return OverlapsResults(cc.transform.position,cc.radius,out dir);
+		}
+		
+		public void DebugDraw(Matrix4x4 local2World,int depth) {
+			Vector2 pos = local2World.MultiplyPoint3x4(this.position);
+			DebugExtension.DebugCircle(pos,Vector3.forward,Color.white * (float)depth / 8f,radius);
 		}
 	}
 

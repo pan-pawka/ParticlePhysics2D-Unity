@@ -11,12 +11,11 @@ namespace ParticlePhysics2D {
 	[AddComponentMenu("ParticlePhysics2D/Collision/LeafCollision2D",13)]
 	public sealed class LeafCollider2D : CollisionHolder2D {
 		
-		public float radius = 1f;
+		public int minTraverseDepth = 4;
 		public bool isGizmoOn = false;
 		public Color gizmoColor = Color.green;
 		
 		BinaryTree branch;
-		
 		List<Particle2D> leafParticles;
 		Simulation sim;
 		
@@ -24,7 +23,7 @@ namespace ParticlePhysics2D {
 			this.sim = this.GetComponent<IFormLayer>().GetSimulation;
 			leafParticles = sim.getLeafParticles();
 			branch = (this.GetComponent<IFormLayer>() as Branch_Mono).GetBinaryTree;
-			branch.GetBoundingCircle(sim,radius);
+			branch.GetBoundingCircle(sim,base.leafRadius);
 		}
 		
 		void OnClearCollision() {
@@ -36,7 +35,7 @@ namespace ParticlePhysics2D {
 			OnResetCollision();
 			branch = (this.GetComponent<IFormLayer>() as Branch_Mono).GetBinaryTree;
 			this.sim = this.GetComponent<IFormLayer>().GetSimulation;
-			branch.GetBoundingCircle(sim,radius);
+			//branch.GetBoundingCircle(sim,radius);
 		}
 
 		void OnDestroy() {
@@ -55,8 +54,49 @@ namespace ParticlePhysics2D {
 		
 		//the broad phase implementation
 		protected override void BroadPhaseUpdate() {
-			branch.GetBoundingCircle(sim,radius);
+			branch.GetBoundingCircle(sim,base.leafRadius);
 		}
+		
+		private Rigidbody2D targetRb2D;
+		private CircleCollider2D cc;
+		private Vector2 targetPos;
+		public override void TraverseBVHForCircle ( CircleCollider2D cc ) {
+			targetRb2D = cc.GetComponent<Rigidbody2D>();
+			this.cc = cc;
+			if (targetRb2D && this.cc) {
+				this.targetPos = transform.InverseTransformPoint(cc.transform.position);
+				TraverseBinaryTreeForCircle(this.branch);
+			}
+		}
+		
+		void TraverseBinaryTreeForCircle ( BinaryTree branch) {
+			
+			if (branch.branchA!=null && branch.branchB!=null) {
+				if (branch.depth < this.minTraverseDepth) {
+					TraverseBinaryTreeForCircle(branch.branchA);
+					TraverseBinaryTreeForCircle(branch.branchB);	
+				} else {
+					//branch.boundingCircle.DebugDraw(transform.localToWorldMatrix);
+					if (branch.boundingCircle.Overlaps(targetPos,cc.radius)) {
+						branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth);
+						TraverseBinaryTreeForCircle(branch.branchA);
+						TraverseBinaryTreeForCircle(branch.branchB);
+					}
+				}
+			} else if (branch.branchA==null && branch.branchB == null){
+				Vector2 dir;
+				if (branch.boundingCircle.OverlapsResults(targetPos,cc.radius,out dir)){
+					branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth);
+//					sim.getParticle(branch.leafIndex).Position -= dir;//local space
+//					Vector2 pos = targetRb2D.transform.position;
+//					dir = transform.TransformDirection(dir);
+//					targetRb2D.MovePosition(pos + dir);
+					
+				}
+			}
+		}
+		
+		public override void TraverseBVHForPolygon(PolygonCollider2D poly) {}
 		
 		protected override void OnDrawGizmos() {
 			base.OnDrawGizmos();
@@ -64,7 +104,7 @@ namespace ParticlePhysics2D {
 				Vector2 pos;
 				for (int i=0;i<leafParticles.Count;i++) {
 					pos = transform.localToWorldMatrix.MultiplyPoint3x4(leafParticles[i].Position);
-					DebugExtension.DrawCircle(pos,Vector3.forward,gizmoColor,radius);
+					DebugExtension.DrawCircle(pos,Vector3.forward,gizmoColor,base.leafRadius);
 				}
 			}
 		}
