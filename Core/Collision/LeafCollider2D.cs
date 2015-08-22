@@ -78,7 +78,7 @@ namespace ParticlePhysics2D {
 				} else {
 					//branch.boundingCircle.DebugDraw(transform.localToWorldMatrix);
 					if (branch.boundingCircle.Overlaps(targetPos,cc.radius)) {
-						branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth);
+						//branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.white);
 						TraverseBinaryTreeForCircle(branch.branchA);
 						TraverseBinaryTreeForCircle(branch.branchB);
 					}
@@ -86,11 +86,12 @@ namespace ParticlePhysics2D {
 			} else if (branch.branchA==null && branch.branchB == null){
 				Vector2 dir;
 				if (branch.boundingCircle.OverlapsResults(targetPos,cc.radius,out dir)){
-					branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth);
-//					sim.getParticle(branch.leafIndex).Position -= dir;//local space
-//					Vector2 pos = targetRb2D.transform.position;
-//					dir = transform.TransformDirection(dir);
-//					targetRb2D.MovePosition(pos + dir);
+					branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.magenta);
+					//apply collision
+					sim.getParticle(branch.leafIndex).Position -= dir;//local space
+					Vector2 pos = targetRb2D.transform.position;
+					dir = transform.TransformDirection(dir);
+					targetRb2D.AddForce(dir * 100f,ForceMode2D.Force);
 					
 				}
 			}

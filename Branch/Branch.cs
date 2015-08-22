@@ -39,16 +39,14 @@ namespace ParticlePhysics2D {
 			float Rr = radius + this.radius;
 			if (m2 < Rr * Rr ) return true; else return false;
 		}
-		public bool Overlaps(CircleCollider2D cc) {
-			return Overlaps(cc.transform.position,cc.radius);
-		}
 		
 		//if the testing boudning circle overlpas with the tested circle,
 		//tested should be move by dir, and tesing one should be move by -dir, in order to satisfy.
 		public bool OverlapsResults(Vector2 pos, float radius, out Vector2 dir) {
 			dir = pos - this.position;
 			float m2 = dir.sqrMagnitude;
-			if (m2 > radius * radius + this.radius2) return false; else {
+			float Rr = radius + this.radius;
+			if (m2 > Rr * Rr) return false; else {
 				m2 = Mathf.Sqrt(m2);
 				float o = radius + this.radius - m2;
 				dir *= (o/m2);
@@ -56,13 +54,9 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		public bool OverlapsResults(CircleCollider2D cc, out Vector2 dir) {
-			return OverlapsResults(cc.transform.position,cc.radius,out dir);
-		}
-		
-		public void DebugDraw(Matrix4x4 local2World,int depth) {
+		public void DebugDraw(Matrix4x4 local2World,int depth, Color color) {
 			Vector2 pos = local2World.MultiplyPoint3x4(this.position);
-			DebugExtension.DebugCircle(pos,Vector3.forward,Color.white * (float)depth / 8f,radius);
+			DebugExtension.DebugCircle(pos,Vector3.forward,color * (float)depth / 8f,radius);
 		}
 	}
 
