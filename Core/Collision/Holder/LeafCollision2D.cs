@@ -92,14 +92,15 @@ namespace ParticlePhysics2D {
 				if (branch.boundingCircle.OverlapsResults(targetPos,cc.radius,out dir)){
 					branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.magenta);
 					//apply collision
-					sim.getParticle(branch.leafIndex).Position -= dir;//local space
-					Vector2 pos = targetRb2D.transform.position;
+					sim.getParticle(branch.leafIndex).Force -= dir * leafForceFeedback;//local space
 					dir = transform.TransformDirection(dir);
-					targetRb2D.AddForce(dir * 100f,ForceMode2D.Force);
+					targetRb2D.AddForce(dir * targetForceFeedback,ForceMode2D.Force);
 					
 				}
 			}
 		}
+		
+		public float leafForceFeedback = 1f,targetForceFeedback = 100f;
 		
 		public override void TraverseBVHForPolygon(PolygonCollider2D poly) {}
 		

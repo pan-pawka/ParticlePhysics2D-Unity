@@ -29,7 +29,7 @@ namespace ParticlePhysics2D {
 			}
 			totalSearchCount += searchCount;
 			totalIter++;
-			Debug.Log(totalSearchCount / totalIter);
+			//Debug.Log(totalSearchCount / totalIter);
 		}
 		
 #if UNITY_EDITOR

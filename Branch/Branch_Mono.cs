@@ -21,9 +21,8 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	
 	[Range(20f,150f)]
 	public float length = 20f;
-	public float ks = 0.99f;
 	
-	public bool debugParticlePhysics = false,debugIndex = false;
+	public bool debugSpring = false,debugAngles = false,debugParticleIndex = false,debugSpringIndex = false;
 	
 	//branch generation params
 	[HideInInspector] public float lengthExitRatio;
@@ -61,6 +60,8 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 			s.makeSpring(p,temp);
 			if (b.branchA!=null) CopyBranchTopology (temp,b.branchA,ref s);
 			if (b.branchB!=null) CopyBranchTopology (temp,b.branchB,ref s);
+			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchA.springIndex));
+			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchB.springIndex));
 		} 
 		//if it's a leaf branch
 		else {
@@ -71,6 +72,8 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 			leafCount++;
 			s.makeSpring(p,temp);
 		}
+		
+		
 		
 	}
 	
@@ -85,7 +88,9 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		sim.clear();
 		leafCount = 0;
 		Particle2D start = sim.makeParticle (branch.Position);
+		start.makeFixed();
 		CopyBranchTopology(start,branch,ref sim);
+		sim.getParticle(1).makeFixed();
 		if (Application.isEditor) OnDrawGizmosUpdate();
 		Debug.Log("Serialize branch to bytes");
 		serializedBranch = EasySerializer.SerializeObjectToBytes(branch);
@@ -108,8 +113,9 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	}
 	
 	public void OnDrawGizmosUpdate() {
-		if (debugParticlePhysics) {
-			if (sim!=null) sim.DebugSpring(transform.localToWorldMatrix);
+		if (sim!=null) {
+			if (debugSpring) sim.DebugSpring(transform.localToWorldMatrix);
+			if (debugAngles) sim.DebugAngles(transform.localToWorldMatrix);
 		}
 		if (BinaryTree.debugBranch) {
 			if (branch!=null) branch.DebugRender(transform.localToWorldMatrix);

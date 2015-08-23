@@ -191,9 +191,8 @@ public class Branch_Mono_Editor : Editor {
 	
 	public void OnSceneGUI() {
 		if (sim!=null) {
-			if (temp.debugIndex)
-				sim.DebugParticle(temp.transform.localToWorldMatrix);
-				//sim.DebugParticle();
+			if (temp.debugParticleIndex) sim.DebugParticle(temp.transform.localToWorldMatrix);
+			if (temp.debugSpringIndex) sim.DebugSpringIndex(temp.transform.localToWorldMatrix);
 		}
 	}
 }

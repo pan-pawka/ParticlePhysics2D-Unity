@@ -16,7 +16,7 @@ namespace ParticlePhysics2D {
 	public class Spring2D : IForce {
 		
 		//[SerializeField] float springConstant;
-		[SerializeField] float restLength2;
+		[SerializeField] public float restLength2;
 		
 		[SerializeField] int indexA;
 		[SerializeField] int indexB;
@@ -27,7 +27,7 @@ namespace ParticlePhysics2D {
 		[NonSerialized] Particle2D a;
 		[NonSerialized] Particle2D b;
 		
-		// you need to SetSimulation in Simualtion class's OnAfterDeserialize() callback
+		// you need to SetSimulation in Simualtion class's OnAfterDeserialize() callback. this is a hack
 		public void SetParticles(Simulation sim) {
 			this.sim = sim;
 			a = sim.getParticle(indexA);
@@ -38,9 +38,12 @@ namespace ParticlePhysics2D {
 		{
 			this.indexA = indexA;
 			this.indexB = indexB;
-			SetParticles(sim);
+			this.sim = sim;
+			a = sim.getParticle(indexA);
+			b = sim.getParticle(indexB);
 			//this.springConstant = springConstant;
 			this.restLength2 = restLength * restLength;
+			//Debug.Log(restLength2);
 			on = true;
 		}
 		
@@ -86,15 +89,10 @@ namespace ParticlePhysics2D {
 			//return (sim.getParticlePosition(indexA) - sim.getParticlePosition(indexB)).magnitude;
 		}
 		
-//		public float strength()
-//		{
-//			return springConstant;
-//		}
-		
-//		public void setStrength( float ks )
-//		{
-//			springConstant = ks;
-//		}
+		public float currentLengthSqr()
+		{
+			return (a.Position-b.Position).sqrMagnitude;
+		}
 		
 		public void setRestLength( float l )
 		{
@@ -108,9 +106,8 @@ namespace ParticlePhysics2D {
 				//faster square root approx from Advanced Character Physics
 				Vector2 delta = a.Position - b.Position;
 				delta *= restLength2 /(delta.sqrMagnitude + restLength2) - 0.5f;
-				//Debug.Log(delta);
 				if (a.IsFree) a.Force += delta * sim.springConstant;
-				if (a.IsFree) b.Force -= delta * sim.springConstant;
+				if (b.IsFree) b.Force -= delta * sim.springConstant;
 			}
 		}
 		

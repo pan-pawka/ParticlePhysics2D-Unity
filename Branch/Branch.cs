@@ -82,7 +82,10 @@ namespace ParticlePhysics2D {
 		[System.NonSerialized] float angle;
 		[System.NonSerialized] float length;
 		
-		public int leafIndex;//the index of the particle created by this branch
+		//the index of the leaf particle in the simulation instance
+		//note that the index of the corresponding spring2d, is leafIndex - 1;
+		public int leafIndex;
+		public int springIndex {get {return leafIndex - 1;}}
 		public int depth;//the depth of this branch in the binarytree
 		
 		public BinaryTree branchA;

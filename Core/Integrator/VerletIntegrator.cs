@@ -15,9 +15,8 @@ namespace ParticlePhysics2D {
 		
 		public void step( float t )
 		{
-			s.clearForces();
-			s.applyForces();
 			
+			s.applyForces();
 			Vector2 temp;
 			for ( int i = 0; i < s.numberOfParticles(); i++ )
 			{
@@ -29,9 +28,12 @@ namespace ParticlePhysics2D {
 					//p.Position = p.Position + (p.Position - p.PositionOld) * s.damping  * (t / dt) + p.Force / p.Mass * t * t;
 					p.Position = p.Position + (p.Position - p.PositionOld) * s.damping + p.Force;
 					p.PositionOld = temp;
-					dt = t;
+					//dt = t;
 				}
 			}
+			s.clearForces();
+			
+			
 		}
 		
 	}

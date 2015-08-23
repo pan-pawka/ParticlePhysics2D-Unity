@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 namespace ParticlePhysics2D {
@@ -11,8 +11,7 @@ namespace ParticlePhysics2D {
 		
 		[SerializeField]
 		Vector2 positionOld;
-		
-		Vector2 velocity;//used by other integrators other than GPU one
+
 		Vector2 force;
 		float mass = 1f;
 		
@@ -30,7 +29,6 @@ namespace ParticlePhysics2D {
 		public Particle2D()
 		{
 			this.position = Vector2.zero;
-			this.velocity = Vector2.zero;
 			this.force = Vector2.zero;
 			this.isFixed = false;
 		}
@@ -45,7 +43,6 @@ namespace ParticlePhysics2D {
 		
 		public void makeFixed(){
 			isFixed = true;
-			velocity = Vector2.zero;
 		}
 		public void makeFree(){isFixed = false;}
 		
@@ -54,7 +51,6 @@ namespace ParticlePhysics2D {
 		void reset()
 		{
 			position = Vector2.zero;
-			velocity = Vector2.zero;
 			force = Vector2.zero;
 			mass = 1f;
 		}
@@ -66,8 +62,6 @@ namespace ParticlePhysics2D {
 		public Vector2 Position {get {return position;}set{position = value;}}
 		
 		public Vector2 PositionOld {get{return positionOld;}set{positionOld = value;}}
-		
-		public Vector2 Velocity{get{return velocity;}set{velocity = value;}}
 	
 		public float Mass {get{return mass;}}
 

@@ -52,10 +52,15 @@ namespace ParticlePhysics2D {
 		}
 		
 		//rotate point t around point c for degree a
-		public static Vector2 RotateVector2(Vector2 t, Vector2 c, float a){
-			
-			float cosA = FastCos(a);
-			float sinA = FastSin(a);
+		public static Vector2 RotateVector2(Vector2 t, Vector2 c, float a, bool useLUT = false){
+			float cosA,sinA;
+			if (useLUT) {
+				cosA = FastCos(a);
+				sinA = FastSin(a);
+			} else {
+				cosA = Mathf.Cos(a);
+				sinA = Mathf.Sin(a);
+			}
 			
 			return new UnityEngine.Vector2 (
 				(cosA * (t.x - c.x) - sinA * (t.y - c.y) + c.x),
@@ -76,6 +81,16 @@ namespace ParticlePhysics2D {
 			);
 			
 		}
+		
+//		public static Vector2 RotateVector2_BuiltIn (Vector2 t, Vector2 c, float a){ 
+//			float cosA = Mathf.Cos(a);
+//			float sinA = Mathf.Sin(a);
+//			
+//			return new UnityEngine.Vector2 (
+//				(cosA * (t.x - c.x) - sinA * (t.y - c.y) + c.x),
+//				(sinA * (t.x - c.x) + cosA * (t.y - c.y) + c.y)
+//				);
+//		}
 		
 		
 		//-----------------------------------------------

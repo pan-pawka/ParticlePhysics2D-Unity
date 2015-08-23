@@ -16,7 +16,6 @@ namespace ParticlePhysics2D {
 	public class Simulation  : ISerializationCallbackReceiver {
 
 		protected static float DEFAULT_GRAVITY = 0f;
-		protected static float DEFAULT_DRAG = 0.001f;
 		
 		[HideInInspector] [SerializeField] List <Particle2D> particles;
 		
@@ -32,14 +31,14 @@ namespace ParticlePhysics2D {
 		[SerializeField]
 		Vector2 gravity;
 		
-		[SerializeField]
-		float drag;
-		
 		[Range(0.01f,0.99f)]
 		public float damping = 0.95f;//used by verlet
 		
 		[Range(0.005f,0.99f)]
 		public float springConstant = 0.1f;//used by verlet
+		
+		[Range(0.005f,0.99f)]
+		public float angleRelaxPercent = 0.5f;//used by verlet
 		
 		
 		//bool hasDeadParticles = false;
@@ -83,11 +82,6 @@ namespace ParticlePhysics2D {
 			gravity = new Vector2 (0f,g);
 		}
 		
-		public void setDrag( float d )
-		{
-			drag = d;
-		}
-		
 		/// <summary>
 		/// this deletes all the particles and all the forces in the system
 		/// clear all the primitive data in the simulation
@@ -101,9 +95,13 @@ namespace ParticlePhysics2D {
 		
 		#region Serialization
 		public void OnBeforeSerialize()  {}
+		//this is a hack, because unity does not serialize custom class properly. Mainly because of ref lost.
 		public void OnAfterDeserialize() {
 			for (int i=0;i<springs.Count;i++) {
 				springs[i].SetParticles(this);
+			}
+			for (int i=0;i<angles.Count;i++) {
+				angles[i].SetParticles(this);
 			}
 			this.setIntegrator(integrationMedthod);
 		}
@@ -279,9 +277,9 @@ namespace ParticlePhysics2D {
 		#endregion
 		
 		#region Angle Constraints
-		public AngleConstraint2D makeAngleConstraint( Spring2D s1, Spring2D s2, float offset, float relax)
+		public AngleConstraint2D makeAngleConstraint( Spring2D s1, Spring2D s2, float offset = 0f)
 		{
-			AngleConstraint2D angle = new AngleConstraint2D (s1,s2,offset,relax);
+			AngleConstraint2D angle = new AngleConstraint2D (this,s1,s2,offset);
 			angles.Add( angle );
 			return angle;
 		}
@@ -316,7 +314,6 @@ namespace ParticlePhysics2D {
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
 			gravity = new Vector2 (0f,g);
-			drag = somedrag;
 		}
 		
 		public Simulation( float gx, float gy, float somedrag )
@@ -326,7 +323,6 @@ namespace ParticlePhysics2D {
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
 			gravity = new Vector2 (gx,gy);
-			drag = somedrag;
 		}
 		
 		public Simulation()
@@ -336,7 +332,6 @@ namespace ParticlePhysics2D {
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
 			gravity = new Vector2 (0f,Simulation.DEFAULT_GRAVITY);
-			drag = Simulation.DEFAULT_DRAG;
 		}
 		
 		public Simulation (float g,IntegrationMedthod integrationMedthod) {
@@ -345,7 +340,6 @@ namespace ParticlePhysics2D {
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
 			gravity = new Vector2 (0f,g);
-			drag = Simulation.DEFAULT_DRAG;
 		}
 		
 		public Simulation (IntegrationMedthod integrationMedthod) {
@@ -354,7 +348,6 @@ namespace ParticlePhysics2D {
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
 			gravity = new Vector2 (0f,Simulation.DEFAULT_GRAVITY);
-			drag = Simulation.DEFAULT_DRAG;
 		}
 		
 		#endregion
@@ -363,6 +356,9 @@ namespace ParticlePhysics2D {
 		/// <summary>
 		/// ApplyForces is called by Integrator to advanced the system, note that GPU Verlet Intergrator does not call this
 		/// </summary>
+		
+		public bool applySpring = true,applyAngle = true;
+		
 		public void applyForces()
 		{
 			if ( gravity != Vector2.zero )
@@ -373,16 +369,14 @@ namespace ParticlePhysics2D {
 				}
 			}
 			
-			for ( int i = 0; i < particles.Count; ++i )
-			{
-				particles[i].Force += - particles[i].Velocity * drag;//called by intergartors except for GPU Verlet one
-			}
-			
+			if (applySpring)
 			for ( int i = 0; i < springs.Count; i++ )
 			{
 				springs[i].apply();
+				//if (i==2) Debug.Log((springs[i].currentLengthSqr() - springs[i].restLength2).ToString());
 			}
 			
+			if (applyAngle)
 			for ( int i = 0; i < angles.Count; i++ )
 			{
 				angles[i].apply();
@@ -407,12 +401,16 @@ namespace ParticlePhysics2D {
 				springs[t].DebugSpring(local2World);
 			}
 		}
-		public void DebugSpring() {
+		
+		//use this script inside editor script
+		public void DebugSpringIndex(Matrix4x4 local2World) {
 			for (int t=0;t<springs.Count;t++) {
-				springs[t].DebugSpring();
+				Vector2 midpt = (springs[t].ParticleA.Position + springs[t].ParticleB.Position) /2f;
+				midpt = local2World.MultiplyPoint3x4(midpt);
+				Handles.Label(midpt,new GUIContent(t.ToString()));
 			}
 		}
-		
+
 		//use this inside the editor script
 		public void DebugParticle(Matrix4x4 local2World) {
 			for (int i=0;i<particles.Count;i++) {
@@ -422,11 +420,9 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		public void DebugParticle() {
-			for (int i=0;i<particles.Count;i++) {
-				Vector2 pos = particles[i].Position;
-				DebugExtension.DebugPoint(pos,Color.blue,2f);
-				Handles.Label(pos,new GUIContent(i.ToString()));
+		public void DebugAngles(Matrix4x4 local2World) {
+			for (int i=0;i<angles.Count;i++) {
+				angles[i].DebugDraw(local2World);
 			}
 		}
 		

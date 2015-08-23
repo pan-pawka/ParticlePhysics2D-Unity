@@ -37,6 +37,7 @@ namespace ParticlePhysics2D {
 		protected virtual void LateUpdate () {}
 		
 		protected virtual void OnTriggerEnter2D (Collider2D c) {
+			if (!this.enabled) return;
 			CollisionTarget2D pC2D = c.gameObject.GetComponent<CollisionTarget2D>();
 			if (pC2D) {
 				CollisionObject.Connect(this,pC2D);
@@ -44,6 +45,7 @@ namespace ParticlePhysics2D {
 		}
 		
 		protected virtual void OnTriggerExit2D (Collider2D c) {
+			if (!this.enabled) return;
 			CollisionTarget2D pC2D = c.gameObject.GetComponent<CollisionTarget2D>();
 			if (pC2D) {
 				CollisionObject.Disconnect(this,pC2D);

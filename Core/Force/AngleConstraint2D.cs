@@ -1,25 +1,41 @@
 ﻿using UnityEngine;
 using System.Collections;
 using ParticlePhysics2D;
+using System;
 
 namespace ParticlePhysics2D {
 
 	[System.Serializable]
 	public class AngleConstraint2D : IForce {
 		
-		[SerializeField] Particle2D particleA, particleM, particleB;
+		[NonSerialized] Particle2D particleA, particleM, particleB;
+		[SerializeField] int indexA,indexM,indexB;
+		
+		//[SerializeField] 
 		[SerializeField] float angle_Fixed; //constraint to this angle
 		float angle_Cur; // how much the angle is currently
-		[SerializeField] float angle_Offset; // how much the angle is currently
-		float relaxPercent = 0.1f;//default value
-		float k = 1f;
+		[SerializeField] float angle_Offset; // how much the angle is able to be offset
+
+		[SerializeField] float k;
 		[SerializeField] bool on;
 		
+		[NonSerialized] Simulation sim;
+		
+		// you need to SetSimulation in Simualtion class's OnAfterDeserialize() callback. this is a hack
+		public void SetParticles(Simulation sim) {
+			this.sim = sim;
+			particleA = sim.getParticle(indexA);
+			particleB = sim.getParticle(indexB);
+			particleM = sim.getParticle(indexM);
+		}
+		
 		//setup by sticks
-		public AngleConstraint2D(Spring2D _spring1, Spring2D _spring2, float _offset, float _relaxPercent ) {
+		public AngleConstraint2D(Simulation sim, Spring2D _spring1, Spring2D _spring2, float _offset) {
 			angle_Offset = _offset;
-			relaxPercent = _relaxPercent;
 			on = true;
+			this.sim = sim;
+			this.k = 0.1f;
+			//this.k = 1f;
 			if (_spring1.ParticleA == _spring2.ParticleA) { SetTopology(_spring1.ParticleB,_spring1.ParticleA,_spring2.ParticleB); return; }
 			if (_spring1.ParticleA == _spring2.ParticleB) { SetTopology(_spring1.ParticleB,_spring1.ParticleA,_spring2.ParticleA); return; }
 			if (_spring1.ParticleB == _spring2.ParticleA) { SetTopology(_spring1.ParticleA,_spring1.ParticleB,_spring2.ParticleB); return; }
@@ -30,6 +46,9 @@ namespace ParticlePhysics2D {
 			particleA = pA;
 			particleB = pB;
 			particleM = pM;
+			this.indexA = sim.getParticleIndex(pA);
+			this.indexB = sim.getParticleIndex(pB);
+			this.indexM = sim.getParticleIndex(pM);
 			angle_Fixed = GetAngle(pA.Position,pM.Position,pB.Position);
 		}
 		
@@ -83,22 +102,24 @@ namespace ParticlePhysics2D {
 			if (on) {
 				angle_Cur = GetAngle(particleA.Position,particleM.Position,particleB.Position);
 				float deltaAngle = GetDeltaAngle();
-				if (deltaAngle==0f || Mathf.Abs(deltaAngle)<0.05f) return;
+				if (deltaAngle==0f || Mathf.Abs(deltaAngle)<0.01f) return;
 				else {
+					Vector2 posA = particleA.Position;
+					Vector2 posB = particleB.Position;
+					Vector2 posM = particleM.Position;
 					if (particleA.IsFree) {
-						Vector2 curPos1 = Mathp.RotateVector2(particleA.Position,particleM.Position,-deltaAngle*relaxPercent );
-						particleA.Force += ( curPos1 - particleA.Position ) * k;
+						posA = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent * Mathf.Deg2Rad );
+						particleA.Force += ( posA - particleA.Position ) * k;
 					}
 					if (particleB.IsFree) {
-						Vector2 curPos1 = Mathp.RotateVector2(particleB.Position,particleM.Position,deltaAngle*relaxPercent );
-						particleB.Force += ( curPos1 - particleB.Position ) * k;
+						posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
+						particleB.Force += ( posB - particleB.Position ) * k;
 					}
 					if (particleM.IsFree) {
-						Vector2 curPos1 = Mathp.RotateVector2(particleM.Position,particleA.Position,-deltaAngle*relaxPercent );
-						curPos1 = Mathp.RotateVector2(curPos1,particleB.Position,deltaAngle*relaxPercent );
-						particleM.Force += ( curPos1 - particleM.Position ) * k;
+						posM = Mathp.RotateVector2(posM,posA, deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
+						posM = Mathp.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
+						particleM.Force += ( posM - particleM.Position ) * k;
 					}
-					
 				}
 			}
 		}
@@ -114,6 +135,15 @@ namespace ParticlePhysics2D {
 			if (deltaAngle>angle_Offset) return deltaAngle-angle_Offset;
 			else if (deltaAngle<-angle_Offset) return deltaAngle + angle_Offset;
 			else return 0f;
+		}
+		
+		static Color angleColor = Color.red;
+		public void DebugDraw(Matrix4x4 local2World) {
+			Vector2 pa = (particleA.Position + particleM.Position) / 2f;
+			Vector2 pb = (particleB.Position + particleM.Position) / 2f;
+			pa = local2World.MultiplyPoint3x4(pa);
+			pb = local2World.MultiplyPoint3x4(pb);
+			Debug.DrawLine(pa,pb,angleColor);
 		}
 		
 	}
