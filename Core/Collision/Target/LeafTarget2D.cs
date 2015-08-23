@@ -7,7 +7,7 @@ namespace ParticlePhysics2D {
 
 	[RequireComponent(typeof(CircleCollider2D))]
 	[AddComponentMenu("ParticlePhysics2D/Collision/LeafCollision2DTarget",13)]
-	public sealed class LeafCollider2DTarget : ParticleCollider2D {
+	public sealed class LeafTarget2D : CollisionTarget2D {
 		
 		private CircleCollider2D circleCollider;
 		

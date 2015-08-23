@@ -29,7 +29,7 @@ namespace ParticlePhysics2D {
 			bpProcessor.AddObject(obj);
 		}
 		
-		public void AddCollisionObject( ParticleCollider2D obj) {
+		public void AddCollisionObject( CollisionTarget2D obj) {
 			npProcessor.AddObject(obj);
 		}
 		
@@ -37,7 +37,7 @@ namespace ParticlePhysics2D {
 			bpProcessor.RemoveObject(obj); 
 		}
 		
-		public void RemoveCollisionObject ( ParticleCollider2D obj) {
+		public void RemoveCollisionObject ( CollisionTarget2D obj) {
 			npProcessor.RemoveObject(obj);
 		}
 		

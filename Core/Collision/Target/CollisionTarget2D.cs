@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace ParticlePhysics2D {
 	
 	[RequireComponent(typeof(Collider2D),typeof(Rigidbody2D))]
-	public abstract class ParticleCollider2D : CollisionObject  {
+	public abstract class CollisionTarget2D : CollisionObject  {
 		
 		const int DEFAULT_CONNECTION_NUM = 10;
 		

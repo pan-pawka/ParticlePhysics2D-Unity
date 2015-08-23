@@ -16,7 +16,7 @@ namespace ParticlePhysics2D {
 
 		public Action UpdateMethod {get;set;}//must set the update method in start()
 		
-		protected static void Connect(CollisionHolder2D obj1, ParticleCollider2D obj2) {
+		protected static void Connect(CollisionHolder2D obj1, CollisionTarget2D obj2) {
 			if (!obj1.connection.Contains(obj2) && !obj2.connection.Contains(obj1)) {
 				obj1.connection.Add(obj2);
 				obj2.connection.Add(obj1);
@@ -26,7 +26,7 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		protected static void Disconnect(CollisionHolder2D obj1, ParticleCollider2D obj2) {
+		protected static void Disconnect(CollisionHolder2D obj1, CollisionTarget2D obj2) {
 			if (obj1.connection.Contains(obj2) && obj2.connection.Contains(obj1)) {
 				obj1.connection.Remove(obj2);
 				obj2.connection.Remove(obj1);

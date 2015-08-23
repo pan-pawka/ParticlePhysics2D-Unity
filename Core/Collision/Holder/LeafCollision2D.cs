@@ -9,7 +9,7 @@ namespace ParticlePhysics2D {
 	[RequireComponent(typeof(ParticlePhysics2D.IFormLayer))]
 	[ExecuteInEditMode]
 	[AddComponentMenu("ParticlePhysics2D/Collision/LeafCollision2D",13)]
-	public sealed class LeafCollider2D : CollisionHolder2D {
+	public sealed class LeafCollision2D : CollisionHolder2D {
 		
 		public int minTraverseDepth = 4;
 		public bool isGizmoOn = false;

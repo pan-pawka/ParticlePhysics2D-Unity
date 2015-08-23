@@ -16,7 +16,7 @@ namespace ParticlePhysics2D {
 		protected CircleCollider2D circle;
 		
 		[HideInInspector]
-		public List<ParticleCollider2D> connection = new List<ParticleCollider2D> (DEFAULT_CONNECTION_NUM);
+		public List<CollisionTarget2D> connection = new List<CollisionTarget2D> (DEFAULT_CONNECTION_NUM);
 		
 		//derived class must override and extend the start
 		protected virtual void Start () {
@@ -37,14 +37,14 @@ namespace ParticlePhysics2D {
 		protected virtual void LateUpdate () {}
 		
 		protected virtual void OnTriggerEnter2D (Collider2D c) {
-			ParticleCollider2D pC2D = c.gameObject.GetComponent<ParticleCollider2D>();
+			CollisionTarget2D pC2D = c.gameObject.GetComponent<CollisionTarget2D>();
 			if (pC2D) {
 				CollisionObject.Connect(this,pC2D);
 			}
 		}
 		
 		protected virtual void OnTriggerExit2D (Collider2D c) {
-			ParticleCollider2D pC2D = c.gameObject.GetComponent<ParticleCollider2D>();
+			CollisionTarget2D pC2D = c.gameObject.GetComponent<CollisionTarget2D>();
 			if (pC2D) {
 				CollisionObject.Disconnect(this,pC2D);
 			}
