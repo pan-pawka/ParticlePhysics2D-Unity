@@ -2,6 +2,7 @@
 using System.Collections;
 
 namespace ParticlePhysics2D {
+
 	public class VerletIntegrator : IIntegrator {
 		
 		Simulation s;
@@ -25,7 +26,8 @@ namespace ParticlePhysics2D {
 				{
 					temp = p.Position;
 					//p.Position = p.Position + (p.Position - p.PositionOld);
-					p.Position = p.Position + (p.Position - p.PositionOld) * s.damping  * (t / dt) + p.Force / p.Mass * t * t;
+					//p.Position = p.Position + (p.Position - p.PositionOld) * s.damping  * (t / dt) + p.Force / p.Mass * t * t;
+					p.Position = p.Position + (p.Position - p.PositionOld) * s.damping + p.Force;
 					p.PositionOld = temp;
 					dt = t;
 				}

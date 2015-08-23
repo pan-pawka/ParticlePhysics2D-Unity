@@ -15,35 +15,37 @@ namespace ParticlePhysics2D {
 	[System.Serializable]
 	public class Spring2D : IForce {
 		
-		[SerializeField] float springConstant;
+		//[SerializeField] float springConstant;
 		[SerializeField] float restLength2;
 		
 		[SerializeField] int indexA;
 		[SerializeField] int indexB;
 		[SerializeField] bool on;
 		
+		[NonSerialized] Simulation sim;
+		
 		[NonSerialized] Particle2D a;
 		[NonSerialized] Particle2D b;
 		
 		// you need to SetSimulation in Simualtion class's OnAfterDeserialize() callback
 		public void SetParticles(Simulation sim) {
-			//this.sim = sim;
+			this.sim = sim;
 			a = sim.getParticle(indexA);
 			b = sim.getParticle(indexB);
 		}
 		
-		public Spring2D( Simulation sim, int indexA, int indexB, float springConstant, float restLength )
+		public Spring2D( Simulation sim, int indexA, int indexB, float restLength )
 		{
 			this.indexA = indexA;
 			this.indexB = indexB;
 			SetParticles(sim);
-			this.springConstant = springConstant;
+			//this.springConstant = springConstant;
 			this.restLength2 = restLength * restLength;
 			on = true;
 		}
 		
-		public Spring2D (Simulation sim, Particle2D a, Particle2D b, float springConstant, float restLength ) : 
-			this (sim,sim.getParticleIndex(a),sim.getParticleIndex(b),springConstant,restLength )
+		public Spring2D (Simulation sim, Particle2D a, Particle2D b, float restLength ) : 
+			this (sim,sim.getParticleIndex(a),sim.getParticleIndex(b),restLength )
 		{
 			
 		}
@@ -84,15 +86,15 @@ namespace ParticlePhysics2D {
 			//return (sim.getParticlePosition(indexA) - sim.getParticlePosition(indexB)).magnitude;
 		}
 		
-		public float strength()
-		{
-			return springConstant;
-		}
+//		public float strength()
+//		{
+//			return springConstant;
+//		}
 		
-		public void setStrength( float ks )
-		{
-			springConstant = ks;
-		}
+//		public void setStrength( float ks )
+//		{
+//			springConstant = ks;
+//		}
 		
 		public void setRestLength( float l )
 		{
@@ -106,8 +108,9 @@ namespace ParticlePhysics2D {
 				//faster square root approx from Advanced Character Physics
 				Vector2 delta = a.Position - b.Position;
 				delta *= restLength2 /(delta.sqrMagnitude + restLength2) - 0.5f;
-				if (a.IsFree) a.Force -= delta * springConstant;
-				if (a.IsFree) b.Force += delta * springConstant;
+				//Debug.Log(delta);
+				if (a.IsFree) a.Force += delta * sim.springConstant;
+				if (a.IsFree) b.Force -= delta * sim.springConstant;
 			}
 		}
 		

@@ -29,7 +29,7 @@ namespace ParticlePhysics2D {
 		//the broad phase implementation includes calculating the BVH
 		protected abstract void BroadPhaseUpdate();
 		
-		public abstract void TraverseBVHForCircle ( CircleCollider2D circle ) ;
+		public abstract void TraverseBVHForCircle ( CircleCollider2D circle,out int searchCount ) ;
 		public abstract void TraverseBVHForPolygon ( PolygonCollider2D poly ) ;
 			
 		protected virtual void Update () {}

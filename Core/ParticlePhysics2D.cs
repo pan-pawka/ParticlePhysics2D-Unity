@@ -35,7 +35,11 @@ namespace ParticlePhysics2D {
 		[SerializeField]
 		float drag;
 		
-		public float damping = 0.99f;//used by verlet
+		[Range(0.01f,0.99f)]
+		public float damping = 0.95f;//used by verlet
+		
+		[Range(0.005f,0.99f)]
+		public float springConstant = 0.1f;//used by verlet
 		
 		
 		//bool hasDeadParticles = false;
@@ -101,6 +105,7 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<springs.Count;i++) {
 				springs[i].SetParticles(this);
 			}
+			this.setIntegrator(integrationMedthod);
 		}
 		#endregion
 		
@@ -245,10 +250,10 @@ namespace ParticlePhysics2D {
 		
 		#region Spring
 		
-		public Spring2D makeSpring( Particle2D a, Particle2D b, float ks)
+		public Spring2D makeSpring( Particle2D a, Particle2D b)
 		{
 			float r = Vector2.Distance(a.Position,b.Position);
-			Spring2D s = new Spring2D( this , a, b, ks, r );
+			Spring2D s = new Spring2D( this , a, b, r );
 			springs.Add( s );
 			return s;
 		}
@@ -364,8 +369,7 @@ namespace ParticlePhysics2D {
 			{
 				for ( int i = 0; i < particles.Count; ++i )
 				{
-					Particle2D p = particles[i];
-					p.Force += gravity;
+					particles[i].Force += gravity;
 				}
 			}
 			

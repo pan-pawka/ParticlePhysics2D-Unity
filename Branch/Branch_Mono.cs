@@ -21,7 +21,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	
 	[Range(20f,150f)]
 	public float length = 20f;
-	public float ks = 0.5f;
+	public float ks = 0.99f;
 	
 	public bool debugParticlePhysics = false,debugIndex = false;
 	
@@ -43,7 +43,11 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	}
 	
 	void LateUpdate(){
+		if (Application.isPlaying) sim.tick();
+		//Debug.LogWarning("________________");
+#if UNITY_EDITOR
 		OnDrawGizmosUpdate();
+#endif
 	}
 	
 	//copy branch's topology to simulation
@@ -54,7 +58,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 			Particle2D temp;
 			temp = (b.branchA==null) ? s.makeParticle(b.branchB.Position) : s.makeParticle(b.branchA.Position);
 			temp.IsLeaf = false;
-			s.makeSpring(p,temp,ks);
+			s.makeSpring(p,temp);
 			if (b.branchA!=null) CopyBranchTopology (temp,b.branchA,ref s);
 			if (b.branchB!=null) CopyBranchTopology (temp,b.branchB,ref s);
 		} 
@@ -65,7 +69,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 			Particle2D temp = s.makeParticle(new Vector2(xB,yB));//temp is where the leaf is
 			temp.IsLeaf = true;
 			leafCount++;
-			s.makeSpring(p,temp,ks);
+			s.makeSpring(p,temp);
 		}
 		
 	}
@@ -76,7 +80,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		branch = BinaryTree.GenerateBranch(length);
 		//Debug.Log("Branches : " + BinaryTree.branchesCount);
 		if (sim==null)
-			sim = new Simulation (IntegrationMedthod.VERLET);
+			sim = new Simulation (0f,IntegrationMedthod.VERLET);
 		sim.setGravity(0f,0f);
 		sim.clear();
 		leafCount = 0;

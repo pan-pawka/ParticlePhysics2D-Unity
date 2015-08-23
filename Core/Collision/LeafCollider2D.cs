@@ -60,13 +60,16 @@ namespace ParticlePhysics2D {
 		private Rigidbody2D targetRb2D;
 		private CircleCollider2D cc;
 		private Vector2 targetPos;
-		public override void TraverseBVHForCircle ( CircleCollider2D cc ) {
-			targetRb2D = cc.GetComponent<Rigidbody2D>();
+		private int searchCount = 0;
+		public override void TraverseBVHForCircle ( CircleCollider2D cc,out int searchCount ) {
+			this.targetRb2D = cc.GetComponent<Rigidbody2D>();
 			this.cc = cc;
+			this.searchCount = 0;
 			if (targetRb2D && this.cc) {
 				this.targetPos = transform.InverseTransformPoint(cc.transform.position);
 				TraverseBinaryTreeForCircle(this.branch);
 			}
+			searchCount = this.searchCount;
 		}
 		
 		void TraverseBinaryTreeForCircle ( BinaryTree branch) {
@@ -76,7 +79,7 @@ namespace ParticlePhysics2D {
 					TraverseBinaryTreeForCircle(branch.branchA);
 					TraverseBinaryTreeForCircle(branch.branchB);	
 				} else {
-					//branch.boundingCircle.DebugDraw(transform.localToWorldMatrix);
+					searchCount ++;
 					if (branch.boundingCircle.Overlaps(targetPos,cc.radius)) {
 						//branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.white);
 						TraverseBinaryTreeForCircle(branch.branchA);
@@ -85,6 +88,7 @@ namespace ParticlePhysics2D {
 				}
 			} else if (branch.branchA==null && branch.branchB == null){
 				Vector2 dir;
+				searchCount ++;
 				if (branch.boundingCircle.OverlapsResults(targetPos,cc.radius,out dir)){
 					branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.magenta);
 					//apply collision
