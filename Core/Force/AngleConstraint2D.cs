@@ -98,34 +98,6 @@ namespace ParticlePhysics2D {
 		}
 		
 		
-//		public void apply(){
-//			if (on) {
-//				angle_Cur = GetAngle(particleA.Position,particleM.Position,particleB.Position);
-//				float deltaAngle = GetDeltaAngle();
-//				if (deltaAngle==0f || Mathf.Abs(deltaAngle)<0.01f) return;
-//				else {
-//					Vector2 posA = particleA.Position;
-//					Vector2 posB = particleB.Position;
-//					Vector2 posM = particleM.Position;
-//					if (particleA.IsFree) {
-//						posA = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent * Mathf.Deg2Rad );
-//						particleA.Force += ( posA - particleA.Position ) * k;
-//						//particleA.Position = posA;
-//					}
-//					if (particleB.IsFree) {
-//						posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
-//						particleB.Force += ( posB - particleB.Position ) * k;
-//						//particleB.Position = posB;
-//					}
-//					if (particleM.IsFree) {
-//						posM = Mathp.RotateVector2(posM,posA, deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
-//						posM = Mathp.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
-//						particleM.Force += ( posM - particleM.Position ) * k;
-//						//particleM.Position = posM;
-//					}
-//				}
-//			}
-//		}
 
 		public void apply(){
 			if (on) {
@@ -137,19 +109,16 @@ namespace ParticlePhysics2D {
 					Vector2 posB = particleB.Position;
 					Vector2 posM = particleM.Position;
 					if (particleA.IsFree) {
-						posA = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent * Mathf.Deg2Rad );
-						//particleA.Force += ( posA - particleA.Position ) * k;
+						posA = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent);
 						particleA.Position = posA;
 					}
 					if (particleB.IsFree) {
-						posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
-						//particleB.Force += ( posB - particleB.Position ) * k;
+						posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
 						particleB.Position = posB;
 					}
 					if (particleM.IsFree) {
-						posM = Mathp.RotateVector2(posM,posA, deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
-						posM = Mathp.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
-						//particleM.Force += ( posM - particleM.Position ) * k;
+						posM = Mathp.RotateVector2(posM,posA, deltaAngle * sim.angleRelaxPercent);
+						posM = Mathp.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent);
 						particleM.Position = posM;
 					}
 				}
@@ -159,27 +128,18 @@ namespace ParticlePhysics2D {
 		float GetAngleRadian(Vector2 g1,Vector2 gm, Vector2 g2) {
 			Vector2 s1 = g1 - gm;
 			Vector2 s2 = g2 - gm;
-			//return Quaternion.FromToRotation(s1,s2).eulerAngles.z;
 			float r = FVector2.SignedAngleRadian(s1,s2);
 			if (r<0) r += FVector2.TWOPI;
-			return r * Mathf.Rad2Deg;
+			return r;
 		}
 		
-//		float GetDeltaAngle(){
-//			float deltaAngle = angle_Cur - angle_Fixed;
-//			if (deltaAngle>angle_Offset) return deltaAngle-angle_Offset;
-//			else if (deltaAngle<-angle_Offset) return deltaAngle + angle_Offset;
-//			else return 0f;
-//		}
-
 		float GetDeltaAngle(){
 			float deltaAngle = angle_Cur - angle_Fixed;
-//			if (deltaAngle <= -Mathf.PI)
-//				deltaAngle += 2*Mathf.PI;
-//			else if (deltaAngle >= Mathf.PI)
-//				deltaAngle -= 2*Mathf.PI;
-			return deltaAngle;
+			if (deltaAngle>angle_Offset) return deltaAngle-angle_Offset;
+			else if (deltaAngle<-angle_Offset) return deltaAngle + angle_Offset;
+			else return 0f;
 		}
+
 		
 		static Color angleColor = Color.red;
 		public void DebugDraw(Matrix4x4 local2World) {

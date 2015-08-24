@@ -81,7 +81,6 @@ namespace ParticlePhysics2D {
 				} else {
 					searchCount ++;
 					if (branch.boundingCircle.Overlaps(targetPos,cc.radius)) {
-						//branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.white);
 						TraverseBinaryTreeForCircle(branch.branchA);
 						TraverseBinaryTreeForCircle(branch.branchB);
 					}

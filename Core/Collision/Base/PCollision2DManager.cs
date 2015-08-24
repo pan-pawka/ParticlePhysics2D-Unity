@@ -20,7 +20,7 @@ namespace ParticlePhysics2D {
 			Debug.Log("Collision Manager created : " + PCollision2DManager.Instance.name);
 		}
 		
-		public const bool IsDebugOn = true;
+		public const bool IsDebugOn = false;
 		[SerializeField] CollisionProcessor bpProcessor = new CollisionProcessor (IsDebugOn);	//broad phase processor
 		[SerializeField] CollisionProcessor npProcessor = new CollisionProcessor (IsDebugOn);  //narrow phase processor
 

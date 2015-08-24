@@ -7,9 +7,6 @@ using UnityEditor;
 
 namespace ParticlePhysics2D {
 
-	//public enum IntegrationMedthod {RUNGE_KUTTA, MODIFIED_EULER, VERLET, GPUVERLET}
-	//RUNGE_KUTTA and MODIFIED_EULER intergrator support are dropped, but the relevant script are maintained
-	//you can enable it by replacing the line below with the commented-out line above
 	public enum IntegrationMedthod {VERLET, GPUVERLET}
 
 	[System.Serializable]
@@ -40,19 +37,10 @@ namespace ParticlePhysics2D {
 		[Range(0.001f,0.2f)]
 		public float angleRelaxPercent = 0.2f;//used by verlet
 		
-		
-		//bool hasDeadParticles = false;
-		
 		public void setIntegrator()
 		{
 			switch ( integrationMedthod )
 			{
-//			case IntegrationMedthod.RUNGE_KUTTA:
-//				this.integrator = new RungeKuttaIntegrator( this ) as IIntegrator;
-//				break;
-//			case IntegrationMedthod.MODIFIED_EULER:
-//				this.integrator = new ModifiedEulerIntegrator( this ) as IIntegrator;
-//				break;
 			case IntegrationMedthod.VERLET:
 				this.integrator = new VerletIntegrator( this ) as IIntegrator;
 				break;
@@ -316,24 +304,6 @@ namespace ParticlePhysics2D {
 		
 		#region Simulation Constructor
 		
-		public Simulation( float g, float somedrag )
-		{
-			setIntegrator(integrationMedthod);
-			particles = new List<Particle2D> ();
-			springs = new List<Spring2D> ();
-			angles = new List<AngleConstraint2D> ();
-			gravity = new Vector2 (0f,g);
-		}
-		
-		public Simulation( float gx, float gy, float somedrag )
-		{
-			setIntegrator(integrationMedthod);
-			particles = new List<Particle2D> ();
-			springs = new List<Spring2D> ();
-			angles = new List<AngleConstraint2D> ();
-			gravity = new Vector2 (gx,gy);
-		}
-		
 		public Simulation()
 		{
 			setIntegrator(integrationMedthod);
@@ -367,15 +337,15 @@ namespace ParticlePhysics2D {
 		/// </summary>
 		
 		public bool applySpring = true,applyAngle = true;
-		const int ITERATIONS = 3;
+		public int ITERATIONS = 2;
 		
-		public void applyForces()
+		public void applyConstraints()
 		{
 			if ( gravity != Vector2.zero )
 			{
 				for ( int i = 0; i < particles.Count; ++i )
 				{
-					particles[i].Force += gravity;
+					if (particles[i].IsFree) particles[i].Position += gravity;
 				}
 			}
 			
@@ -409,16 +379,7 @@ namespace ParticlePhysics2D {
 				angles[i].apply();
 			}
 		}
-		
-		/// <summary>
-		/// clearForces is called by Integrator to advanced the system
-		/// </summary>
-		public void clearForces()
-		{
-			for (int i=0;i<particles.Count;i++) {
-				particles[i].Force = Vector2.zero;
-			}
-		}
+
 		
 		#endregion
 		

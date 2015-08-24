@@ -1,3 +1,4 @@
+//Yves Wang @ FISH, 2015, All rights reserved
 using UnityEngine;
 using System.Collections;
 
@@ -12,7 +13,6 @@ namespace ParticlePhysics2D {
 		[SerializeField]
 		Vector2 positionOld;
 
-		Vector2 force;
 		float mass = 1f;
 		
 		[SerializeField]
@@ -29,7 +29,6 @@ namespace ParticlePhysics2D {
 		public Particle2D()
 		{
 			this.position = Vector2.zero;
-			this.force = Vector2.zero;
 			this.isFixed = false;
 		}
 		
@@ -51,7 +50,6 @@ namespace ParticlePhysics2D {
 		void reset()
 		{
 			position = Vector2.zero;
-			force = Vector2.zero;
 			mass = 1f;
 		}
 		
@@ -64,8 +62,6 @@ namespace ParticlePhysics2D {
 		public Vector2 PositionOld {get{return positionOld;}set{positionOld = value;}}
 	
 		public float Mass {get{return mass;}}
-
-		public Vector2 Force {get{return force;}set{force=value;}}
 		
 		
 	

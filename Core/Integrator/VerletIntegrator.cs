@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿//Yves Wang @ FISH, 2015, All rights reserved
+using UnityEngine;
 using System.Collections;
 
 namespace ParticlePhysics2D {
@@ -16,7 +17,7 @@ namespace ParticlePhysics2D {
 		public void step( float t )
 		{
 			
-			s.applyForces();
+			s.applyConstraints();
 			Vector2 temp;
 			for ( int i = 0; i < s.numberOfParticles(); i++ )
 			{
@@ -26,12 +27,12 @@ namespace ParticlePhysics2D {
 					temp = p.Position;
 					//p.Position = p.Position + (p.Position - p.PositionOld);
 					//p.Position = p.Position + (p.Position - p.PositionOld) * s.damping  * (t / dt) + p.Force / p.Mass * t * t;
-					p.Position = p.Position + (p.Position - p.PositionOld) * s.damping + p.Force;
+					//p.Position = p.Position + (p.Position - p.PositionOld) * s.damping + p.Force;
+					p.Position += (p.Position - p.PositionOld) * s.damping;
 					p.PositionOld = temp;
 					//dt = t;
 				}
 			}
-			s.clearForces();
 		}
 	}
 

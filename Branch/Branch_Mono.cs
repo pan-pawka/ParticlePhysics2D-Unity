@@ -105,7 +105,6 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	
 	public void ClearForm() {
 		sim.clear();
-		sim.clearForces();
 		this.branch = null;
 		this.leafCount = 0;
 		if (OnClearForm!=null) OnClearForm();//invoke the clear form event
