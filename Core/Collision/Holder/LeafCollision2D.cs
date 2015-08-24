@@ -92,7 +92,7 @@ namespace ParticlePhysics2D {
 				if (branch.boundingCircle.OverlapsResults(targetPos,cc.radius,out dir)){
 					branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.magenta);
 					//apply collision
-					sim.getParticle(branch.leafIndex).Force -= dir * leafForceFeedback;//local space
+					sim.getParticle(branch.leafIndex).Position -= dir * leafForceFeedback;//local space
 					dir = transform.TransformDirection(dir);
 					targetRb2D.AddForce(dir * targetForceFeedback,ForceMode2D.Force);
 					

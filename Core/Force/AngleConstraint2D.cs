@@ -49,7 +49,7 @@ namespace ParticlePhysics2D {
 			this.indexA = sim.getParticleIndex(pA);
 			this.indexB = sim.getParticleIndex(pB);
 			this.indexM = sim.getParticleIndex(pM);
-			angle_Fixed = GetAngle(pA.Position,pM.Position,pB.Position);
+			angle_Fixed = GetAngleRadian(pA.Position,pM.Position,pB.Position);
 		}
 		
 		public bool ContainSpring(Spring2D spring){
@@ -98,9 +98,38 @@ namespace ParticlePhysics2D {
 		}
 		
 		
+//		public void apply(){
+//			if (on) {
+//				angle_Cur = GetAngle(particleA.Position,particleM.Position,particleB.Position);
+//				float deltaAngle = GetDeltaAngle();
+//				if (deltaAngle==0f || Mathf.Abs(deltaAngle)<0.01f) return;
+//				else {
+//					Vector2 posA = particleA.Position;
+//					Vector2 posB = particleB.Position;
+//					Vector2 posM = particleM.Position;
+//					if (particleA.IsFree) {
+//						posA = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent * Mathf.Deg2Rad );
+//						particleA.Force += ( posA - particleA.Position ) * k;
+//						//particleA.Position = posA;
+//					}
+//					if (particleB.IsFree) {
+//						posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
+//						particleB.Force += ( posB - particleB.Position ) * k;
+//						//particleB.Position = posB;
+//					}
+//					if (particleM.IsFree) {
+//						posM = Mathp.RotateVector2(posM,posA, deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
+//						posM = Mathp.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
+//						particleM.Force += ( posM - particleM.Position ) * k;
+//						//particleM.Position = posM;
+//					}
+//				}
+//			}
+//		}
+
 		public void apply(){
 			if (on) {
-				angle_Cur = GetAngle(particleA.Position,particleM.Position,particleB.Position);
+				angle_Cur = GetAngleRadian(particleA.Position,particleM.Position,particleB.Position);
 				float deltaAngle = GetDeltaAngle();
 				if (deltaAngle==0f || Mathf.Abs(deltaAngle)<0.01f) return;
 				else {
@@ -109,32 +138,47 @@ namespace ParticlePhysics2D {
 					Vector2 posM = particleM.Position;
 					if (particleA.IsFree) {
 						posA = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent * Mathf.Deg2Rad );
-						particleA.Force += ( posA - particleA.Position ) * k;
+						//particleA.Force += ( posA - particleA.Position ) * k;
+						particleA.Position = posA;
 					}
 					if (particleB.IsFree) {
 						posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
-						particleB.Force += ( posB - particleB.Position ) * k;
+						//particleB.Force += ( posB - particleB.Position ) * k;
+						particleB.Position = posB;
 					}
 					if (particleM.IsFree) {
 						posM = Mathp.RotateVector2(posM,posA, deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
 						posM = Mathp.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent  * Mathf.Deg2Rad);
-						particleM.Force += ( posM - particleM.Position ) * k;
+						//particleM.Force += ( posM - particleM.Position ) * k;
+						particleM.Position = posM;
 					}
 				}
 			}
 		}
 		
-		float GetAngle(Vector2 g1,Vector2 gm, Vector2 g2) {
+		float GetAngleRadian(Vector2 g1,Vector2 gm, Vector2 g2) {
 			Vector2 s1 = g1 - gm;
 			Vector2 s2 = g2 - gm;
-			return Quaternion.FromToRotation(s1,s2).eulerAngles.z;
+			//return Quaternion.FromToRotation(s1,s2).eulerAngles.z;
+			float r = FVector2.SignedAngleRadian(s1,s2);
+			if (r<0) r += FVector2.TWOPI;
+			return r * Mathf.Rad2Deg;
 		}
 		
+//		float GetDeltaAngle(){
+//			float deltaAngle = angle_Cur - angle_Fixed;
+//			if (deltaAngle>angle_Offset) return deltaAngle-angle_Offset;
+//			else if (deltaAngle<-angle_Offset) return deltaAngle + angle_Offset;
+//			else return 0f;
+//		}
+
 		float GetDeltaAngle(){
 			float deltaAngle = angle_Cur - angle_Fixed;
-			if (deltaAngle>angle_Offset) return deltaAngle-angle_Offset;
-			else if (deltaAngle<-angle_Offset) return deltaAngle + angle_Offset;
-			else return 0f;
+//			if (deltaAngle <= -Mathf.PI)
+//				deltaAngle += 2*Mathf.PI;
+//			else if (deltaAngle >= Mathf.PI)
+//				deltaAngle -= 2*Mathf.PI;
+			return deltaAngle;
 		}
 		
 		static Color angleColor = Color.red;

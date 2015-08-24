@@ -32,10 +32,7 @@ namespace ParticlePhysics2D {
 				}
 			}
 			s.clearForces();
-			
-			
 		}
-		
 	}
 
 }

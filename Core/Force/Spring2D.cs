@@ -99,6 +99,18 @@ namespace ParticlePhysics2D {
 			restLength2 = l * l;
 		}
 		
+//		public void apply()
+//		{	
+//			if ( on && ( a.IsFree || b.IsFree ) )
+//			{
+//				//faster square root approx from Advanced Character Physics
+//				Vector2 delta = a.Position - b.Position;
+//				delta *= restLength2 /(delta.sqrMagnitude + restLength2) - 0.5f;
+//				if (a.IsFree) a.Force += delta * sim.springConstant;
+//				if (b.IsFree) b.Force -= delta * sim.springConstant;
+//			}
+//		}
+
 		public void apply()
 		{	
 			if ( on && ( a.IsFree || b.IsFree ) )
@@ -106,8 +118,8 @@ namespace ParticlePhysics2D {
 				//faster square root approx from Advanced Character Physics
 				Vector2 delta = a.Position - b.Position;
 				delta *= restLength2 /(delta.sqrMagnitude + restLength2) - 0.5f;
-				if (a.IsFree) a.Force += delta * sim.springConstant;
-				if (b.IsFree) b.Force -= delta * sim.springConstant;
+				if (a.IsFree) a.Position += delta * sim.springConstant;
+				if (b.IsFree) b.Position -= delta * sim.springConstant;
 			}
 		}
 		

@@ -185,9 +185,9 @@ namespace ParticlePhysics2D {
 		
 		public void RemoveResources() {
 
-			ObjExtension.ObjDestroy(meshRenderer);
-			ObjExtension.ObjDestroy(meshFilter);
-			ObjExtension.ObjDestroy(mesh);
+			Extension.ObjDestroy(meshRenderer);
+			Extension.ObjDestroy(meshFilter);
+			Extension.ObjDestroy(mesh);
 			
 		}
 		

@@ -91,6 +91,8 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		start.makeFixed();
 		CopyBranchTopology(start,branch,ref sim);
 		sim.getParticle(1).makeFixed();
+		sim.ShuffleSprings();
+		sim.ShuffleAngles();
 		if (Application.isEditor) OnDrawGizmosUpdate();
 		Debug.Log("Serialize branch to bytes");
 		serializedBranch = EasySerializer.SerializeObjectToBytes(branch);

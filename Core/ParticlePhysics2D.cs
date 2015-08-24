@@ -37,8 +37,8 @@ namespace ParticlePhysics2D {
 		[Range(0.005f,0.99f)]
 		public float springConstant = 0.1f;//used by verlet
 		
-		[Range(0.005f,0.99f)]
-		public float angleRelaxPercent = 0.5f;//used by verlet
+		[Range(0.001f,0.2f)]
+		public float angleRelaxPercent = 0.2f;//used by verlet
 		
 		
 		//bool hasDeadParticles = false;
@@ -150,6 +150,7 @@ namespace ParticlePhysics2D {
 		{  
 			//if (integrator==null) setIntegrator(integrationMedthod);
 			integrator.step( t );
+			
 		}
 		
 		#endregion
@@ -274,6 +275,10 @@ namespace ParticlePhysics2D {
 			springs.Remove( a );
 		}
 		
+		public void ShuffleSprings() {
+			springs.Shuffle();
+		}
+		
 		#endregion
 		
 		#region Angle Constraints
@@ -302,6 +307,10 @@ namespace ParticlePhysics2D {
 		public void removeAngleConstraint( AngleConstraint2D a )
 		{
 			angles.Remove( a );
+		}
+		
+		public void ShuffleAngles(){
+			angles.Shuffle();
 		}
 		#endregion
 		
@@ -358,6 +367,7 @@ namespace ParticlePhysics2D {
 		/// </summary>
 		
 		public bool applySpring = true,applyAngle = true;
+		const int ITERATIONS = 3;
 		
 		public void applyForces()
 		{
@@ -369,15 +379,32 @@ namespace ParticlePhysics2D {
 				}
 			}
 			
+			for (int i=0;i<ITERATIONS;i++) {
+				SatisfyConstraints();
+			}
+		}
+		
+		void SatisfyConstraints() {
 			if (applySpring)
-			for ( int i = 0; i < springs.Count; i++ )
+				for ( int i = 0; i < springs.Count; i++ )
 			{
 				springs[i].apply();
-				//if (i==2) Debug.Log((springs[i].currentLengthSqr() - springs[i].restLength2).ToString());
+			}
+			
+			if (applySpring)
+				for ( int i = springs.Count-1; i >=0 ; i-- )
+			{
+				springs[i].apply();
 			}
 			
 			if (applyAngle)
-			for ( int i = 0; i < angles.Count; i++ )
+				for ( int i = angles.Count-1; i >=0 ; i-- )
+			{
+				angles[i].apply();
+			}
+			
+			if (applyAngle)
+				for ( int i = 0; i < angles.Count; i++ )
 			{
 				angles[i].apply();
 			}
