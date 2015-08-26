@@ -13,7 +13,11 @@ namespace ParticlePhysics2D {
 		[SerializeField]
 		Vector2 positionOld;
 
+		[SerializeField]
+		Vector2 force;
+		
 		float mass = 1f;
+		
 		
 		[SerializeField]
 		bool isFixed = false;
@@ -30,6 +34,7 @@ namespace ParticlePhysics2D {
 		{
 			this.position = Vector2.zero;
 			this.isFixed = false;
+			this.force = Vector2.zero;
 		}
 		
 		public float distanceTo( Particle2D p ){
@@ -62,6 +67,8 @@ namespace ParticlePhysics2D {
 		public Vector2 PositionOld {get{return positionOld;}set{positionOld = value;}}
 	
 		public float Mass {get{return mass;}}
+		
+		public Vector2 Force {get{return force;}set{force = value;}}
 		
 		
 	

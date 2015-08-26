@@ -51,11 +51,14 @@ namespace ParticlePhysics2D {
 				CollisionObject.Disconnect(this,pC2D);
 			}
 		}
-		
+		//
+		public bool debugTrigger = false;
 		protected virtual void OnDrawGizmos() {
-			if (!circle) circle = this.GetComponent<CircleCollider2D>();
-			Vector2 center = transform.localToWorldMatrix.MultiplyPoint3x4(circle.offset);
-			DebugExtension.DrawCircle(center,Vector3.forward,Color.green * 0.5f,circle.radius);
+			if (debugTrigger==true) {
+				if (!circle) circle = this.GetComponent<CircleCollider2D>();
+				Vector2 center = transform.localToWorldMatrix.MultiplyPoint3x4(circle.offset);
+				DebugExtension.DrawCircle(center,Vector3.forward,Color.green * 0.5f,circle.radius);
+			}
 		}
 		
 		

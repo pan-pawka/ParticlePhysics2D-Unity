@@ -43,7 +43,6 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	
 	void LateUpdate(){
 		if (Application.isPlaying) sim.tick();
-		//Debug.LogWarning("________________");
 #if UNITY_EDITOR
 		OnDrawGizmosUpdate();
 #endif
@@ -72,9 +71,6 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 			leafCount++;
 			s.makeSpring(p,temp);
 		}
-		
-		
-		
 	}
 	
 	//called by the editor script

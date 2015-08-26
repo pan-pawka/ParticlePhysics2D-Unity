@@ -90,13 +90,16 @@ public class Branch_Mono_Editor : Editor {
 		EditorGUILayout.LabelField("-----------------------------------------------------------------------------------------------------");
 		
 		//display how many particles are created in the Simulation
-		EditorGUILayout.HelpBox("Particle Count: "+sim.numberOfParticles(),MessageType.None);
+		EditorGUILayout.HelpBox("Particle: "+sim.numberOfParticles(),MessageType.None);
 		
 		//display how many leaf
-		EditorGUILayout.HelpBox("Leaf Count: "+temp.leafCount,MessageType.None);
+		EditorGUILayout.HelpBox("Leaf: "+temp.leafCount,MessageType.None);
 		
 		//display how many strings are created in the Simulation
-		EditorGUILayout.HelpBox("Spring Count: "+sim.numberOfSprings(),MessageType.None);
+		EditorGUILayout.HelpBox("Spring: "+sim.numberOfSprings(),MessageType.None);
+		
+		//display how many strings are created in the Simulation
+		EditorGUILayout.HelpBox("Angle Constraint: "+sim.numberOfAngleConstraints(),MessageType.None);
 		
 		//rotation
 		EditorGUILayout.BeginHorizontal();

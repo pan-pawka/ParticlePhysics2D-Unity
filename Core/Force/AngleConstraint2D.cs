@@ -16,7 +16,7 @@ namespace ParticlePhysics2D {
 		float angle_Cur; // how much the angle is currently
 		[SerializeField] float angle_Offset; // how much the angle is able to be offset
 
-		[SerializeField] float k;
+		//[SerializeField] float k;
 		[SerializeField] bool on;
 		
 		[NonSerialized] Simulation sim;
@@ -34,7 +34,7 @@ namespace ParticlePhysics2D {
 			angle_Offset = _offset;
 			on = true;
 			this.sim = sim;
-			this.k = 0.1f;
+			//this.k = 0.1f;
 			//this.k = 1f;
 			if (_spring1.ParticleA == _spring2.ParticleA) { SetTopology(_spring1.ParticleB,_spring1.ParticleA,_spring2.ParticleB); return; }
 			if (_spring1.ParticleA == _spring2.ParticleB) { SetTopology(_spring1.ParticleB,_spring1.ParticleA,_spring2.ParticleA); return; }
@@ -111,15 +111,18 @@ namespace ParticlePhysics2D {
 					if (particleA.IsFree) {
 						posA = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent);
 						particleA.Position = posA;
+						//particleA.Force += (posA - particleA.Position) * k;
 					}
 					if (particleB.IsFree) {
 						posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
 						particleB.Position = posB;
+						//particleB.Force += (posB - particleB.Position) * k;
 					}
 					if (particleM.IsFree) {
 						posM = Mathp.RotateVector2(posM,posA, deltaAngle * sim.angleRelaxPercent);
 						posM = Mathp.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent);
 						particleM.Position = posM;
+						//particleM.Force += (posM - particleM.Position) * k;
 					}
 				}
 			}

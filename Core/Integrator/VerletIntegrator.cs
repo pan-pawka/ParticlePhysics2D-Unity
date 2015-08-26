@@ -7,7 +7,7 @@ namespace ParticlePhysics2D {
 	public class VerletIntegrator : IIntegrator {
 		
 		Simulation s;
-		float dt = 1f;
+		//float dt = 1f;
 		
 		public VerletIntegrator( Simulation s )
 		{
@@ -33,6 +33,7 @@ namespace ParticlePhysics2D {
 					//dt = t;
 				}
 			}
+			//s.ClearForce();
 		}
 	}
 

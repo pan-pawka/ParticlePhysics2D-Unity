@@ -9,12 +9,10 @@ namespace ParticlePhysics2D {
 	//bounding circle struct
 	public struct BoundingCircle {
 		public float radius;
-		private float radius2;
 		public Vector2 position;
 		public BoundingCircle(Vector2 position, float radius) {
 			this.position = position;
 			this.radius = radius;
-			this.radius2 = radius * radius;
 		}
 		public static BoundingCircle zero {
 			get {

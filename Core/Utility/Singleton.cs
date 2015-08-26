@@ -42,7 +42,7 @@ public class Singleton<T> : MonoBehaviour where T : Singleton<T> {
 						}
 					}
 				}
-				Debug.Log("Going to create the obj");
+				Debug.Log("Going to create the singleton instance");
 				GameObject gO = new GameObject(typeof(T).Name, typeof(T));
 				_mInstance = gO.GetComponent<T>();
 				//DontDestroyOnLoad(gO);
