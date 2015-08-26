@@ -21,7 +21,8 @@ The system of ParticlePhysics2D bascially includes three layers of implementatio
 
 ### Todo
 1. More unity compatible. <br />
-2. <del>Collision detection<del /> circle-circle Cpu solver done, Gpu solver coming soon <br />
+2. <del>Collision detection  
+3. circle-circle CPU collision solver is done, Gpu solver coming soon <br />
 3. Unity editor tool to create ParticlePhysics2D system in design time. <br />
 4. GPU Verlet Integration
 
