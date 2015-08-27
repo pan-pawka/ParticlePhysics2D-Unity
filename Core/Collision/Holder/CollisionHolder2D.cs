@@ -13,6 +13,9 @@ namespace ParticlePhysics2D {
 		
 		public float leafRadius = 1f;
 		
+		/// <summary>
+		/// The circle collider is working as a trigger, toggling the collsion globally
+		/// </summary>
 		protected CircleCollider2D circle;
 		
 		[HideInInspector]

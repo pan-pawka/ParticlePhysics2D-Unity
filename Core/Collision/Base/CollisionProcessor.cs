@@ -60,13 +60,9 @@ namespace ParticlePhysics2D {
 			float timeNow = Time.realtimeSinceStartup;
 			for (int i=0;i<updateCount;i++) {
 				CollisionObject obj = objs[UpdateHead];
-				//Debug.Log("Update for " + obj.name + " " + obj.phaseType);
 				while (timeNow - obj.lastUpdateTime > fixedTimestep) {
 					obj.UpdateMethod();
-					//obj.updateCount++;
 					obj.lastUpdateTime += fixedTimestep;
-					//if (obj.lastUpdateTime - obj.beginUpdateTime > 100f ) Debug.Break();
-					//Debug.LogWarning("Update Happened " + obj.name + " " + obj.phaseType);
 				}
 			}
 		}

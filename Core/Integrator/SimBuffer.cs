@@ -44,9 +44,7 @@ namespace ParticlePhysics2D {
 				poRT[i].anisoLevel = 1;
 				poRT[i].filterMode = FilterMode.Point;
 			}
-			
 			Init();
-			
 		}
 		
 		/// <summary>

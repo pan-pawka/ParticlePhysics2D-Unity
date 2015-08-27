@@ -53,6 +53,7 @@ namespace ParticlePhysics2D {
 		}
 		
 		//the broad phase implementation
+		//called by the CollisonProcess in the Manager
 		protected override void BroadPhaseUpdate() {
 			branch.GetBoundingCircle(sim,base.leafRadius);
 		}
@@ -61,6 +62,7 @@ namespace ParticlePhysics2D {
 		private CircleCollider2D cc;
 		private Vector2 targetPos;
 		private int searchCount = 0;
+		
 		public override void TraverseBVHForCircle ( CircleCollider2D cc,out int searchCount ) {
 			this.targetRb2D = cc.GetComponent<Rigidbody2D>();
 			this.cc = cc;
