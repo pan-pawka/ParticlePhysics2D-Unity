@@ -25,7 +25,7 @@ namespace ParticlePhysics2D {
 			int x,y;
 			float u;
 			if (SimBuffer.GetTexDimension(sim.numberOfParticles(),out x,out y,out u)) {
-				return new SimBuffer (x,y,sim);	
+				return new SimBuffer (x,y,sim);
 			} else {
 				Debug.LogError("Cannot create GPU rendertexture with wrong dimension");
 				return null;
@@ -113,7 +113,7 @@ namespace ParticlePhysics2D {
 			mtl.SetTexture(ID_PositionCache,poRT[current]);
 			PositionRT = RenderTexture.GetTemporary(width,height,0,RenderTextureFormat.RGFloat);
 			Graphics.Blit(poRT[next],PositionRT,mtl,pass);
-			RenderTexture.ReleaseTemporary(poRT[current]);
+			poRT[current].DiscardContents();
 			current ++; current %= 2;
 			next ++; next %= 2;
 		}

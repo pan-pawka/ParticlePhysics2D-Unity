@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
+
 
 
 namespace ParticlePhysics2D {
@@ -395,7 +395,7 @@ namespace ParticlePhysics2D {
 			for (int t=0;t<springs.Count;t++) {
 				Vector2 midpt = (springs[t].ParticleA.Position + springs[t].ParticleB.Position) /2f;
 				midpt = local2World.MultiplyPoint3x4(midpt);
-				Handles.Label(midpt,new GUIContent(t.ToString()));
+				//Handles.Label(midpt,new GUIContent(t.ToString()));
 			}
 		}
 
@@ -404,7 +404,7 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<particles.Count;i++) {
 				Vector2 pos = local2World.MultiplyPoint3x4(particles[i].Position);
 				DebugExtension.DebugPoint(pos,Color.blue,2f);
-				Handles.Label(pos,new GUIContent(i.ToString()));
+				//Handles.Label(pos,new GUIContent(i.ToString()));
 			}
 		}
 		

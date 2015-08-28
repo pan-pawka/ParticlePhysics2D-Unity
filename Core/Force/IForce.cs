@@ -6,5 +6,8 @@ public interface IForce
 	bool isOn();
 	bool isOff();
 	void apply();
+	
+	// you need to SetSimulation in Simualtion class's OnAfterDeserialize() callback. this is a hack
+	void SetParticles(Simulation sim);
 }
 }
