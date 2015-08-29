@@ -194,8 +194,26 @@ public class Branch_Mono_Editor : Editor {
 	
 	public void OnSceneGUI() {
 		if (sim!=null) {
-			if (temp.debugParticleIndex) sim.DebugParticle(temp.transform.localToWorldMatrix);
-			if (temp.debugSpringIndex) sim.DebugSpringIndex(temp.transform.localToWorldMatrix);
+		
+			//debug particle index
+			if (temp.debugParticleIndex) {
+				for (int i=0;i<sim.numberOfParticles();i++) {
+					Vector2 pos = temp.transform.localToWorldMatrix.MultiplyPoint3x4(sim.getParticle(i).Position);
+					Handles.Label(pos,new GUIContent(i.ToString()));
+					DebugExtension.DebugPoint(pos,Color.blue,2f);
+				}
+			}
+			
+			//debug spring index
+			if (temp.debugSpringIndex) {
+				for (int i=0;i<sim.numberOfSprings();i++) {
+					Vector2 midpt = (sim.getSpring(i).ParticleA.Position + sim.getSpring(i).ParticleB.Position) /2f;
+					midpt = temp.transform.localToWorldMatrix.MultiplyPoint3x4(midpt);
+					GUIStyle st = new GUIStyle ();
+					st.normal.textColor = Color.cyan - new Color (0f,0f,0f,0.5f);
+					Handles.Label(midpt,new GUIContent(i.ToString()),st);
+				}
+			}
 		}
 	}
 }

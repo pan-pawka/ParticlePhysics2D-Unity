@@ -34,12 +34,35 @@ public struct FVector2 {
 	public static implicit operator Vector2 (FVector2 p) {return new Vector2(p.x,p.y);}
 	public static implicit operator Vector3 (FVector2 p) {return new Vector3(p.x,p.y,0f);}
 	
-	public static float operator * (FVector2 a , FVector2 b) {return a.x * b.y - a.y * b.x;}
-	public static float Cross (FVector2 a, FVector2 b) {return a.x * b.y - a.y * b.x;}
+	//cross product
+	public static float operator * (FVector2 a , FVector2 b) {return a.x * b.y - a.y * b.x;}//Dot Product
+	public static float operator * (FVector2 a , Vector2 b) {return a.x * b.y - a.y * b.x;}//Dot Product
+	public static float operator * (Vector2 a , FVector2 b) {return a.x * b.y - a.y * b.x;}//Dot Product
+	public static float Cross (FVector2 a, FVector2 b) {return a.x * b.y - a.y * b.x;}//Corss Product
+	public static float Cross (Vector2 a, Vector2 b) { return a.x * b.y - a.y * b.x;}//Corss Product
+	public static float Cross (FVector2 a, Vector2 b) { return a.x * b.y - a.y * b.x;}//Corss Product
+	public static float Cross (Vector2 a, FVector2 b) { return a.x * b.y - a.y * b.x;}//Corss Product
 	public float Cross (FVector2 a) { return this.x * a.y - this.y * a.x;}
+	public float Cross (Vector2 a) { return this.x * a.y - this.y * a.x;}
+	
+	//Cross with unit z
+	public static Vector2 CrossPositiveZ(Vector2 a) {return new Vector2 (a.y,-a.x);}
+	public static Vector2 CrossNegativeZ(Vector2 a) {return new Vector2 (-a.y,a.x);}
+	public static Vector2 RotateCW90(Vector2 a) {return CrossPositiveZ(a);}
+	public static Vector2 RotateCCW90(Vector2 a) {return CrossNegativeZ(a);}
+	public static FVector2 CrossPositiveZ(FVector2 a) {return new FVector2 (a.y,-a.x);}
+	public static FVector2 CrossNegativeZ(FVector2 a) {return new FVector2 (-a.y,a.x);}
+	public static FVector2 RotateCW90(FVector2 a) {return CrossPositiveZ(a);}
+	public static FVector2 RotateCCW90(FVector2 a) {return CrossNegativeZ(a);}
+	public static Vector2 CrossUnitZ(Vector2 a,float unitZSign) {
+		int sign = Math.Sign(unitZSign);
+		return new Vector2 (a.y * sign,-a.x * sign);
+	}
+	
 	
 	public float Dot (FVector2 a) { return this.x * a.x + this.y * a.y;}
 	public static float Dot (FVector2 a, FVector2 b) {return a.x * b.x + a.y * b.y;}
+	public static float Dot (Vector2 a, Vector2 b) {return a.x * b.x + a.y * b.y;}
 	
 	public static float Distance ( FVector2 a, FVector2 b) {
 		float xl = a.x - b.x;
@@ -58,6 +81,12 @@ public struct FVector2 {
 		return (float)r;
 	}
 	
+	/// <summary>
+	/// Return the signed angle between two vectors.
+	/// </summary>
+	/// <returns>The signed angle.</returns>
+	/// <param name="a">The vector a.</param>
+	/// <param name="b">The vector b.</param>
 	public static float SignedAngle (FVector2 a, FVector2 b) {
 		return signedAngle(a.x,a.y,b.x,b.y) * rad2deg;
 	}

@@ -38,7 +38,8 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	
 	void Awake() {
 		Debug.Log("Re construct branch from serialized bytes");
-		branch = EasySerializer.DeserializeObjectFromBytes(serializedBranch) as BinaryTree;
+		if (serializedBranch!=null)
+			branch = EasySerializer.DeserializeObjectFromBytes(serializedBranch) as BinaryTree;
 	}
 	
 	void LateUpdate(){
@@ -61,6 +62,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 			if (b.branchB!=null) CopyBranchTopology (temp,b.branchB,ref s);
 			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchA.springIndex));
 			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchB.springIndex));
+
 		} 
 		//if it's a leaf branch
 		else {

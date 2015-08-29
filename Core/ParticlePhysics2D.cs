@@ -224,12 +224,6 @@ namespace ParticlePhysics2D {
 				}
 			}
 			
-//			for (int i=angles.Count-1;i>=0;i--) {
-//				if (angles[i].ParticleA == p || angles[i].ParticleM == p || angles[i].ParticleB == p) {
-//					AngleConstraint2D a = angles[i];
-//					removeAngleConstraint(a);
-//				}
-//			}
 			particles.Remove( p );
 		}
 		
@@ -356,28 +350,30 @@ namespace ParticlePhysics2D {
 		
 		void SatisfyConstraints() {
 			if (applySpring)
-				for ( int i = 0; i < springs.Count; i++ )
+			for ( int i = 0; i < springs.Count; i++ )
 			{
 				springs[i].apply();
 			}
 			
 			if (applySpring)
-				for ( int i = springs.Count-1; i >=0 ; i-- )
+			for ( int i = springs.Count-1; i >=0 ; i-- )
 			{
 				springs[i].apply();
 			}
 			
 			if (applyAngle)
-				for ( int i = angles.Count-1; i >=0 ; i-- )
+			for ( int i = angles.Count-1; i >=0 ; i-- )
 			{
 				angles[i].apply();
 			}
 			
 			if (applyAngle)
-				for ( int i = 0; i < angles.Count; i++ )
+			for ( int i = 0; i < angles.Count; i++ )
 			{
 				angles[i].apply();
 			}
+			
+			
 		}
 
 		
@@ -390,31 +386,12 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		//use this script inside editor script
-		public void DebugSpringIndex(Matrix4x4 local2World) {
-			for (int t=0;t<springs.Count;t++) {
-				Vector2 midpt = (springs[t].ParticleA.Position + springs[t].ParticleB.Position) /2f;
-				midpt = local2World.MultiplyPoint3x4(midpt);
-				//Handles.Label(midpt,new GUIContent(t.ToString()));
-			}
-		}
-
-		//use this inside the editor script
-		public void DebugParticle(Matrix4x4 local2World) {
-			for (int i=0;i<particles.Count;i++) {
-				Vector2 pos = local2World.MultiplyPoint3x4(particles[i].Position);
-				DebugExtension.DebugPoint(pos,Color.blue,2f);
-				//Handles.Label(pos,new GUIContent(i.ToString()));
-			}
-		}
-		
 		public void DebugAngles(Matrix4x4 local2World) {
 			for (int i=0;i<angles.Count;i++) {
 				angles[i].DebugDraw(local2World);
 			}
 		}
-		
-		
+	
 		#endregion
 		
 	}
