@@ -16,7 +16,6 @@ namespace ParticlePhysics2D {
 		
 		public void step( float t )
 		{
-			
 			s.applyConstraints();
 			Vector2 temp;
 			for ( int i = 0; i < s.numberOfParticles(); i++ )
