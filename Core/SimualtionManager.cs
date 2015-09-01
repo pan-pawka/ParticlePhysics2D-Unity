@@ -6,24 +6,27 @@ using System.Collections.Generic;
 
 namespace ParticlePhysics2D {
 
-	[AddComponentMenu("ParticlePhysics2D/Collision/Manager",13)]
-	public class PCollision2DManager : Singleton<PCollision2DManager> {
+	//[AddComponentMenu("ParticlePhysics2D/Collision/Manager",13)]
+	public class SimulationManager : Singleton<SimulationManager> {
 		
 		//singleton instance
-		public static PCollision2DManager Instance {
-			get { return ((PCollision2DManager)mInstance);} 
+		public static SimulationManager Instance {
+			get { return ((SimulationManager)mInstance);} 
 			set { mInstance = value;}
 		}
 		
 		//static ctor
-		static PCollision2DManager () {
-			Debug.Log("Collision Manager created : " + PCollision2DManager.Instance.name);
+		static SimulationManager () {
+			Debug.Log("Collision Manager created : " + SimulationManager.Instance.name);
 		}
 		
-		public const bool IsDebugOn = false;
-		[SerializeField] CollisionProcessor bpProcessor = new CollisionProcessor (IsDebugOn);	//broad phase processor
-		[SerializeField] CollisionProcessor npProcessor = new CollisionProcessor (IsDebugOn);  //narrow phase processor
-
+		//global parameters
+		public float FixedTimestep = 1f/30f;
+		
+		public bool IsDebugOn = false;
+		CollisionProcessor bpProcessor = new CollisionProcessor ();	//broad phase processor
+		CollisionProcessor npProcessor = new CollisionProcessor ();  //narrow phase processor
+		
 		//generic add and remove
 		public void AddCollisionObject ( CollisionHolder2D obj ) {
 			bpProcessor.AddObject(obj);

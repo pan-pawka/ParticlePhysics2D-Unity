@@ -8,14 +8,13 @@ using System.Collections.Generic;
 namespace ParticlePhysics2D {
 	
 	//Collision Processor
-	[System.Serializable]
+	//[System.Serializable]
 	public sealed class CollisionProcessor {
 		
-		const float fixedTimestep = 1f/30f; //fps = 30
 		const int maxProcessNumber = 10;
 		const int DEFAULT_CAPACITY = 100;
-		bool isDebugOn = true;
-		[SerializeField]
+		
+		//[SerializeField]
 		private List<CollisionObject> objs = new List<CollisionObject> (DEFAULT_CAPACITY);
 		private int _updateHead = -1;
 		private int UpdateHead {
@@ -26,8 +25,7 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		public CollisionProcessor(bool debug) {
-			this.isDebugOn = debug;
+		public CollisionProcessor() {
 		}
 		
 		public void AddObject(CollisionObject obj) {
@@ -36,7 +34,7 @@ namespace ParticlePhysics2D {
 				obj.indexInManager = objs.Count-1;
 				obj.lastUpdateTime = Time.realtimeSinceStartup;
 				//obj.beginUpdateTime = Time.realtimeSinceStartup;
-				if (isDebugOn) Debug.Log( " Object : " + obj.name + " is added to Manager");
+				if (SimulationManager.Instance.IsDebugOn) Debug.Log( " Object : " + obj.name + " is added to Manager");
 			}
 		}
 		
@@ -48,21 +46,21 @@ namespace ParticlePhysics2D {
 				objs[obj.indexInManager].indexInManager = objs[objs.Count-1].indexInManager;
 				objs[objs.Count-1].indexInManager = -1;
 				objs.RemoveAt(objs.Count-1);
-				if (isDebugOn) Debug.Log( " Object : " + obj.name + " is removed from Manager");
+				if (SimulationManager.Instance.IsDebugOn) Debug.Log( " Object : " + obj.name + " is removed from Manager");
 			}
 		}
 		
 		int updateCount;
 		public void Update(float deltaTime) {
 			if (objs.Count<=0) return;
-			float f = Mathf.Clamp01(deltaTime / fixedTimestep);
+			float f = Mathf.Clamp01(deltaTime / SimulationManager.Instance.FixedTimestep);
 			updateCount = Mathf.Clamp((int)(objs.Count * f) , 1 , maxProcessNumber);
 			float timeNow = Time.realtimeSinceStartup;
 			for (int i=0;i<updateCount;i++) {
 				CollisionObject obj = objs[UpdateHead];
-				while (timeNow - obj.lastUpdateTime > fixedTimestep) {
+				while (timeNow - obj.lastUpdateTime > SimulationManager.Instance.FixedTimestep) {
 					obj.UpdateMethod();
-					obj.lastUpdateTime += fixedTimestep;
+					obj.lastUpdateTime += SimulationManager.Instance.FixedTimestep;
 				}
 			}
 		}

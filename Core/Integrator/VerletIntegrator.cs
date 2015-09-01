@@ -2,20 +2,30 @@
 using UnityEngine;
 using System.Collections;
 
+
 namespace ParticlePhysics2D {
 
 	public class VerletIntegrator : IIntegrator {
 		
 		Simulation s;
-		//float dt = 1f;
+		float lastUpdateTime;
 		
 		public VerletIntegrator( Simulation s )
 		{
 			this.s = s;
+			this.lastUpdateTime = new System.Random().Next(10000) / 10000f;
 		}
 		
-		public void step( float t )
+		public void step()
 		{
+			float timeNow = Time.realtimeSinceStartup;
+			while (timeNow - this.lastUpdateTime > SimulationManager.Instance.FixedTimestep) {
+				Apply();
+				this.lastUpdateTime += SimulationManager.Instance.FixedTimestep;
+			}
+		}
+		
+		void Apply() {
 			s.applyConstraints();
 			Vector2 temp;
 			for ( int i = 0; i < s.numberOfParticles(); i++ )

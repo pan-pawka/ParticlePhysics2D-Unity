@@ -131,14 +131,7 @@ namespace ParticlePhysics2D {
 		/// </summary>
 		public void tick()
 		{
-			tick( 1f );
-		}
-		
-		public void tick( float t )
-		{  
-			//if (integrator==null) setIntegrator(integrationMedthod);
-			integrator.step( t );
-			
+			integrator.step();
 		}
 		
 		#endregion

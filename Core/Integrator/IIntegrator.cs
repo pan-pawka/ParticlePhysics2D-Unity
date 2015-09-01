@@ -1,6 +1,7 @@
-﻿namespace ParticlePhysics2D {
+﻿using UnityEngine;
+namespace ParticlePhysics2D {
 	public interface IIntegrator 
 	{
-		void step( float t );
+		void step();
 	}
 }

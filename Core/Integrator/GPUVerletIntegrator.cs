@@ -30,7 +30,14 @@ namespace ParticlePhysics2D {
 			this.simbuffer.BlitPosition(mtl,pass);
 		}
 		
-		public void step(float dt) {
+		public void step() {
+			SimulationManager.Instance.StartCoroutine(GPUStep());
+		}
+		
+		IEnumerator GPUStep () {
+		
+			//wait till the end of the frame, then read RT into particle Position list
+			yield return new WaitForEndOfFrame();
 			
 		}
 		
