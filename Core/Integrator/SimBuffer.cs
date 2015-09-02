@@ -14,7 +14,9 @@ namespace ParticlePhysics2D {
 		RenderTexture[] poRT = new RenderTexture[2];// old position
 		RenderTexture StateRT {get;set;}
 		Simulation sim;
-		int ID_PositionCache;
+		int ID_PositionCache,ID_Damping;
+		float damping,springConstant,angleRelaxPercent;
+		Mesh springMesh,angleMesh;
 		int current = 0,next = 1;//for position tex
 		int width,height;// the rendertexture size for the particle data structure
 		
@@ -41,6 +43,7 @@ namespace ParticlePhysics2D {
 			this.height = y;
 			this.sim = sim;
 			this.ID_PositionCache = Shader.PropertyToID("_PositionCache");
+			this.ID_Damping = Shader.PropertyToID("_Damping");
 			for (int i=0;i<2;i++) {
 				poRT[i] = new RenderTexture (x,y,0,RenderTextureFormat.RGFloat);
 				poRT[i].useMipMap = false;
@@ -78,6 +81,16 @@ namespace ParticlePhysics2D {
 		
 		#endregion
 		
+		#region Spring Constraint
+		public void SpringConstraint() {
+			if (springMesh==null) {
+				springMesh = new Mesh ();
+				Vector3[] vert = new Vector3[sim.numberOfSprings()];
+				springMesh.vertices = vert;
+			} 
+		}
+		#endregion
+		
 		#region Collision-Constraint-Verlet
 		/// <summary>
 		/// This is mainly called in the collsion gpu solver, where the positon of particles are read and wirte multiple times
@@ -104,6 +117,10 @@ namespace ParticlePhysics2D {
 		/// </summary>
 		public void Verlet (Material mtl,int pass = -1) {
 			mtl.SetTexture(ID_PositionCache,poRT[current]);
+			if (damping != sim.damping) {
+				damping = sim.damping;
+				mtl.SetFloat(ID_Damping,damping);
+			}
 			PositionRT = RenderTexture.GetTemporary(width,height,0,RenderTextureFormat.RGFloat);
 			Graphics.Blit(poRT[next],PositionRT,mtl,pass);
 			poRT[current].DiscardContents();

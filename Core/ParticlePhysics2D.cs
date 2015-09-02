@@ -99,7 +99,10 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<angles.Count;i++) {
 				angles[i].SetParticles(this);
 			}
-			this.setIntegrator(integrationMedthod);
+			//TODO: need to de bug
+			//do not need this in editor execute
+			if (Application.isPlaying)
+				this.setIntegrator(integrationMedthod);
 		}
 		#endregion
 		
