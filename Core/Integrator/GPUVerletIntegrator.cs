@@ -17,26 +17,36 @@ namespace ParticlePhysics2D {
 	public class GPUVerletIntegrator : IntegratorBase {
 		
 		SimBuffer simbuffer;
+		public Shader VerletSpringConstraint,VerletAngleConstraint,VerletGPUIntegrator;
+		private Material springMtl,angleMtl,verletMtl;
 		
 		public GPUVerletIntegrator (Simulation sim) : base(sim) {
 			base.StepMethodDelegate = this.StepMethod;
+			this.springMtl = new Material (VerletSpringConstraint);
+			this.angleMtl = new Material (VerletAngleConstraint);
+			this.verletMtl = new Material (VerletGPUIntegrator);
 			this.simbuffer = SimBuffer.Create(sim);
 		}
 		
-		//this is called outside by some gpu collision solver,
-		//to manipulate the position tex
-		public void BlitCollision ( Material mtl,int pass = -1) {
-			this.simbuffer.BlitPosition(mtl,pass);
-		}
-		
 		protected sealed override void StepMethod(){
+			
+			SimulationManager.Instance.StartCoroutine(GPUStep());
 			
 		}
 		
 		IEnumerator GPUStep () {
 		
-			//wait till the end of the frame, then read RT into particle Position list
+			//get back all the data from cpu to gpu
+			simbuffer.SendToGPU_ParticlePosition();
+			
+			simbuffer.BlitPosition(springMtl);
+			simbuffer.BlitPositionToCache(angleMtl);
+			simbuffer.Verlet(verletMtl);
+		
+			//wait till the end of the frame, then read RT into particle Position list,i.e., from gpu to cpu
 			yield return new WaitForEndOfFrame();
+			
+			simbuffer.SendToCPU_ParticlePosition();
 			
 		}
 		

@@ -63,6 +63,10 @@ namespace ParticlePhysics2D {
 			this.GetComponent<IFormLayer>().OnResetForm -= OnResetRender;
 		}
 		
+		void OnDestroy() {
+			if (this.mesh) Extension.ObjDestroy(this.mesh);//this prevent editor leak
+		}
+		
 		public void LateUpdate(){
 //			if (mpb==null) {
 //				mpb = new MaterialPropertyBlock ();
@@ -95,6 +99,7 @@ namespace ParticlePhysics2D {
 			} else {
 				mesh = new Mesh ();
 				CreateMesh();
+				this.meshFilter.sharedMesh = this.mesh;
 				this.particleNumCache = sim.numberOfParticles();
 				this.stringNumCache = sim.numberOfSprings();
 			}
@@ -187,7 +192,6 @@ namespace ParticlePhysics2D {
 				mesh.SetIndices(ic,MeshTopology.Lines,0);
 				mesh.RecalculateBounds();
 				mesh.MarkDynamic();
-				
 			}
 			
 		}

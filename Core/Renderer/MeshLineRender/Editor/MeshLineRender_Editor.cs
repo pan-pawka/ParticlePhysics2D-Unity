@@ -18,7 +18,7 @@ public class MeshLineRender_Editor :  Editor,ISerializationCallbackReceiver {
 	
 	public void OnBeforeSerialize() {}
 	public void OnAfterDeserialize(){
-		Debug.Log("SD");
+		//Debug.Log("SD");
 	}
 	
 	public override void OnInspectorGUI (){

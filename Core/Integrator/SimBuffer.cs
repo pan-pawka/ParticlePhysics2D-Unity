@@ -12,12 +12,15 @@ namespace ParticlePhysics2D {
 	public class SimBuffer {
 		
 		RenderTexture[] poRT = new RenderTexture[2];// old position
+		RenderTexture StateRT {get;set;}
 		Simulation sim;
 		int ID_PositionCache;
 		int current = 0,next = 1;//for position tex
 		int width,height;// the rendertexture size for the particle data structure
 		
 		public RenderTexture PositionRT {get;set;}
+		private Texture2D tempPos;
+		private Rect tempRect;
 		
 		#region Ctor
 		
@@ -48,41 +51,31 @@ namespace ParticlePhysics2D {
 		}
 		
 		/// <summary>
-		/// If we need this GPU solver, we should init it with resources allocating
+		/// If we need this GPU solver, we should re-allocate in init;
 		/// </summary>
 		public void Init() {
-			//get all the current data to rt
-			Texture2D pos = new Texture2D (width,height,TextureFormat.RGFloat,false);
-			pos.filterMode = FilterMode.Point;
-			pos.anisoLevel = 0;
 			
-			Color[] pc = new Color[width * height];
-			int counter = 0;
-			for (int i=0;i<height;i++) {
-				for (int j=0;i<width;j++) {
-					Vector2 pPos;
-					if (counter<sim.numberOfParticles()) {
-						pPos = sim.getParticle(counter).Position;
-					} else {
-						pPos = Vector2.zero;
-					}
-					pc[counter] = new Color (pPos.x,pPos.y,0f);
-					counter++;
-				}
+			SendToGPU_ParticleState();
+			
+			//initialize the temporary texture2d for exchanging position bewteen cpu and gpu
+			if (tempPos==null) {
+				tempPos = new Texture2D (width,height,TextureFormat.RGFloat,false);
+				tempPos.filterMode = FilterMode.Point;
+				tempPos.anisoLevel = 0;
 			}
 			
-			pos.SetPixels(pc);
-			pos.Apply(false);
+			//initialize the rect for readpixels
+			tempRect = new Rect (0f,0f,(float)width,(float)height);
+			
+			SendToGPU_ParticlePosition();
 			
 			for (int i=0;i<2;i++) {
 				if (!poRT[i].IsCreated()) poRT[i].Create();
-				Graphics.Blit(pos,poRT[i]);
+				Graphics.Blit(PositionRT,poRT[i]);
 			}
-			
-			if (PositionRT) RenderTexture.ReleaseTemporary(PositionRT);
-			PositionRT = RenderTexture.GetTemporary(width,height,0,RenderTextureFormat.RGFloat);
-			
 		}
+		
+		
 		#endregion
 		
 		#region Collision-Constraint-Verlet
@@ -107,7 +100,7 @@ namespace ParticlePhysics2D {
 		}
 		
 		/// <summary>
-		/// Verlet the result of this frame and the prev frame
+		/// Verlet the result of this frame and the prev frame, to PositionRT
 		/// </summary>
 		public void Verlet (Material mtl,int pass = -1) {
 			mtl.SetTexture(ID_PositionCache,poRT[current]);
@@ -119,6 +112,86 @@ namespace ParticlePhysics2D {
 		}
 		#endregion
 		
+		#region Data transfer between cpu and gpu
+		//this will get the particles state into StateRT
+		void SendToGPU_ParticleState ( ) {
+			//the state of particle, like IsFree...
+			RenderTexture.ReleaseTemporary(StateRT);
+			StateRT = RenderTexture.GetTemporary(width,height,0,RenderTextureFormat.R8);
+			Texture2D state2d = new Texture2D (width,height,TextureFormat.RHalf,false,false);
+			state2d.filterMode = FilterMode.Point;
+			state2d.anisoLevel = 0;
+			Color[] pc = new Color[width * height];
+			int counter = 0;
+			for (int i=0;i<height;i++) {
+				for (int j=0;i<width;j++) {
+					if (counter<sim.numberOfParticles()) {
+						if (sim.getParticle(counter).IsFree ) {
+							pc[counter] = new Color (1f,0f,0f);
+						} else {
+							pc[counter] = new Color (0f,0f,0f);
+						}
+					} else {
+						pc[counter] = new Color (0f,0f,0f);
+					}
+					counter++;
+				}
+			}
+			state2d.SetPixels(pc);
+			state2d.Apply();
+			Graphics.Blit(state2d,StateRT);
+			Extension.ObjDestroy(state2d);
+		}
+		
+		/// <summary>
+		/// this will get all the particle position into PositionRT, usually after collision response
+		/// </summary>
+		public void SendToGPU_ParticlePosition() {
+			Color[] pc = new Color[width * height];
+			int counter = 0;
+			for (int i=0;i<height;i++) {
+				for (int j=0;i<width;j++) {
+					Vector2 pPos;
+					if (counter<sim.numberOfParticles()) {
+						pPos = sim.getParticle(counter).Position;
+					} else {
+						pPos = Vector2.zero;
+					}
+					pc[counter] = new Color (pPos.x,pPos.y,0f);
+					counter++;
+				}
+			}
+			
+			tempPos.SetPixels(pc);
+			tempPos.Apply(false);
+			
+			if (PositionRT) RenderTexture.ReleaseTemporary(PositionRT);
+			PositionRT = RenderTexture.GetTemporary(width,height,0,RenderTextureFormat.RGFloat);
+			
+			Graphics.Blit(tempPos,PositionRT);
+		}
+		//this will transfer data in PositionRT into the particle list
+		public void SendToCPU_ParticlePosition() {
+			RenderTexture rtcache = RenderTexture.active;
+			RenderTexture.active = PositionRT;
+			tempPos.ReadPixels(tempRect,0,0,false);
+			RenderTexture.active = rtcache;
+			Color[] pc;
+			pc = tempPos.GetPixels();
+			int counter = 0;
+			for (int i=0;i<height;i++) {
+				for (int j=0;i<width;j++) {
+					if (counter<sim.numberOfParticles()) {
+						Vector2 pos = new Vector2 (pc[counter].r,pc[counter].g);
+						sim.getParticle(counter).Position = pos;
+					}
+					counter++;
+				}
+			}
+			
+		}
+		#endregion
+		
 		/// <summary>
 		/// If the simualtion goes out of scope, we can release the hardware resources manually
 		/// </summary>
@@ -127,12 +200,8 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<2;i++) {
 				poRT[i].Release();
 			}
-		}
-		
-		public void Destroy() {
-			Extension.ObjDestroy(PositionRT);
-			Extension.ObjDestroy(poRT[0]);
-			Extension.ObjDestroy(poRT[1]);
+			RenderTexture.ReleaseTemporary(StateRT);
+			Extension.ObjDestroy(tempPos);
 		}
 		
 		public static bool GetTexDimension(int particles, out int x, out int y,out float usage) {

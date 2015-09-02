@@ -35,10 +35,10 @@ namespace ParticlePhysics2D {
 		public float damping = 0.95f;//used by verlet
 		
 		[Range(0.005f,0.99f)]
-		public float springConstant = 0.1f;//used by verlet
+		public float springConstant = 0.8f;//used by verlet
 		
 		[Range(0.001f,0.2f)]
-		public float angleRelaxPercent = 0.2f;//used by verlet
+		public float angleRelaxPercent = 0.02f;//used by verlet
 		
 		public void setIntegrator()
 		{

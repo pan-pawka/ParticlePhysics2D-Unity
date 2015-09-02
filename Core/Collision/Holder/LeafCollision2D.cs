@@ -76,6 +76,7 @@ namespace ParticlePhysics2D {
 			searchCount = this.searchCount;
 		}
 		
+		float maxPositionChange = 0.5f;
 		void TraverseBinaryTreeForCircle ( BinaryTree branch) {
 			
 			if (branch.branchA!=null && branch.branchB!=null) {
@@ -95,7 +96,8 @@ namespace ParticlePhysics2D {
 				if (branch.boundingCircle.OverlapsResults(targetPos,cc.radius,out dir)){
 					if (isDebugCollidingOn) branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.magenta);
 					//apply collision
-					sim.getParticle(branch.leafIndex).Position -= dir * leafForceFeedback;//local space
+					//sim.getParticle(branch.leafIndex).Position -= Vector2.ClampMagnitude (dir * leafForceFeedback , maxPositionChange);
+					sim.getParticle(branch.leafIndex).Position -= dir * leafForceFeedback;
 					dir = transform.TransformDirection(dir);
 					targetRb2D.AddForce(dir * targetForceFeedback,ForceMode2D.Force);
 					
@@ -103,7 +105,7 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		public float leafForceFeedback = 1f,targetForceFeedback = 100f;
+		public float leafForceFeedback = 0.5f,targetForceFeedback = 100f;
 		
 		public override void TraverseBVHForPolygon(PolygonCollider2D poly) {}
 		
