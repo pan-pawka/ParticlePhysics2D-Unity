@@ -22,7 +22,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	[Range(20f,150f)]
 	public float length = 20f;
 	
-	public bool debugSpring = false,debugAngles = false,debugParticleIndex = false,debugSpringIndex = false;
+	public bool debugSpring = true,debugAngles = false,debugParticleIndex = false,debugSpringIndex = false;
 	
 	//branch generation params
 	[HideInInspector] public float lengthExitRatio;

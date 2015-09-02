@@ -15,13 +15,13 @@ namespace ParticlePhysics2D {
 			set { mInstance = value;}
 		}
 		
-		//static ctor
-		static SimulationManager () {
-			Debug.Log("Collision Manager created : " + SimulationManager.Instance.name);
-		}
-		
 		//global parameters
+		[HideInInspector]
 		public float FixedTimestep = 1f/30f;
+		
+		[Range(10,60)]
+		public int UpdatePerSecond = 30;
+		private int _updatePerSecond;
 		
 		public bool IsDebugOn = false;
 		CollisionProcessor bpProcessor = new CollisionProcessor ();	//broad phase processor
@@ -44,6 +44,17 @@ namespace ParticlePhysics2D {
 			npProcessor.RemoveObject(obj);
 		}
 		
+		void Start() {
+			_updatePerSecond = this.UpdatePerSecond;
+			this.FixedTimestep = 1f/this.UpdatePerSecond;
+		}
+		
+		void Update() {
+			if (UpdatePerSecond != _updatePerSecond) {
+				_updatePerSecond = UpdatePerSecond;
+				this.FixedTimestep = 1f/UpdatePerSecond;
+			}
+		}
 		
 		void FixedUpdate () {
 			bpProcessor.Update(Time.deltaTime);

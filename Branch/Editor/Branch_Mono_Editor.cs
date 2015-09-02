@@ -168,6 +168,7 @@ public class Branch_Mono_Editor : Editor {
 			1f
 		);
 		
+		//regenerate branch
 		GUI.backgroundColor = Color.green * 0.8f;
 		reGenBranch = GUILayout.Button("Re-Generate Branch",GUILayout.ExpandWidth(true));
 		if (reGenBranch) {
@@ -175,6 +176,7 @@ public class Branch_Mono_Editor : Editor {
 			EditorUtility.SetDirty(temp);
 		}
 		
+		//reset branch generation params
 		GUI.backgroundColor = Color.cyan * 0.8f;
 		bool resetParam = false;
 		resetParam = GUILayout.Button("Reset Branch Generation Params",GUILayout.ExpandWidth(true));

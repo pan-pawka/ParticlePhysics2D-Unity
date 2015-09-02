@@ -5,7 +5,7 @@ using ParticlePhysics2D;
 
 [CustomEditor(typeof(MeshLineRender))]
 
-public class MeshLineRender_Editor :  Editor {
+public class MeshLineRender_Editor :  Editor,ISerializationCallbackReceiver {
 	
 	MeshLineRender lr;
 	
@@ -16,8 +16,13 @@ public class MeshLineRender_Editor :  Editor {
 		}
 	}
 	
+	public void OnBeforeSerialize() {}
+	public void OnAfterDeserialize(){
+		Debug.Log("SD");
+	}
+	
 	public override void OnInspectorGUI (){
-		//DrawDefaultInspector();
+		DrawDefaultInspector();
 		EditorGUILayout.Space();
 		Color cl = lr.color;
 		lr.color = EditorGUILayout.ColorField("Line Color",lr.color,GUILayout.ExpandWidth(true));

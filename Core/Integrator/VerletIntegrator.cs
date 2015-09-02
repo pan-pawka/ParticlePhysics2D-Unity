@@ -1,52 +1,87 @@
 ﻿//Yves Wang @ FISH, 2015, All rights reserved
+//Traditional Verlet : xi+1 = xi + (xi - xi-1) + a * dt * dt
+//Timt-Corrected Verlet :  xi+1 = xi + (xi - xi-1) * (dti / dti-1) + a * dti * dti
+//p.Position = p.Position + (p.Position - p.PositionOld) * s.damping  * (t / dt) + p.Force / p.Mass * t * t;
+
 using UnityEngine;
 using System.Collections;
 
 
 namespace ParticlePhysics2D {
 
-	public class VerletIntegrator : IIntegrator {
+	public class VerletIntegrator : IntegratorBase {
+	
+		Particle2D p;//temp variable
+		Vector2 temp;
 		
-		Simulation s;
-		float lastUpdateTime;
-		
-		public VerletIntegrator( Simulation s )
+		public VerletIntegrator( Simulation s ) : base(s)
 		{
-			this.s = s;
-			this.lastUpdateTime = new System.Random().Next(10000) / 10000f;
+			base.StepMethodDelegate = this.StepMethod;
 		}
 		
-		public void step()
-		{
-			float timeNow = Time.realtimeSinceStartup;
-			while (timeNow - this.lastUpdateTime > SimulationManager.Instance.FixedTimestep) {
-				Apply();
-				this.lastUpdateTime += SimulationManager.Instance.FixedTimestep;
+		protected sealed override void StepMethod() {
+			this.applyConstraints();
+			this.verlet();
+		}
+		
+		
+		void applyConstraints() {
+		
+			//gravity
+			if ( sim.getGravity() != Vector2.zero )
+			{
+				for ( int i = 0; i < sim.numberOfParticles(); ++i )
+				{
+					p = sim.getParticle(i);
+					if (p.IsFree) p.Position += sim.getGravity();
+				}
+			}
+			
+			//iterations
+			for (int iter=0;iter<sim.ITERATIONS;iter++) {
+				if (sim.applySpring) 
+				for ( int i = 0; i < sim.numberOfSprings(); i++ )
+				{
+					sim.getSpring(i).apply();
+				}
+				
+				if (sim.applySpring)
+					for ( int i = sim.numberOfSprings()-1; i >=0 ; i-- )
+				{
+					sim.getSpring(i).apply();
+				}
+				
+				if (sim.applyAngle)
+					for ( int i = sim.numberOfAngleConstraints()-1; i >=0 ; i-- )
+				{
+					sim.getAngleConstraint(i).apply();
+				}
+				
+				if (sim.applyAngle)
+					for ( int i = 0; i < sim.numberOfAngleConstraints(); i++ )
+				{
+					sim.getAngleConstraint(i).apply();
+				}
 			}
 		}
 		
-		void Apply() {
-			s.applyConstraints();
-			Vector2 temp;
-			for ( int i = 0; i < s.numberOfParticles(); i++ )
+		void verlet() {
+			
+			for ( int i = 0; i < base.sim.numberOfParticles(); i++ )
 			{
-				Particle2D p = s.getParticle(i);
+				p = base.sim.getParticle(i);
 				if ( p.IsFree )
 				{
 					temp = p.Position;
-					//p.Position = p.Position + (p.Position - p.PositionOld);
-					//p.Position = p.Position + (p.Position - p.PositionOld) * s.damping  * (t / dt) + p.Force / p.Mass * t * t;
-					//p.Position = p.Position + (p.Position - p.PositionOld) * s.damping + p.Force;
-					p.Position += (p.Position - p.PositionOld) * s.damping;
+					p.Position += (p.Position - p.PositionOld) * base.sim.damping;
 					p.PositionOld = temp;
-					//dt = t;
+					
 				}
 			}
-			//s.ClearForce();
 		}
+		
+
 	}
 
 }
 
-//Traditional Verlet : xi+1 = xi + (xi - xi-1) + a * dt * dt
-//Timt-Corrected Verlet :  xi+1 = xi + (xi - xi-1) * (dti / dti-1) + a * dti * dti

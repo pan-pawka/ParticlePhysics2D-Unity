@@ -13,8 +13,9 @@ namespace ParticlePhysics2D {
 	public class MeshLineRender : MonoBehaviour {
 		
 		#region Fields and Properties
-		Simulation sim;
-		[HideInInspector] [SerializeField] Mesh mesh;
+		[NonSerialized] Simulation sim;
+		[NonSerialized] Mesh mesh;
+
 		[HideInInspector] [SerializeField] MeshRenderer meshRenderer;
 		[HideInInspector] [SerializeField] MeshFilter meshFilter;
 		[HideInInspector] [SerializeField] int particleNumCache;
@@ -55,6 +56,7 @@ namespace ParticlePhysics2D {
 		
 		void OnEnable() {
 			this.GetComponent<IFormLayer>().OnResetForm += OnResetRender;
+
 		}
 		
 		void OnDisable() {
@@ -77,9 +79,11 @@ namespace ParticlePhysics2D {
 					this.particleNumCache=sim.numberOfParticles();
 					this.stringNumCache = sim.numberOfSprings();
 				} else {
-					Vector3[] v = sim.getVertices();
-					if (v!=null) {
-						mesh.vertices = v;
+					if (sim.numberOfParticles()>2) {
+						if (Application.isPlaying)
+							mesh.vertices = sim.getVerticesNonAlloc();
+						else
+							mesh.vertices = sim.getVertices();
 						mesh.RecalculateBounds();
 					}
 					//
@@ -88,6 +92,11 @@ namespace ParticlePhysics2D {
 					}
 				}
 				
+			} else {
+				mesh = new Mesh ();
+				CreateMesh();
+				this.particleNumCache = sim.numberOfParticles();
+				this.stringNumCache = sim.numberOfSprings();
 			}
 			
 			if (color != colorCache) {
@@ -136,12 +145,10 @@ namespace ParticlePhysics2D {
 			meshFilter = this.GetComponent<MeshFilter>();
 			if (meshFilter==null)
 				meshFilter = this.gameObject.AddComponent<MeshFilter>();
-			meshFilter.mesh = mesh;
+			meshFilter.sharedMesh = mesh;
 			meshFilter.hideFlags =  HideFlags.HideInInspector;
 			
 		}
-		
-		
 		
 		public void SetColor(Color c) {
 			if (mpb==null) mpb = new MaterialPropertyBlock ();
@@ -153,6 +160,8 @@ namespace ParticlePhysics2D {
 		}
 		
 		void CreateMesh () {
+		
+			if (sim==null) sim = this.GetComponent<IFormLayer>().GetSimulation;
 			
 			if (sim.numberOfParticles()<2) {
 				mesh.Clear();

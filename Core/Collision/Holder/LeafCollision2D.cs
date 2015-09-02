@@ -14,6 +14,8 @@ namespace ParticlePhysics2D {
 		public int minTraverseDepth = 4;
 		public bool isGizmoOn = false;
 		public Color gizmoColor = Color.green;
+		public bool isDebugCollidingOn = false;
+		
 		
 		BinaryTree branch;
 		List<Particle2D> leafParticles;
@@ -91,7 +93,7 @@ namespace ParticlePhysics2D {
 				Vector2 dir;
 				searchCount ++;
 				if (branch.boundingCircle.OverlapsResults(targetPos,cc.radius,out dir)){
-					branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.magenta);
+					if (isDebugCollidingOn) branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.magenta);
 					//apply collision
 					sim.getParticle(branch.leafIndex).Position -= dir * leafForceFeedback;//local space
 					dir = transform.TransformDirection(dir);

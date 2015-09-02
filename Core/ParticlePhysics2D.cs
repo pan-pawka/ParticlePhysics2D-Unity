@@ -20,10 +20,13 @@ namespace ParticlePhysics2D {
 		
 		[HideInInspector] [SerializeField] List<AngleConstraint2D> angles;
 		
-		public IIntegrator integrator;
+		public IntegratorBase integrator;
 		
 		[SerializeField]
 		IntegrationMedthod integrationMedthod = IntegrationMedthod.VERLET;
+		
+		public bool applySpring = true,applyAngle = true;
+		public int ITERATIONS = 2;
 		
 		[SerializeField]
 		Vector2 gravity;
@@ -42,14 +45,15 @@ namespace ParticlePhysics2D {
 			switch ( integrationMedthod )
 			{
 			case IntegrationMedthod.VERLET:
-				this.integrator = new VerletIntegrator( this ) as IIntegrator;
+				this.integrator = new VerletIntegrator( this ) as IntegratorBase;
 				break;
 			case IntegrationMedthod.GPUVERLET:
-				this.integrator = new GPUVerletIntegrator(this) as IIntegrator;
+				this.integrator = new GPUVerletIntegrator(this) as IntegratorBase;
 				break;
 			default:
-				return;
+				break;
 			}
+			
 		}
 		
 		public void setIntegrator(IntegrationMedthod integrator) 
@@ -68,6 +72,10 @@ namespace ParticlePhysics2D {
 		public void setGravity( float g )
 		{
 			gravity = new Vector2 (0f,g);
+		}
+		
+		public Vector2 getGravity() {
+			return gravity;
 		}
 		
 		/// <summary>
@@ -120,6 +128,21 @@ namespace ParticlePhysics2D {
 				return vertices;
 			}
 		}
+		
+		private Vector3[] _verticesNonAlloc = new Vector3[0] ;
+		public Vector3[] getVerticesNonAlloc(){
+			if (particles.Count<2) {
+				return null;
+			} else {
+				if (_verticesNonAlloc.Length != particles.Count) {
+					System.Array.Resize<Vector3>(ref _verticesNonAlloc,particles.Count);
+				}
+				for (int i=0;i<particles.Count;i++) {
+					_verticesNonAlloc[i] = particles[i].Position;
+				}
+				return _verticesNonAlloc;
+			}
+		}
 		#endregion
 		
 		#region Tick
@@ -128,7 +151,7 @@ namespace ParticlePhysics2D {
 		/// advance the simulation by some time t, or by the default 1.0. 
 		/// You'll want to call this in Update(). You probably want to keep this the same at all times 
 		/// unless you want speed up or slow things down.
-		/// </summary>
+		/// </summary>s
 		public void tick()
 		{
 			integrator.step();
@@ -315,60 +338,6 @@ namespace ParticlePhysics2D {
 			angles = new List<AngleConstraint2D> ();
 			gravity = new Vector2 (0f,Simulation.DEFAULT_GRAVITY);
 		}
-		
-		#endregion
-		
-		#region Called by Integrator
-		/// <summary>
-		/// ApplyForces is called by Integrator to advanced the system, note that GPU Verlet Intergrator does not call this
-		/// </summary>
-		
-		public bool applySpring = true,applyAngle = true;
-		public int ITERATIONS = 2;
-		
-		public void applyConstraints()
-		{
-			if ( gravity != Vector2.zero )
-			{
-				for ( int i = 0; i < particles.Count; ++i )
-				{
-					if (particles[i].IsFree) particles[i].Position += gravity;
-				}
-			}
-			
-			for (int i=0;i<ITERATIONS;i++) {
-				SatisfyConstraints();
-			}
-		}
-		
-		void SatisfyConstraints() {
-			if (applySpring)
-			for ( int i = 0; i < springs.Count; i++ )
-			{
-				springs[i].apply();
-			}
-			
-			if (applySpring)
-			for ( int i = springs.Count-1; i >=0 ; i-- )
-			{
-				springs[i].apply();
-			}
-			
-			if (applyAngle)
-			for ( int i = angles.Count-1; i >=0 ; i-- )
-			{
-				angles[i].apply();
-			}
-			
-			if (applyAngle)
-			for ( int i = 0; i < angles.Count; i++ )
-			{
-				angles[i].apply();
-			}
-			
-			
-		}
-
 		
 		#endregion
 		

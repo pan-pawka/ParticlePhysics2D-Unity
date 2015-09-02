@@ -14,13 +14,12 @@ using System.Collections;
 using ParticlePhysics2D;
 
 namespace ParticlePhysics2D {
-	public class GPUVerletIntegrator : IIntegrator {
+	public class GPUVerletIntegrator : IntegratorBase {
 		
-		Simulation sim;
 		SimBuffer simbuffer;
 		
-		public GPUVerletIntegrator (Simulation sim) {
-			this.sim = sim;
+		public GPUVerletIntegrator (Simulation sim) : base(sim) {
+			base.StepMethodDelegate = this.StepMethod;
 			this.simbuffer = SimBuffer.Create(sim);
 		}
 		
@@ -30,8 +29,8 @@ namespace ParticlePhysics2D {
 			this.simbuffer.BlitPosition(mtl,pass);
 		}
 		
-		public void step() {
-			SimulationManager.Instance.StartCoroutine(GPUStep());
+		protected sealed override void StepMethod(){
+			
 		}
 		
 		IEnumerator GPUStep () {
