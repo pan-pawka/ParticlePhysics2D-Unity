@@ -6,7 +6,7 @@ Shader "FISH/ParticlePhysics2D/VerletGPUIntegrator" {
 		_MainTex ("", 2D) = "white" {}
 		_PositionCache ("",2D) = "white" {}
 		//_StateTex ("",2D) = "white" {} //because if particle is not changed during constraint or collision ,then the curPos and prePos will be the same always
-		_Damping ( "" , Range(0.001,0.99)) = 0.9
+		_Damping ( "Damping" , Range(0.001,0.99)) = 0.9
 	}
 	SubShader {
 		Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" "ForceNoShadowCasting" = "True" }

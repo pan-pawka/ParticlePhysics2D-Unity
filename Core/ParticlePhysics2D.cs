@@ -20,7 +20,16 @@ namespace ParticlePhysics2D {
 		
 		[HideInInspector] [SerializeField] List<AngleConstraint2D> angles;
 		
-		public IntegratorBase integrator;
+		private IntegratorBase _integrator;
+		public IntegratorBase Integrator {
+			get {
+				if (_integrator!=null) return _integrator;
+				else {
+					setIntegrator();
+					return _integrator;
+				}
+			}
+		}
 		
 		[SerializeField]
 		IntegrationMedthod integrationMedthod = IntegrationMedthod.VERLET;
@@ -45,37 +54,15 @@ namespace ParticlePhysics2D {
 			switch ( integrationMedthod )
 			{
 			case IntegrationMedthod.VERLET:
-				this.integrator = new VerletIntegrator( this ) as IntegratorBase;
+				this._integrator = new VerletIntegrator(this) as IntegratorBase;
 				break;
 			case IntegrationMedthod.GPUVERLET:
-				this.integrator = new GPUVerletIntegrator(this) as IntegratorBase;
+				this._integrator = new GPUVerletIntegrator(this) as IntegratorBase;
 				break;
 			default:
 				break;
 			}
 			
-		}
-		
-		public void setIntegrator(IntegrationMedthod integrator) 
-		{
-			integrationMedthod = integrator;
-			setIntegrator();
-		}
-		
-		
-		public void setGravity( float x, float y)
-		{
-			gravity = new Vector2 (x,y);
-		}
-		
-		// default gravity is down
-		public void setGravity( float g )
-		{
-			gravity = new Vector2 (0f,g);
-		}
-		
-		public Vector2 getGravity() {
-			return gravity;
 		}
 		
 		/// <summary>
@@ -89,6 +76,13 @@ namespace ParticlePhysics2D {
 			angles.Clear();
 		}
 		
+		/// <summary>
+		/// Init this instance. Call this inside Start() to instantiate the integrator
+		/// </summary>
+		public void Init () {
+			setIntegrator();
+		} 
+	
 		#region Serialization
 		public void OnBeforeSerialize()  {}
 		//this is a hack, because unity does not serialize custom class properly. Mainly because of ref lost.
@@ -99,10 +93,7 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<angles.Count;i++) {
 				angles[i].SetParticles(this);
 			}
-			//TODO: need to de bug
-			//do not need this in editor execute
-			if (Application.isPlaying)
-				this.setIntegrator(integrationMedthod);
+			
 		}
 		#endregion
 		
@@ -157,9 +148,27 @@ namespace ParticlePhysics2D {
 		/// </summary>s
 		public void tick()
 		{
-			integrator.step();
+			if (Application.isPlaying) this.Integrator.step();
+			else return;
 		}
 		
+		#endregion
+		
+		#region Gravity
+		public void setGravity( float x, float y)
+		{
+			gravity = new Vector2 (x,y);
+		}
+		
+		// default gravity is down
+		public void setGravity( float g )
+		{
+			gravity = new Vector2 (0f,g);
+		}
+		
+		public Vector2 getGravity() {
+			return gravity;
+		}
 		#endregion
 		
 		#region Particles
@@ -319,7 +328,6 @@ namespace ParticlePhysics2D {
 		
 		public Simulation()
 		{
-			setIntegrator(integrationMedthod);
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
@@ -327,7 +335,6 @@ namespace ParticlePhysics2D {
 		}
 		
 		public Simulation (float g,IntegrationMedthod integrationMedthod) {
-			setIntegrator(integrationMedthod);
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
@@ -335,7 +342,6 @@ namespace ParticlePhysics2D {
 		}
 		
 		public Simulation (IntegrationMedthod integrationMedthod) {
-			setIntegrator(integrationMedthod);
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();

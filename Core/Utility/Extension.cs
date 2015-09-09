@@ -36,7 +36,10 @@ namespace ParticlePhysics2D {
 				list[k] = list[n];  
 				list[n] = value;  
 			}  
-		}	
+		}
+		
+		
+		
 	}
 	
 	//threading

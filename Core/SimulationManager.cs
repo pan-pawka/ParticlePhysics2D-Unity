@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace ParticlePhysics2D {
 
-	//[AddComponentMenu("ParticlePhysics2D/Collision/Manager",13)]
+	[AddComponentMenu("ParticlePhysics2D/Simulation Manager",13)]
 	public class SimulationManager : Singleton<SimulationManager> {
 		
 		//singleton instance

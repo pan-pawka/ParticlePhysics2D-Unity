@@ -1,4 +1,5 @@
-﻿/// <summary>
+﻿/// Yves Wang @ FISH, 2015, All rights reserved
+/// <summary>
 /// GPU verlet integrator perform verlet integration on GPU by using vertex-frag shader pipeline.
 /// if using GPU Verlet, all calculations including force application, are performed on GPU
 /// therefore, ParticePhysics2D.cs is only the data holder.
@@ -18,14 +19,13 @@ namespace ParticlePhysics2D {
 		
 		SimBuffer simbuffer;
 		public Shader VerletSpringConstraint,VerletAngleConstraint,VerletGPUIntegrator;
-		private Material springMtl,angleMtl,verletMtl;
+		private static Material springMtl,angleMtl,verletMtl;
 		
 		public GPUVerletIntegrator (Simulation sim) : base(sim) {
-			base.StepMethodDelegate = this.StepMethod;
-			this.springMtl = new Material (VerletSpringConstraint);
-			this.angleMtl = new Material (VerletAngleConstraint);
-			this.verletMtl = new Material (VerletGPUIntegrator);
-			this.simbuffer = SimBuffer.Create(sim);
+			springMtl = new Material (VerletSpringConstraint);
+			angleMtl = new Material (VerletAngleConstraint);
+			verletMtl = new Material (VerletGPUIntegrator);
+			simbuffer = SimBuffer.Create(sim);
 		}
 		
 		protected sealed override void StepMethod(){
@@ -40,9 +40,7 @@ namespace ParticlePhysics2D {
 			//get back all the data from cpu to gpu
 			simbuffer.SendToGPU_ParticlePosition();
 			
-			simbuffer.BlitPosition(springMtl);
-			simbuffer.BlitPositionToCache(angleMtl);
-			simbuffer.Verlet(verletMtl);
+			simbuffer.Update(springMtl,angleMtl,verletMtl);
 		
 			//wait till the end of the frame, then read RT into particle Position list,i.e., from gpu to cpu
 			yield return new WaitForEndOfFrame();

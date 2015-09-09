@@ -8,7 +8,7 @@ namespace ParticlePhysics2D {
 	
 		protected Simulation sim;
 		float lastUpdateTime;
-		protected System.Action StepMethodDelegate;//set the stepmethod when implement this class
+		//protected System.Action StepMethodDelegate;//set the stepmethod when implement this class
 		
 		protected IntegratorBase(Simulation sim) {
 			this.sim = sim;
@@ -18,7 +18,7 @@ namespace ParticlePhysics2D {
 		protected abstract void StepMethod();
 		
 		public void step() {
-			if (StepMethodDelegate!=null) {
+			if (true) {
 				float timeNow = Time.realtimeSinceStartup;
 				while (timeNow - this.lastUpdateTime > SimulationManager.Instance.FixedTimestep) {
 					StepMethod();

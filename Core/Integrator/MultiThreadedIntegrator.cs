@@ -9,7 +9,7 @@ namespace ParticlePhysics2D {
 		
 		public MultiThreadedIntegrator( Simulation s ) : base(s)
 		{
-			base.StepMethodDelegate = this.StepMethod;
+			//base.StepMethodDelegate = this.StepMethod;
 			this.task = this.verletParticle;
 		}
 		

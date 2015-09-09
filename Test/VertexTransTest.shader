@@ -38,11 +38,12 @@
 				return o;
 			}
 
-			fixed4 frag(v2f_test i) : SV_Target {
-				//return i.pos;
+			float4 frag(v2f_test i) : SV_Target {
+				return (i.fpos + 1)/2;
 				//if (i.fpos.x == 0) return fixed4(0,0,0,1); else
 				//return fixed4((i.fpos.x + 1)/2,(i.fpos.y + 1)/2,1,1);
-				return fixed4((i.fpos.y + 1)/2,1,1,1);
+				//return fixed4((i.fpos.y + 1)/2,1,1,1);
+				discard;//use void return type and discard to skip the fragment,must use discard, or it crashes
 			}
 			
 			ENDCG

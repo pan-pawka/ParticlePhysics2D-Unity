@@ -28,6 +28,7 @@ public struct FVector2 {
 	public static FVector2 operator - (FVector2 a , FVector2 b) {return new FVector2 (a.x - b.x,a.y - b.y);}
 	public static bool operator == (FVector2 a , FVector2 b) {return a.x == b.x && a.y == b.y;}
 	public static bool operator != (FVector2 a , FVector2 b) {return a.x != b.x || a.y != b.y;}
+	//public override bool Equals ( FVector2 a ) {return this.x == a.x && this.y == a.y;}
 	
 	public static implicit operator FVector2 (Vector2 p) {return new FVector2(p.x,p.y);}
 	public static implicit operator FVector2 (Vector3 p) {return new FVector2(p.x,p.y);}

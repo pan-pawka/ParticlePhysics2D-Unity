@@ -35,6 +35,8 @@ Shader "FISH/ParticlePhysics2D/SpringConstraint" {
 		}
 		ENDCG
 		
+		//0
+		//actually pass 0 and pass 1 can be combined, but for readability I seperate them
 		Pass {
 			Name "SpringDelta"
 			ColorMask 0 //we dont need to output frag
@@ -45,14 +47,18 @@ Shader "FISH/ParticlePhysics2D/SpringConstraint" {
 			#pragma target 3.0
 			
 			v2f_spring vert_delta(appdata_springVert IN){
+			
+				//get the delta
 				v2f_spring OUT;
 				float2 posA = tex2Dlod(_PositionRT , IN.vertex.xy);
 				float2 posB = tex2Dlod(_PositionRT , IN.texco.xy);
 				float2 delta = posA - posB;
-				//delta *= restLength2 /(delta.sqrMagnitude + restLength2) - 0.5f;
 				delta *= (IN.vertex.z / (delta.x * delta.x + delta.y * delta.y + IN.vertex.z) - 0.5) * _SpringConstant;
 				IN.texco.zw = delta;//this is important, as we get the delta, which is to be used in the next passes
-				//OUT.pos = IN.vertex;
+				
+				//particle a
+				//OUT.pos = IN.vertex.xy * 2 - 1;
+				//OUT.delta = delta;
 				return OUT;
 			}
 			
@@ -63,6 +69,7 @@ Shader "FISH/ParticlePhysics2D/SpringConstraint" {
 			ENDCG
 		}
 		
+		//1
 		pass {
 			Name "SpringParticleA"
 			ColorMask RG
@@ -73,8 +80,9 @@ Shader "FISH/ParticlePhysics2D/SpringConstraint" {
 			
 			v2f_spring vert_A (appdata_springVert IN) {
 				v2f_spring OUT;
+				bool isFree = tex2Dlod ( _StateRT , IN.vertex.xy );
 				OUT.pos = IN.vertex.xy * 2 - 1;
-				OUT.delta = IN.texco.zw;
+				OUT.delta = IN.texco.zw * isFree;
 				return OUT;
 			}
 		
@@ -82,6 +90,7 @@ Shader "FISH/ParticlePhysics2D/SpringConstraint" {
 			
 		} 
 		
+		//2
 		pass {
 			Name "SpringParticleB"
 			ColorMask RG
@@ -92,8 +101,9 @@ Shader "FISH/ParticlePhysics2D/SpringConstraint" {
 			
 			v2f_spring vert_B (appdata_springVert IN) {
 				v2f_spring OUT;
+				bool isFree = tex2Dlod ( _StateRT , IN.texco.xy );
 				OUT.pos = IN.texco.xy * 2 - 1;
-				OUT.delta = IN.texco.zw;
+				OUT.delta = IN.texco.zw * isFree;
 				return OUT;
 			}
 			ENDCG

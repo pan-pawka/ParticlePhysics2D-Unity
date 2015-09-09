@@ -43,7 +43,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	}
 	
 	void LateUpdate(){
-		if (Application.isPlaying) sim.tick();
+		sim.tick();
 #if UNITY_EDITOR
 		OnDrawGizmosUpdate();
 #endif

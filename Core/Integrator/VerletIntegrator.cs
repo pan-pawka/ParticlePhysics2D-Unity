@@ -16,7 +16,7 @@ namespace ParticlePhysics2D {
 		
 		public VerletIntegrator( Simulation s ) : base(s)
 		{
-			base.StepMethodDelegate = this.StepMethod;
+			//base.StepMethodDelegate = this.StepMethod;
 		}
 		
 		protected sealed override void StepMethod() {
