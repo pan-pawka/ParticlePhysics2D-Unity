@@ -18,33 +18,35 @@ namespace ParticlePhysics2D {
 	public class GPUVerletIntegrator : IntegratorBase {
 		
 		SimBuffer simbuffer;
-		public Shader VerletSpringConstraint,VerletAngleConstraint,VerletGPUIntegrator;
-		private static Material springMtl,angleMtl,verletMtl;
+		static Material springMtl,angleMtl,verletMtl;
 		
 		public GPUVerletIntegrator (Simulation sim) : base(sim) {
-			springMtl = new Material (VerletSpringConstraint);
-			angleMtl = new Material (VerletAngleConstraint);
-			verletMtl = new Material (VerletGPUIntegrator);
+			//remember to add these shader in the pre loaded assets
+			if (!springMtl) springMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/SpringConstraint"));
+			if (!angleMtl) angleMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/AngleConstraint"));
+			if (!verletMtl) verletMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/VerletGPUIntegrator"));
 			simbuffer = SimBuffer.Create(sim);
 		}
 		
 		protected sealed override void StepMethod(){
 			
-			SimulationManager.Instance.StopCoroutine(GPUStep());
+			//SimulationManager.Instance.StopCoroutine(GPUStep());
 			SimulationManager.Instance.StartCoroutine(GPUStep());
 			
 		}
 		
 		IEnumerator GPUStep () {
 		
-			//get back all the data from cpu to gpu
+			//get the position of particles to PositionRT
 			simbuffer.SendToGPU_ParticlePosition();
 			
+			//this step is disabled to debug
 			simbuffer.Update(springMtl,angleMtl,verletMtl);
 		
 			//wait till the end of the frame, then read RT into particle Position list,i.e., from gpu to cpu
 			yield return new WaitForEndOfFrame();
 			
+			//get PositionRT 's data into particles position
 			simbuffer.SendToCPU_ParticlePosition();
 			
 		}

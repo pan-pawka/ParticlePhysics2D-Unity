@@ -12,7 +12,7 @@ namespace ParticlePhysics2D {
 		[SerializeField] int indexA,indexM,indexB;
 		
 		//[SerializeField] 
-		[SerializeField] float angle_Fixed; //constraint to this angle
+		[SerializeField] public float angle_Fixed; //constraint to this angle
 		float angle_Cur; // how much the angle is currently
 		[SerializeField] float angle_Offset; // how much the angle is able to be offset
 

@@ -16,7 +16,7 @@ Shader "FISH/ParticlePhysics2D/SpringConstraint" {
 		
 		CGINCLUDE
 		#include "UnityCG.cginc"
-		sampler2D _PositionRT;
+		uniform sampler2D _PositionRT;
 		uniform sampler2D _StateRT;
 		uniform float _SpringConstant;
 		
@@ -28,9 +28,11 @@ Shader "FISH/ParticlePhysics2D/SpringConstraint" {
 		struct v2f_spring {
 			float2 pos : SV_POSITION;//screen space -1 to 1
 			float2 delta : TEXCOORD0;//delta
+			float2 uvP : TEXCOORD1; //the us for the sampling point
 		};
 		
 		float2 frag_spring(v2f_spring IN) : SV_Target{
+			//bool isFree = tex2D ( _StateRT , IN.uvP );
 			return IN.delta;
 		}
 		ENDCG
@@ -56,9 +58,6 @@ Shader "FISH/ParticlePhysics2D/SpringConstraint" {
 				delta *= (IN.vertex.z / (delta.x * delta.x + delta.y * delta.y + IN.vertex.z) - 0.5) * _SpringConstant;
 				IN.texco.zw = delta;//this is important, as we get the delta, which is to be used in the next passes
 				
-				//particle a
-				//OUT.pos = IN.vertex.xy * 2 - 1;
-				//OUT.delta = delta;
 				return OUT;
 			}
 			
@@ -80,9 +79,9 @@ Shader "FISH/ParticlePhysics2D/SpringConstraint" {
 			
 			v2f_spring vert_A (appdata_springVert IN) {
 				v2f_spring OUT;
-				bool isFree = tex2Dlod ( _StateRT , IN.vertex.xy );
 				OUT.pos = IN.vertex.xy * 2 - 1;
-				OUT.delta = IN.texco.zw * isFree;
+				OUT.delta = IN.texco.zw;
+				OUT.uvP = IN.vertex.xy;
 				return OUT;
 			}
 		
@@ -101,9 +100,9 @@ Shader "FISH/ParticlePhysics2D/SpringConstraint" {
 			
 			v2f_spring vert_B (appdata_springVert IN) {
 				v2f_spring OUT;
-				bool isFree = tex2Dlod ( _StateRT , IN.texco.xy );
 				OUT.pos = IN.texco.xy * 2 - 1;
-				OUT.delta = IN.texco.zw * isFree;
+				OUT.delta = IN.texco.zw;
+				OUT.uvP = IN.texco.xy;
 				return OUT;
 			}
 			ENDCG

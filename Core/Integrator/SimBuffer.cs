@@ -12,15 +12,17 @@ namespace ParticlePhysics2D {
 
 	public class SimBuffer {
 		
-		RenderTexture StateRT {get;set;}
+		
 		Simulation sim;
 		int ID_PositionCache,ID_PositionRT;
 		
-		Mesh springMesh,angleMesh;
+		Mesh springMesh,angleMesh,verletMesh;
 		int width,height;// the rendertexture size for the particle data structure
 		
-		public RenderTexture PositionRT {get;set;}
-		public RenderTexture PositionOldRT {get;set;}
+		RenderTexture StateRT;
+		public RenderTexture PositionRT;
+		public RenderTexture PositionOldRT;
+		
 		RenderTexture TemporaryPositionRT {
 			get {
 				return RenderTexture.GetTemporary(width,height,0,RenderTextureFormat.RGFloat);
@@ -62,12 +64,16 @@ namespace ParticlePhysics2D {
 		/// If we need this GPU solver, we should re-allocate in init;
 		/// </summary>
 		public void Init() {
+		
+			InitializeRT(ref PositionRT);
+			InitializeRT(ref StateRT);
+			InitializeRT(ref PositionOldRT);
 			
 			SendToGPU_ParticleState();
 			
 			//initialize the temporary texture2d for exchanging position bewteen cpu and gpu
 			if (tempPos==null) {
-				tempPos = new Texture2D (width,height,TextureFormat.RGFloat,false);
+				tempPos = new Texture2D (width,height,TextureFormat.RGBAFloat,false);
 				tempPos.filterMode = FilterMode.Point;
 				tempPos.anisoLevel = 0;
 			}
@@ -75,26 +81,42 @@ namespace ParticlePhysics2D {
 			//initialize the rect for readpixels
 			tempRect = new Rect (0f,0f,(float)width,(float)height);
 			
+			
 			SendToGPU_ParticlePosition();
 			
-			PositionOldRT = TemporaryPositionRT;
 			Graphics.Blit(PositionRT,PositionOldRT);
 			
 			GenerateParticleUV();
 			GenerateSpringMesh();
 			GenerateAngleMesh();
+			GenerateVerletMesh();
 			
 			cBuffer = new CommandBuffer ();
+			cBuffer.name = "SimBufferCommand";
 			
 			springMpb = new MaterialPropertyBlock ();
 			springMpb.SetTexture("_StateRT",StateRT);
 			springMpb.AddFloat("_SpringConstant",sim.springConstant);
 			
 			angleMpb = new MaterialPropertyBlock ();
-			//TODO:Angle mpb
+			angleMpb.SetTexture("_StateRT",StateRT);
+			angleMpb.AddFloat("_AngleRelaxPercent",sim.angleRelaxPercent);
 			
 			verletMpb = new MaterialPropertyBlock ();
 			verletMpb.SetFloat("_Damping",sim.damping);
+			//Debug.Break();
+		}
+		
+		void InitializeRT (ref RenderTexture RT) {
+			
+			if (RT==null) {
+				RT = new RenderTexture (width,height,0,RenderTextureFormat.RGFloat);
+				RT.Create();
+			}
+			else {
+				if (RT.IsCreated() == false) RT.Create();
+				else RT.DiscardContents();
+			}
 		}
 		
 		Mesh PointMesh ( int n) {
@@ -117,8 +139,8 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<height;i++) {
 				for (int j=0;j<width;j++) {
 					if (counter<sim.numberOfParticles()) {
-						uv.x = j / width;
-						uv.y = i / height;
+						uv.x = (float)j / (float)width;
+						uv.y = (float)i / (float)height;
 						particleUV[counter] = uv;
 						counter++;
 					} 
@@ -143,61 +165,107 @@ namespace ParticlePhysics2D {
 			}
 			springMesh.vertices = vtc;
 			springMesh.uv = uv;
+			springMesh.UploadMeshData(true);
 		}
 		
 		void GenerateAngleMesh () {
 			angleMesh = PointMesh( sim.numberOfAngleConstraints());
-			//TODO:
+			int angleCount = sim.numberOfAngleConstraints();
+			
+			Vector3[] vtc = new Vector3[angleCount];
+			Color[] color = new Color[angleCount];
+			for (int i=0;i<angleCount;i++) {
+				AngleConstraint2D angleC = sim.getAngleConstraint(i);
+				//partciel a
+				Vector2 paUV = particleUV[ sim.getParticleIndex(angleC.ParticleA) ];
+				vtc[i].x = paUV.x;
+				vtc[i].y = paUV.y;
+				
+				//fixed angle
+				vtc[i].z = angleC.angle_Fixed;
+				//particle b and m
+				Vector2 pbUV = particleUV[ sim.getParticleIndex(angleC.ParticleB) ];
+				Vector2 pmUV = particleUV[ sim.getParticleIndex(angleC.ParticleM) ];
+				color[i] = new Color (pbUV.x,pbUV.y,pmUV.x,pmUV.y);
+			}
+			angleMesh.vertices = vtc;
+			angleMesh.colors = color;
+			angleMesh.UploadMeshData(true);
+			
+		}
+		
+		//geenrate a full screen quad for manual blit in CommandBuffer
+		void GenerateVerletMesh () {
+			if (verletMesh) verletMesh.Clear();
+			else verletMesh = new Mesh ();
+			Vector3[] vtc = new Vector3[4];
+			vtc[0] = new Vector3 (-1f,1f,0f);
+			vtc[1] = new Vector3 (1f,1f,0f);
+			vtc[2] = new Vector3 (1f,-1f,0f);
+			vtc[3] = new Vector3 (-1f,-1f,0f);
+			verletMesh.vertices = vtc;
+			int[] idc = new int[4] {0,1,2,3};
+			verletMesh.SetIndices(idc,MeshTopology.Quads,0);
+			Vector2[] uv = new Vector2[4];
+			uv[0] = new Vector2 (0f,1f); 
+			uv[1] = new Vector2 (1f,1f);
+			uv[2] = new Vector2 (1f,0f);
+			uv[3] = new Vector2 (0f,0f);
+			verletMesh.uv = uv;
+			verletMesh.UploadMeshData(true);
 		}
 		
 		#endregion
 		
 		#region Update
 		public void Update(Material springMtl,Material angleMtl,Material verletMtl) {
-			//in the previous step we have get all the data from cpu to GPU, in PositionRT
-			cBuffer.Clear();
-			springMpb.Clear();
-			angleMpb.Clear();
 			
-			//prepare
-			springMpb.SetTexture(ID_PositionRT,PositionRT);
+			//in the previous step we have get all the data from cpu to GPU, in PositionRT
 			RenderTexture pRT_spring = TemporaryPositionRT;
 			RenderTexture pRT_angle = TemporaryPositionRT;
 			RenderTexture pRT_verlet = TemporaryPositionRT;
 			
-			//TODO:Angle mpb
+			cBuffer.Clear();
+			
+			//prepare
+			springMpb.SetTexture(ID_PositionRT,PositionRT);
 			angleMpb.SetTexture(ID_PositionRT,pRT_spring);
 			verletMpb.SetTexture(ID_PositionCache,PositionOldRT);
+			verletMpb.SetTexture(ID_PositionRT,pRT_angle);
 			
 			//spring
 			cBuffer.Blit(PositionRT as Texture,pRT_spring);
 			cBuffer.SetRenderTarget(pRT_spring);
 			cBuffer.DrawMesh(springMesh,Matrix4x4.identity,springMtl,0,-1,springMpb);
 			
-			//angle
-			cBuffer.Blit(pRT_spring as Texture,pRT_angle);
-			cBuffer.SetRenderTarget(pRT_angle);
-			cBuffer.DrawMesh(angleMesh,Matrix4x4.identity,angleMtl,0,-1,angleMpb);
-			
-			//verlet
-			cBuffer.Blit(pRT_angle as Texture,pRT_verlet);
+//			//angle
+//			cBuffer.SetRenderTarget(pRT_angle);
+//			cBuffer.DrawMesh(angleMesh,Matrix4x4.identity,angleMtl,0,-1,angleMpb);
+//			
+//			//verlet
+//			cBuffer.SetRenderTarget(pRT_verlet);
+//			cBuffer.DrawMesh(verletMesh,Matrix4x4.identity,verletMtl,0,-1,verletMpb);
 			
 			Graphics.ExecuteCommandBuffer(cBuffer);
 			
-			RenderTexture.ReleaseTemporary(PositionRT);
+			PositionRT.DiscardContents();
+			PositionOldRT.DiscardContents();
+			Graphics.Blit(pRT_spring,PositionRT);
+			Graphics.Blit(pRT_angle,PositionOldRT);
+			
+			RenderTexture.ReleaseTemporary(pRT_verlet);
 			RenderTexture.ReleaseTemporary(pRT_spring);
-			RenderTexture.ReleaseTemporary(PositionOldRT);
-			PositionRT = pRT_verlet;
-			PositionOldRT = pRT_angle;
+			RenderTexture.ReleaseTemporary(pRT_angle);
+			
+			//Debug.Break();
 		}
 		#endregion
 		
 		#region Data transfer between cpu and gpu
 		//this will get the particles state into StateRT
 		void SendToGPU_ParticleState ( ) {
-			//the state of particle, like IsFree...
-			RenderTexture.ReleaseTemporary(StateRT);
-			StateRT = RenderTexture.GetTemporary(width,height,0,RenderTextureFormat.R8);
+			
+			
 			Texture2D state2d = new Texture2D (width,height,TextureFormat.RHalf,false,false);
 			state2d.filterMode = FilterMode.Point;
 			state2d.anisoLevel = 0;
@@ -245,22 +313,31 @@ namespace ParticlePhysics2D {
 			tempPos.SetPixels(pc);
 			tempPos.Apply(false);
 			
-			if (PositionRT) RenderTexture.ReleaseTemporary(PositionRT);
-			PositionRT = TemporaryPositionRT;
+			//if (PositionRT != null ) RenderTexture.ReleaseTemporary(PositionRT);
+			//PositionRT = TemporaryPositionRT;
 			
 			Graphics.Blit(tempPos,PositionRT);
+			
+			dbgrt = GameObject.FindObjectOfType<DebugRT>();
+			dbgrt.rt = PositionRT;
 		}
+		
+		DebugRT dbgrt;
+		
 		//this will transfer data in PositionRT into the particle list
 		public void SendToCPU_ParticlePosition() {
-			RenderTexture rtcache = RenderTexture.active;
+		
 			RenderTexture.active = PositionRT;
 			tempPos.ReadPixels(tempRect,0,0,false);
-			RenderTexture.active = rtcache;
+			tempPos.Apply(false);
+			RenderTexture.active = null;
+			PositionRT.DiscardContents();
+			
 			Color[] pc;
 			pc = tempPos.GetPixels();
 			int counter = 0;
 			for (int i=0;i<height;i++) {
-				for (int j=0;i<width;j++) {
+				for (int j=0;j<width;j++) {
 					if (counter<sim.numberOfParticles()) {
 						Vector2 pos = new Vector2 (pc[counter].r,pc[counter].g);
 						sim.getParticle(counter).Position = pos;
@@ -276,8 +353,8 @@ namespace ParticlePhysics2D {
 		/// If the simualtion goes out of scope, we can release the hardware resources manually
 		/// </summary>
 		public void Release() {
-			if (PositionRT) RenderTexture.ReleaseTemporary(PositionRT);
-			RenderTexture.ReleaseTemporary(StateRT);
+			PositionRT.Release();
+			StateRT.Release();
 			RenderTexture.ReleaseTemporary(PositionOldRT);
 			Extension.ObjDestroy(tempPos);
 		}

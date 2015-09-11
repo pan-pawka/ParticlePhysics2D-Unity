@@ -78,10 +78,11 @@ namespace ParticlePhysics2D {
 		
 		/// <summary>
 		/// Init this instance. Call this inside Start() to instantiate the integrator
+		/// otherwise, it'll be created in the Property in the first frame
 		/// </summary>
-		public void Init () {
-			setIntegrator();
-		} 
+//		public void Init () {
+//			setIntegrator();
+//		}
 	
 		#region Serialization
 		public void OnBeforeSerialize()  {}
