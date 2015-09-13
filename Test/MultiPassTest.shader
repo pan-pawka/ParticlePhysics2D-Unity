@@ -37,19 +37,22 @@
 			#pragma fragment frag_delta
 			#pragma target 3.0
 			
-			v2f_mt vert_delta(appdata_mt IN){
+			v2f_mt vert_delta(inout appdata_mt IN){
 			
+				UNITY_INITIALIZE_OUTPUT (appdata_mt,IN);
+ 
 				//get the delta
 				v2f_mt OUT;
+				IN.vertex -= 0.5;
 				OUT.pos = mul ( UNITY_MATRIX_MVP , IN.vertex );
-				colortest = float4(0,1,0,1);
+				colortest = float4(0,1,0,0);
 				OUT.color = colortest;
 				return OUT;
 			}
 			
-			void frag_delta(v2f_mt i) : SV_Target {
-				discard;
-				//return i.color;
+			float4 frag_delta(v2f_mt i) : SV_Target {
+				//discard;
+				return i.color;
 			}
 			
 			ENDCG
@@ -63,18 +66,18 @@
 			#pragma fragment frag_delta1
 			#pragma target 3.0
 			
-			v2f_mt vert_delta1(appdata_mt IN){
-			
+			v2f_mt vert_delta1(inout appdata_mt IN){
+				UNITY_INITIALIZE_OUTPUT (appdata_mt,IN);
 				//get the delta
 				v2f_mt OUT;
 				OUT.pos = mul ( UNITY_MATRIX_MVP , IN.vertex );
-				OUT.color = colortest;
+				//OUT.color = colortest;
 				return OUT;
 			}
 			
 			float4 frag_delta1(v2f_mt i) : SV_Target {
 				//discard;
-				return i.color;
+				return float4(0,0,1,1);
 			}
 			
 			ENDCG

@@ -81,7 +81,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		branch = BinaryTree.GenerateBranch(length);
 		//Debug.Log("Branches : " + BinaryTree.branchesCount);
 		if (sim==null)
-			sim = new Simulation (0f,IntegrationMedthod.VERLET);
+			sim = new Simulation (0f,IntegrationMedthod.Verlet);
 		sim.setGravity(0f,0f);
 		sim.clear();
 		leafCount = 0;

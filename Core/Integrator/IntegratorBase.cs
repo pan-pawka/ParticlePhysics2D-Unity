@@ -18,13 +18,13 @@ namespace ParticlePhysics2D {
 		protected abstract void StepMethod();
 		
 		public void step() {
-			if (true) {
-				float timeNow = Time.realtimeSinceStartup;
-				while (timeNow - this.lastUpdateTime > SimulationManager.Instance.FixedTimestep) {
-					StepMethod();
-					this.lastUpdateTime += SimulationManager.Instance.FixedTimestep;
-				}
+			
+			float timeNow = Time.realtimeSinceStartup;
+			while (timeNow - this.lastUpdateTime > SimulationManager.Instance.FixedTimestep) {
+				StepMethod();
+				this.lastUpdateTime += SimulationManager.Instance.FixedTimestep;
 			}
+			
 		}
 	}
 	

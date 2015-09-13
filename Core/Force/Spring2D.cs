@@ -111,6 +111,25 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
+		public void applyThreaded()
+		{	
+			if ( on && ( a.IsFree || b.IsFree ) )
+			{
+				//faster square root approx from Advanced Character Physics
+				Vector2 delta = a.Position - b.Position;
+				delta *= restLength2 /(delta.sqrMagnitude + restLength2) - 0.5f;
+			
+				if (a.IsFree) {
+					Extension.InterlockAddFloat(ref a.Position.x, delta.x * sim.springConstant);
+					Extension.InterlockAddFloat(ref a.Position.y, delta.y * sim.springConstant);
+				}
+				if (b.IsFree) {
+					Extension.InterlockAddFloat(ref b.Position.x, -delta.x * sim.springConstant);
+					Extension.InterlockAddFloat(ref b.Position.y, -delta.y * sim.springConstant);
+				}
+			}
+		}
+		
 		static Color springColor = Color.cyan - new Color (0f,0f,0f,0.5f);
 		public void DebugSpring(Matrix4x4 local2World){
 			Vector2 aPos = local2World.MultiplyPoint3x4(a.Position);

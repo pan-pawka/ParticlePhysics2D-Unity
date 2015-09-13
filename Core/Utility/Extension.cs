@@ -38,6 +38,21 @@ namespace ParticlePhysics2D {
 			}  
 		}
 		
+		//add float value to location1, as a atomic action
+		//http://stackoverflow.com/questions/1400465/why-is-there-no-overload-of-interlocked-add-that-accepts-doubles-as-parameters
+		public static double InterlockAddFloat(ref float location1, float value)
+		{
+			float newCurrentValue = 0;
+			while (true)
+			{
+				float currentValue = newCurrentValue;
+				float newValue = currentValue + value;
+				newCurrentValue = Interlocked.CompareExchange(ref location1, newValue, currentValue);
+				if (newCurrentValue == currentValue)
+					return newValue;
+			}
+		}
+		
 		
 		
 	}

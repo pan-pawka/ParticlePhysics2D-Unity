@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace ParticlePhysics2D {
 
-	public enum IntegrationMedthod {VERLET, GPUVERLET}
+	public enum IntegrationMedthod {Verlet, ThreadedVerlet, GPUVerlet}
 
 	[System.Serializable]
 	public class Simulation  : ISerializationCallbackReceiver {
@@ -32,7 +32,7 @@ namespace ParticlePhysics2D {
 		}
 		
 		[SerializeField]
-		IntegrationMedthod integrationMedthod = IntegrationMedthod.VERLET;
+		IntegrationMedthod integrationMedthod = IntegrationMedthod.Verlet;
 		
 		public bool applySpring = true,applyAngle = true;
 		public int ITERATIONS = 2;
@@ -53,11 +53,14 @@ namespace ParticlePhysics2D {
 		{
 			switch ( integrationMedthod )
 			{
-			case IntegrationMedthod.VERLET:
+			case IntegrationMedthod.Verlet:
 				this._integrator = new VerletIntegrator(this) as IntegratorBase;
 				break;
-			case IntegrationMedthod.GPUVERLET:
+			case IntegrationMedthod.GPUVerlet:
 				this._integrator = new GPUVerletIntegrator(this) as IntegratorBase;
+				break;
+			case IntegrationMedthod.ThreadedVerlet:
+				this._integrator = new MultiThreadedIntegrator(this) as IntegratorBase;
 				break;
 			default:
 				break;

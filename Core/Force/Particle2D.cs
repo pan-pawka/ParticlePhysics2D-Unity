@@ -8,7 +8,7 @@ namespace ParticlePhysics2D {
 	public class Particle2D   {
 
 		[SerializeField]
-		Vector2 position;
+		public Vector2 Position;
 		
 		[SerializeField]
 		Vector2 positionOld;
@@ -32,17 +32,17 @@ namespace ParticlePhysics2D {
 	
 		public Particle2D()
 		{
-			this.position = Vector2.zero;
+			this.Position = Vector2.zero;
 			this.isFixed = false;
 			this.force = Vector2.zero;
 		}
 		
 		public float distanceTo( Particle2D p ){
-			return (this.position-p.position).magnitude;
+			return (this.Position-p.Position).magnitude;
 		}
 		
 		public float distanceSquaredTo(Particle2D p) {
-			return (this.position-p.position).sqrMagnitude;
+			return (this.Position-p.Position).sqrMagnitude;
 		}
 		
 		public void makeFixed(){
@@ -54,7 +54,7 @@ namespace ParticlePhysics2D {
 		
 		void reset()
 		{
-			position = Vector2.zero;
+			Position = Vector2.zero;
 			mass = 1f;
 		}
 		
@@ -62,7 +62,7 @@ namespace ParticlePhysics2D {
 		
 		public bool IsFree {get{return !isFixed;}}
 		
-		public Vector2 Position {get {return position;}set{position = value;}}
+		//public Vector2 Position {get {return position;}set{position = value;}}
 		
 		public Vector2 PositionOld {get{return positionOld;}set{positionOld = value;}}
 	

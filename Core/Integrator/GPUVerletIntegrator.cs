@@ -19,12 +19,15 @@ namespace ParticlePhysics2D {
 		
 		SimBuffer simbuffer;
 		static Material springMtl,angleMtl,verletMtl;
+		static Material springDeltaMtl,angleDeltaMtl;
 		
 		public GPUVerletIntegrator (Simulation sim) : base(sim) {
 			//remember to add these shader in the pre loaded assets
 			if (!springMtl) springMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/SpringConstraint"));
 			if (!angleMtl) angleMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/AngleConstraint"));
 			if (!verletMtl) verletMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/VerletGPUIntegrator"));
+			if (!springDeltaMtl) springDeltaMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/SpringDelta"));
+			if (!angleDeltaMtl) angleDeltaMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/AngleDelta"));
 			simbuffer = SimBuffer.Create(sim);
 		}
 		
@@ -41,7 +44,7 @@ namespace ParticlePhysics2D {
 			simbuffer.SendToGPU_ParticlePosition();
 			
 			//this step is disabled to debug
-			simbuffer.Update(springMtl,angleMtl,verletMtl);
+			simbuffer.Update(springMtl,springDeltaMtl, angleMtl,angleDeltaMtl, verletMtl);
 		
 			//wait till the end of the frame, then read RT into particle Position list,i.e., from gpu to cpu
 			yield return new WaitForEndOfFrame();
