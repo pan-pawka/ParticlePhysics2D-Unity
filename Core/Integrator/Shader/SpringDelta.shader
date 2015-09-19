@@ -1,20 +1,30 @@
 ﻿
 //Yves Wang @ FISH, 2015, All rights reserved
 
-Shader "FISH/ParticlePhysics2D/SpringDelta" {
+Shader "ParticlePhysics2D/SpringDelta" {
 	Properties {
-		_PositionRT ("", 2D) = "white" {}
-		_SpringRT ("",2D) = "white" {}
-		_RestLength2RT ("",2D) = "white" {}
+		_PositionRT ("_PositionRT", 2D) = "white" {}
+		_SpringRT ("_SpringRT",2D) = "white" {}
+		_RestLength2RT ("_RestLength2RT",2D) = "white" {}
 		_SpringConstant ( "SpringConstant" , Range(0.001,0.99)) = 0.9
 	}
 	SubShader {
-		Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" "ForceNoShadowCasting" = "True" }
+		Tags { 
+			"Queue"="Transparent" 
+			"IgnoreProjector"="True" 
+			"RenderType"="Transparent" 
+			"ForceNoShadowCasting" = "True" 
+			"PreviewType"="Plane"
+			"DisableBatching" = "True"
+		}
+		lighting off
+		//cull off
 		blend off
+		Zwrite off
+		fog {mode off}
+		ColorMask RG
+		
 		Pass {
-			Zwrite off
-			fog {mode off}
-			ColorMask RG
 			
 			CGPROGRAM
 			#include "UnityCG.cginc"
@@ -28,13 +38,13 @@ Shader "FISH/ParticlePhysics2D/SpringDelta" {
 			
 			struct appdata_fullquad
 			{
-				half2 vertex : POSITION;
+				half4 vertex : POSITION;
 				half2 texcoord : TEXCOORD0;
 			};
 			
 			struct v2f_fullquad
 			{
-				half2 pos : SV_POSITION;
+				half4 pos : SV_POSITION;
 				half2 uv : TEXCOORD0;
 			};
 			
@@ -55,6 +65,9 @@ Shader "FISH/ParticlePhysics2D/SpringDelta" {
 				////delta *= (restLength2 / (delta.x * delta.x + delta.y * delta.y + restlength2) -0.5) * constant;
 				delta *= (restlength2 / (delta.x * delta.x + delta.y * delta.y + restlength2) -0.5) * _SpringConstant;
 				return delta;
+				//return fixed2(1,1);
+				//return delta.x * delta.x + delta.y * delta.y - restlength2;
+				//return posA;
 			}
 			
 			ENDCG

@@ -1,21 +1,29 @@
 ﻿
 //Yves Wang @ FISH, 2015, All rights reserved
 
-Shader "FISH/ParticlePhysics2D/AngleDelta" {
+Shader "ParticlePhysics2D/AngleDelta" {
 	Properties {
-		_PositionRT ("", 2D) = "white" {}
-		_AngleRT_AB ("",2D) = "white" {}
-		_AngleRT_M ("",2D) = "white" {}
+		_PositionRT ("_PositionRT", 2D) = "white" {}
+		_AngleRT_AB ("_AngleRT_AB",2D) = "white" {}
+		_AngleRT_M ("_AngleRT_M",2D) = "white" {}
 		_AngleRelaxPercent ( "AngleRelaxPercent" , Range(0.001,0.99)) = 0.9
 	}
 	SubShader {
-		Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" "ForceNoShadowCasting" = "True" }
+		Tags { 
+			"Queue"="Transparent" 
+			"IgnoreProjector"="True" 
+			"RenderType"="Transparent" 
+			"ForceNoShadowCasting" = "True" 
+			"PreviewType"="Plane"
+		}
+		
 		blend off
+		Zwrite off
+		fog {mode off}
+		ColorMask R
+		lighting off
 		
 		Pass {
-			Zwrite off
-			fog {mode off}
-			ColorMask R
 			
 			CGPROGRAM
 			#include "UnityCG.cginc"
@@ -25,17 +33,18 @@ Shader "FISH/ParticlePhysics2D/AngleDelta" {
 			uniform sampler2D _PositionRT;
 			uniform sampler2D _AngleRT_AB;
 			uniform sampler2D _AngleRT_M;
-			uniform float _SpringConstant;
+			uniform float _AngleRelaxPercent;
+			const float PI2 = 6.28318530718f;
 			
 			struct appdata_fullquad
 			{
-				half2 vertex : POSITION;
+				half4 vertex : POSITION;
 				half2 texcoord : TEXCOORD0;
 			};
 			
 			struct v2f_fullquad
 			{
-				half2 pos : SV_POSITION;
+				half4 pos : SV_POSITION;
 				half2 uv : TEXCOORD0;
 			};
 			
@@ -59,10 +68,11 @@ Shader "FISH/ParticlePhysics2D/AngleDelta" {
 				float4 ab = tex2D ( _AngleRT_AB , i.uv );
 				float2 posA = tex2D ( _PositionRT , ab.xy );
 				float2 posB = tex2D ( _PositionRT , ab.zw );
-				float3 m = tex2D ( _AngleRT_M , i.uv);
-				float2 posM = m.xy;
+				float4 m = tex2D ( _AngleRT_M , i.uv);
+				float2 posM = tex2D ( _PositionRT , m.xy );
 				float fixedAngle = m.z;
-				return GetDeltaAngle(posA,posM,posB,fixedAngle);
+				return GetDeltaAngle(posA,posM,posB,fixedAngle) * _AngleRelaxPercent;
+				//return frac(posA.x);
 			}
 			
 			ENDCG

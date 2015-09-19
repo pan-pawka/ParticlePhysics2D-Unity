@@ -46,7 +46,7 @@ namespace ParticlePhysics2D {
 		[Range(0.005f,0.99f)]
 		public float springConstant = 0.8f;//used by verlet
 		
-		[Range(0.001f,0.2f)]
+		[Range(0.001f,0.9f)]
 		public float angleRelaxPercent = 0.02f;//used by verlet
 		
 		public void setIntegrator()
@@ -60,7 +60,7 @@ namespace ParticlePhysics2D {
 				this._integrator = new GPUVerletIntegrator(this) as IntegratorBase;
 				break;
 			case IntegrationMedthod.ThreadedVerlet:
-				this._integrator = new MultiThreadedIntegrator(this) as IntegratorBase;
+				this._integrator = new ParallelProcessIntegrator(this) as IntegratorBase;
 				break;
 			default:
 				break;
@@ -202,6 +202,7 @@ namespace ParticlePhysics2D {
 		
 		public Particle2D getParticle( int i )
 		{
+			i = Mathf.Clamp(i,0,particles.Count-1);
 			return particles[i];
 		}
 		
@@ -278,6 +279,7 @@ namespace ParticlePhysics2D {
 		
 		public Spring2D getSpring( int i )
 		{
+			//i = Mathf.Clamp(i,0,springs.Count-1);
 			return springs[i];
 		}
 		

@@ -109,13 +109,13 @@ namespace ParticlePhysics2D {
 					Vector2 posB = particleB.Position;
 					Vector2 posM = particleM.Position;
 					if (particleA.IsFree) {
-						posA = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent);
-						particleA.Position = posA;
+						Vector2 _posA = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent);
+						particleA.Position = _posA;
 						//particleA.Force += (posA - particleA.Position) * k;
 					}
 					if (particleB.IsFree) {
-						posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
-						particleB.Position = posB;
+						Vector2 _posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
+						particleB.Position = _posB;
 						//particleB.Force += (posB - particleB.Position) * k;
 					}
 					if (particleM.IsFree) {
@@ -130,33 +130,48 @@ namespace ParticlePhysics2D {
 		
 		public void applyThreaded(){
 			if (on) {
-				Vector2 posA = particleA.Position;
-				Vector2 posB = particleB.Position;
-				Vector2 posM = particleM.Position;
-				angle_Cur = GetAngleRadian(posA,posM,posB);
+				Vector2 posA,posB,posM;
+				//lock(particleA) lock(particleB) lock(particleM) {
+					posA = particleA.Position;
+					posB = particleB.Position;
+					posM = particleM.Position;
+					angle_Cur = GetAngleRadian(posA,posM,posB);
+				//}
 				float deltaAngle = GetDeltaAngle();
 				if (deltaAngle==0f || Mathf.Abs(deltaAngle)<0.01f) return;
 				else {
+					
 					if (particleA.IsFree) {
-						Vector2 posA2 = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent);
-						posA2 = posA2 - posA;
-						Extension.InterlockAddFloat(ref particleA.Position.x,posA2.x);
-						Extension.InterlockAddFloat(ref particleA.Position.y,posA2.y);
+						//lock (particleA) {
+							Vector2 posA2 = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent);
+							posA2 = posA2 - posA;
+							Extension.InterlockAddFloat(ref particleA.Position.x,posA2.x);
+							Extension.InterlockAddFloat(ref particleA.Position.y,posA2.y);
+						//}
 					}
 					if (particleB.IsFree) {
-						Vector2 posB2 = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
-						posB2 -= posB;
-						Extension.InterlockAddFloat(ref particleB.Position.x,posB2.x);
-						Extension.InterlockAddFloat(ref particleB.Position.y,posB2.y);
+						//lock(particleB) {
+							Vector2 posB2 = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
+							posB2 -= posB;
+							Extension.InterlockAddFloat(ref particleB.Position.x,posB2.x);
+							Extension.InterlockAddFloat(ref particleB.Position.y,posB2.y);
+						//}
+						
 					}
 					if (particleM.IsFree) {
-						Vector2 posM2 = Mathp.RotateVector2(posM,posA, deltaAngle * sim.angleRelaxPercent);
-						posM2 = Mathp.RotateVector2(posM2,posB,-deltaAngle * sim.angleRelaxPercent);
-						posM2 -= posM;
-						Extension.InterlockAddFloat(ref particleM.Position.x,posM2.x);
-						Extension.InterlockAddFloat(ref particleM.Position.y,posM2.y);
+						//lock (particleM) {
+							Vector2 posM2 = Mathp.RotateVector2(posM,posA, deltaAngle * sim.angleRelaxPercent);
+							posM2 = Mathp.RotateVector2(posM2,posB,-deltaAngle * sim.angleRelaxPercent);
+							posM2 -= posM;
+							Extension.InterlockAddFloat(ref particleM.Position.x,posM2.x);
+							Extension.InterlockAddFloat(ref particleM.Position.y,posM2.y);
+						//}
+						
 					}
 				}
+				
+				
+				
 			}
 		}
 		

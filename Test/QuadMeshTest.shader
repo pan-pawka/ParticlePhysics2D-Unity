@@ -1,11 +1,7 @@
-﻿
-//Yves Wang @ FISH, 2015, All rights reserved
-
-Shader "ParticlePhysics2D/VerletGPUIntegrator" {
+﻿Shader "ParticlePhysics2D/VerletGPUIntegrator" {
 	Properties {
-		_PositionRT ("PositionRT", 2D) = "white" {}
-		_PositionCache ("PositionCache",2D) = "white" {}
-		_Damping ( "Damping" , Range(0.001,0.99)) = 0.9
+		_MainTex ("Main Tex", 2D) = "white" {}
+		
 	}
 	SubShader {
 		Tags { 
@@ -18,7 +14,7 @@ Shader "ParticlePhysics2D/VerletGPUIntegrator" {
 		blend off
 		Zwrite off
 		fog {mode off}
-		ColorMask RG
+		//ColorMask RG
 		
 		Pass {
 			
@@ -27,9 +23,7 @@ Shader "ParticlePhysics2D/VerletGPUIntegrator" {
 			#pragma vertex vert_fullquad
 			#pragma fragment frag
 			
-			uniform sampler2D _PositionRT;
-			uniform sampler2D _PositionCache;
-			uniform float _Damping;
+			uniform sampler2D _MainTex;
 			
 			struct appdata_fullquad
 			{
@@ -47,14 +41,14 @@ Shader "ParticlePhysics2D/VerletGPUIntegrator" {
 			{
 				v2f_fullquad o;
 				o.pos = v.vertex;//because we already assgined correct screen space co-ordinates in mesh setup
+				//o.pos = mul ( UNITY_MATRIX_MVP , v.vertex );
 				o.uv = v.texcoord;
 				return o;
 			}
 			
-			float2 frag(v2f_fullquad i) : SV_Target {
-				float2 curPos = tex2D ( _PositionRT , i.uv );
-				float2 prePos = tex2D ( _PositionCache , i.uv );
-				return curPos + (curPos - prePos) * _Damping;
+			float4 frag(v2f_fullquad i) : SV_Target {
+				float4 co = tex2D ( _MainTex , i.uv) * float4 ( 1,1,1,1);
+				return co;
 			}
 			
 			ENDCG

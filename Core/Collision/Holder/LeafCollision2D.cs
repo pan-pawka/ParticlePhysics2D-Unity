@@ -97,7 +97,10 @@ namespace ParticlePhysics2D {
 					if (isDebugCollidingOn) branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.magenta);
 					//apply collision
 					//sim.getParticle(branch.leafIndex).Position -= Vector2.ClampMagnitude (dir * leafForceFeedback , maxPositionChange);
-					sim.getParticle(branch.leafIndex).Position -= dir * leafForceFeedback;
+					Particle2D pp = sim.getParticle(branch.leafIndex);
+					//lock (pp) {
+						pp.Position -= dir * leafForceFeedback;
+					//}
 					dir = transform.TransformDirection(dir);
 					targetRb2D.AddForce(dir * targetForceFeedback,ForceMode2D.Force);
 					
@@ -105,7 +108,11 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		public float leafForceFeedback = 0.5f,targetForceFeedback = 100f;
+		[Tooltip("How much force should be applied to leaves")]
+		public float leafForceFeedback = 0.5f;
+		
+		[Tooltip("How much force should be applied to targets")]
+		public float targetForceFeedback = 20f;
 		
 		public override void TraverseBVHForPolygon(PolygonCollider2D poly) {}
 		

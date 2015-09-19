@@ -5,12 +5,10 @@ namespace ParticlePhysics2D {
 
 	public class MultiThreadedIntegrator : IntegratorBase {
 		
-		System.Action<int> task;
 		
 		public MultiThreadedIntegrator( Simulation s ) : base(s)
 		{
-			//base.StepMethodDelegate = this.StepMethod;
-			this.task = this.verletParticle;
+	
 		}
 		
 		void verletParticle(int i) {
@@ -43,7 +41,7 @@ namespace ParticlePhysics2D {
 			
 			for (int iter = 0;iter < sim.ITERATIONS * 2;iter ++ ) {
 				//spring
-				if (sim.applySpring) Parallel.For(0,sim.numberOfSprings(),spring);
+				if (base.sim.applySpring) Parallel.For(0,base.sim.numberOfSprings(),spring);
 				//angle
 				if (base.sim.applyAngle) Parallel.For(0,base.sim.numberOfAngleConstraints(),angle);
 			}

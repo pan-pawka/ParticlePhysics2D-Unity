@@ -59,21 +59,39 @@ namespace ParticlePhysics2D {
 	
 	//threading
 	public static class Parallel {
-		public static void For(int fromInclusive, int toExclusive, System.Action<int> body) {
-			var numThreads = 2 * System.Environment.ProcessorCount;
-			var resets = new ManualResetEvent[numThreads];
-			for (var i = 0; i < numThreads; i++) {
-				var reset = new ManualResetEvent(false);
-				resets[i] = reset;
-				ThreadPool.QueueUserWorkItem((j) => {
-					for (var k = (int)j; k < toExclusive; k += numThreads)
-						body((int)k);
-					reset.Set();
-				}, fromInclusive + i);
+	
+		static int numThreads;
+		static ManualResetEvent[] resets;
+		
+		static Parallel() {
+			numThreads  = 2 * System.Environment.ProcessorCount;
+			resets = new ManualResetEvent[numThreads];
+			for (int i=0;i<numThreads;i++) {
+				resets[i] = new ManualResetEvent (false);
 			}
-			
-			for (var i = 0; i < numThreads; i++)
-				resets [i].WaitOne ();
+			Debug.Log(numThreads);
 		}
+		
+		public static void WaitAll() {
+			for (var i = 0; i < numThreads; i++) resets [i].WaitOne (1000);
+		}
+		
+		public static void For(int fromInclusive, int toExclusive, System.Action<int> body, bool isWaitAll = true) {
+			
+			for (var i = 0; i < numThreads; i++) {
+				ManualResetEvent reset = resets[i];
+				reset.Reset();
+				ThreadPool.QueueUserWorkItem(
+					(j) => {
+						for (var k = (int)j; k < toExclusive; k += numThreads) body((int)k);
+						reset.Set();
+					}, 
+					fromInclusive + i
+				);
+			}
+			if (isWaitAll) WaitAll();
+		}
+		
+		
 	}
 }

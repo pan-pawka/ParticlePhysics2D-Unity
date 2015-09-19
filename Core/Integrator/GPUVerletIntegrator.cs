@@ -21,14 +21,22 @@ namespace ParticlePhysics2D {
 		static Material springMtl,angleMtl,verletMtl;
 		static Material springDeltaMtl,angleDeltaMtl;
 		
+		YieldInstruction eof;
+		
 		public GPUVerletIntegrator (Simulation sim) : base(sim) {
 			//remember to add these shader in the pre loaded assets
-			if (!springMtl) springMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/SpringConstraint"));
-			if (!angleMtl) angleMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/AngleConstraint"));
-			if (!verletMtl) verletMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/VerletGPUIntegrator"));
-			if (!springDeltaMtl) springDeltaMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/SpringDelta"));
-			if (!angleDeltaMtl) angleDeltaMtl = new Material (Shader.Find("FISH/ParticlePhysics2D/AngleDelta"));
+			if (springMtl==null) springMtl = new Material (Shader.Find("ParticlePhysics2D/SpringConstraint"));
+			if (angleMtl==null) angleMtl = new Material (Shader.Find("ParticlePhysics2D/AngleConstraint"));
+			if (verletMtl==null) verletMtl = new Material (Shader.Find("ParticlePhysics2D/VerletGPUIntegrator"));
+			if (springDeltaMtl==null) springDeltaMtl = new Material (Shader.Find("ParticlePhysics2D/SpringDelta"));
+			if (angleDeltaMtl==null) angleDeltaMtl = new Material (Shader.Find("ParticlePhysics2D/AngleDelta"));
+//			if (springMtl==null) Debug.LogError("SpringMtl null");
+//			if (angleMtl==null) Debug.LogError("angleMtl null");
+//			if (verletMtl==null) Debug.LogError("verletMtl null");
+//			if (springDeltaMtl==null) Debug.LogError("springDeltaMtl null");
+//			if (angleDeltaMtl==null) Debug.LogError("angleDeltaMtl null");
 			simbuffer = SimBuffer.Create(sim);
+			eof = new WaitForEndOfFrame();
 		}
 		
 		protected sealed override void StepMethod(){
@@ -47,7 +55,7 @@ namespace ParticlePhysics2D {
 			simbuffer.Update(springMtl,springDeltaMtl, angleMtl,angleDeltaMtl, verletMtl);
 		
 			//wait till the end of the frame, then read RT into particle Position list,i.e., from gpu to cpu
-			yield return new WaitForEndOfFrame();
+			yield return eof;
 			
 			//get PositionRT 's data into particles position
 			simbuffer.SendToCPU_ParticlePosition();

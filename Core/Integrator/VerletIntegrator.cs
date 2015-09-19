@@ -65,6 +65,10 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
+//		//Original Verlet:
+//		xi+1 = xi + (xi - xi-1) + a * dt * dt
+//		Time-Corrected Verlet:
+//		xi+1 = xi + (xi - xi-1) * (dti / dti-1) + a * dti * dti
 		void verlet() {
 			
 			for ( int i = 0; i < base.sim.numberOfParticles(); i++ )

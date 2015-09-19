@@ -15,9 +15,16 @@ namespace ParticlePhysics2D {
 			set { mInstance = value;}
 		}
 		
+		//gpu materials
+		[Header("GPU Integrator Mtl")]
+		public Material verletMtl;
+		public Material springMtl,angleMtl,springDeltaMtl,angleDeltaMtl;
+		
 		//global parameters
 		[HideInInspector]
 		public float FixedTimestep = 1f/30f;
+		
+		[Space(10f)]
 		
 		[Range(10,60)]
 		public int UpdatePerSecond = 30;

@@ -28,13 +28,20 @@ namespace ParticlePhysics2D {
 		public RenderTexture SpringRT;//once initialized, we only read from springrt for querying the two end's uv
 		public RenderTexture SpringRT_RestLength;//only store RFloat as spring rest length
 		public RenderTexture AngleRT_AB,AngleRT_M;//store the end particle position uv;AngleRT_AB = particle a and b;AngleRT_M = particle m and fixed angle		
+		
 		RenderTexture TemporaryPositionRT {
 			get {
-				return RenderTexture.GetTemporary(width,height,0,RTFormat.RG);
+				RenderTexture rt = RenderTexture.GetTemporary(width,height,0,RTFormat.RG);
+				rt.filterMode = FilterMode.Point;
+				return rt;
 			}
 		}
 		RenderTexture TemporaryDeltaRT {
-			get {return RenderTexture.GetTemporary(SpringRT.width,SpringRT.height,0,RTFormat.RG);}
+			get {
+				RenderTexture rt = RenderTexture.GetTemporary(SpringRT.width,SpringRT.height,0,RTFormat.RG);
+				rt.filterMode = FilterMode.Point;
+				return rt;
+			}
 		}
 		
 		//for readin from gpu to cpu
@@ -98,7 +105,7 @@ namespace ParticlePhysics2D {
 			if (tempPos==null) {
 				tempPos = new Texture2D (width,height,TextureFormat.RGBAFloat,false);
 				tempPos.filterMode = FilterMode.Point;
-				tempPos.anisoLevel = 0;
+				//tempPos.anisoLevel = 0;
 			}
 			
 			//initialize the rect for readpixels
@@ -110,7 +117,7 @@ namespace ParticlePhysics2D {
 			Graphics.Blit(PositionRT,PositionOldRT[curr]);
 			
 			PositionRT.MarkRestoreExpected();
-			PositionOldRT[curr].MarkRestoreExpected();
+			//PositionOldRT[curr].MarkRestoreExpected();
 			
 			GenerateParticleUV();
 			
@@ -135,6 +142,7 @@ namespace ParticlePhysics2D {
 			springMpb = new MaterialPropertyBlock ();
 			springMpb.SetTexture("_StateRT",StateRT);
 			
+			angleDeltaMpb = new MaterialPropertyBlock ();
 			angleDeltaMpb.SetFloat("_AngleRelaxPercent",sim.angleRelaxPercent);
 			angleDeltaMpb.SetTexture("_PositionRT",PositionRT);
 			angleDeltaMpb.SetTexture("_AngleRT_AB",AngleRT_AB);
@@ -142,6 +150,7 @@ namespace ParticlePhysics2D {
 			
 			angleMpb = new MaterialPropertyBlock ();
 			angleMpb.SetTexture("_StateRT",StateRT);
+			angleMpb.SetTexture("_PositionRT",PositionRT);
 			
 			verletMpb = new MaterialPropertyBlock ();
 			verletMpb.SetFloat("_Damping",sim.damping);
@@ -154,20 +163,25 @@ namespace ParticlePhysics2D {
 			int x,y;
 			float u;
 			if ( GetTexDimension( numberOfElements,out x,out y,out u)) {
+				//Debug.Log("Init RT " + " X = " + x + " Y = " + y);
 				if (RT==null) {
 					RT = new RenderTexture (x,y,0,format);
+					RT.filterMode = FilterMode.Point;
 					RT.Create();
 				}
 				else {
 					if (RT.width!=x || RT.height!=y) {
 						Extension.ObjDestroy(RT);
 						RT = new RenderTexture (x,y,0,format);
+						RT.filterMode = FilterMode.Point;
 						RT.Create();
 					} else {
 						if (RT.IsCreated() == false) RT.Create();
 						else RT.DiscardContents();
 					}
 				}
+			} else {
+				Debug.LogError("Cannot init RT for " + RT + " with right dimension");
 			}
 		}
 		
@@ -187,13 +201,16 @@ namespace ParticlePhysics2D {
 		void GenerateParticleUV () {
 			particleUV  = new Vector2[sim.numberOfParticles()];
 			int counter = 0;
+			float halfPixelWidth = 0.5f / width;
+			float halfPixelHeight = 0.5f / height;
 			Vector2 uv;
 			for (int i=0;i<height;i++) {
 				for (int j=0;j<width;j++) {
 					if (counter<sim.numberOfParticles()) {
-						uv.x = (float)j / (float)width;
-						uv.y = (float)i / (float)height;
+						uv.x = (float)j / (float)width + halfPixelWidth;
+						uv.y = (float)i / (float)height + halfPixelHeight;
 						particleUV[counter] = uv;
+						//Debug.Log(uv);
 						counter++;
 					} 
 				}
@@ -205,24 +222,16 @@ namespace ParticlePhysics2D {
 			springMesh = PointMesh(springCount);
 			Vector3[] vtc = new Vector3[springCount];
 			Color[] color = new Color[springCount];
-			//Vector2[] uv = new Vector2[springCount];
-//			for (int i=0;i<springCount;i++) {
-//				continue;
-//				//partciel a
-//				Vector2 paUV = particleUV[ sim.getParticleIndex(sim.getSpring(i).ParticleA) ];
-//				vtc[i].x = paUV.x;
-//				vtc[i].y = paUV.y;
-//				vtc[i].z = sim.getSpring(i).restLength2;
-//				//particle b
-//				Vector2 pbUV = particleUV[ sim.getParticleIndex(sim.getSpring(i).ParticleB) ];
-//				//uv[i] = pbUV;
-//			}
+		
 			int count = 0;
+			float halfPixelOffsetX = 0.5f / SpringRT.width;
+			float halfPixelOffsetY = 0.5f / SpringRT.height;
+			
 			for (int i=0;i<SpringRT.height;i++) {
 				for (int j=0;j<SpringRT.width;j++) {
 					if (count<springCount) {
-						vtc[count].x = j / SpringRT.width;
-						vtc[count].y = i/SpringRT.height;
+						vtc[count].x = (float)j / (float)SpringRT.width + halfPixelOffsetX;
+						vtc[count].y = (float)i / (float)SpringRT.height + halfPixelOffsetY;
 						vtc[count].z = 0f;
 						Spring2D sp = sim.getSpring(count);
 						int a = sim.getParticleIndex(sp.ParticleA);
@@ -234,16 +243,21 @@ namespace ParticlePhysics2D {
 			}
 			
 			springMesh.vertices = vtc;
-			//springMesh.uv = uv;
-			springMesh.UploadMeshData(true);
+			springMesh.colors = color;
+			
+			//springMesh.UploadMeshData(true);
 		}
 		
 		void GenerateSpringRT () {
-			Texture2D tempSpringRT;
+			Texture2D tempSpringRT,tempLength2RT;
 			
 			tempSpringRT = new Texture2D (SpringRT.width,SpringRT.height,TextureFormat.RGBAFloat,false);
 			tempSpringRT.filterMode = FilterMode.Point;
-			tempSpringRT.anisoLevel = 0;
+			
+			tempLength2RT = new Texture2D (SpringRT.width,SpringRT.height,TextureFormat.RFloat,false);
+			tempLength2RT.filterMode = FilterMode.Point;
+			
+			//tempSpringRT.anisoLevel = 0;
 			
 			int springNum = sim.numberOfSprings();
 			int count = 0;
@@ -264,21 +278,109 @@ namespace ParticlePhysics2D {
 					count++;
 				}
 			}
+			
 			tempSpringRT.SetPixels(abpos);
 			tempSpringRT.Apply(false);
 			Graphics.Blit(tempSpringRT,SpringRT);
+			
+			//debug spring rt
+			DebugRT.Instance.DebugSpringRT(SpringRT);
+			
+			
+			tempLength2RT.SetPixels(restlength);
+			tempLength2RT.Apply(false);
+			Graphics.Blit(tempLength2RT,SpringRT_RestLength);
+			
+			//---debug rest length rt
+			float maxL = 0;
+			for (int i=0;i<restlength.Length;i++) {
+				if (restlength[i].r > maxL) maxL = restlength[i].r;
+			}
+			
+			for (int i=0;i<restlength.Length;i++) {
+				restlength[i].r /= maxL;
+			}
+			
 			tempSpringRT.SetPixels(restlength);
 			tempSpringRT.Apply(false);
-			Graphics.Blit(tempSpringRT,SpringRT_RestLength);
+			
+			DebugRT.Instance.DebugRestLengthRT(tempSpringRT);
+			//---debug rest length rt
+			
+//			//re-validate spring rt
+//			//validate a b uv
+//			Texture2D tex = new Texture2D (SpringRT.width,SpringRT.height,TextureFormat.RGBAFloat,false);
+//			RenderTexture.active = SpringRT;
+//			tex.ReadPixels(new Rect (0,0,SpringRT.width,SpringRT.height),0,0,false);
+//			tex.Apply();
+//			Color[] abuv = tex.GetPixels();
+//			
+//			
+//			for (int i=0;i<springNum;i++) {
+//				Spring2D sp = sim.getSpring(i);
+//				int a = sim.getParticleIndex(sp.ParticleA);
+//				int b = sim.getParticleIndex(sp.ParticleB);
+//				Color temp = new Color (particleUV[a].x,particleUV[a].y,particleUV[b].x,particleUV[b].y);
+//				//Debug.Log(temp - abuv[i]);
+//			}
+//			
+//			//validate position rt
+//			Texture2D texp = new Texture2D (PositionRT.width,PositionRT.height,TextureFormat.RGBAFloat,false);
+//			RenderTexture.active = PositionRT;
+//			texp.ReadPixels(new Rect (0,0,PositionRT.width,PositionRT.height),0,0,false);
+//			texp.Apply();
+//			Color[] prt = texp.GetPixels();
+//			
+//			for (int i=0;i<sim.numberOfParticles();i++) {
+//				//Vector2 p = new Vector2 (prt[i].r,prt[i].g);
+//				int x = (int)(particleUV[i].x * PositionRT.width);
+//				int y = (int)(particleUV[i].y * PositionRT.height);
+//				Color pr = texp.GetPixel(x,y);
+//				Vector2 p = new Vector2 (pr.r,pr.g);
+//				//Debug.Log(sim.getParticle(i).Position - p);
+//				
+//				
+//			}
+//			
+//			//re-validate restlength2;
+//			Texture2D lt = new Texture2D (SpringRT_RestLength.width,SpringRT_RestLength.height,TextureFormat.RGBAFloat,false);
+//			RenderTexture.active = SpringRT_RestLength;
+//			lt.ReadPixels(new Rect (0,0,SpringRT_RestLength.width,SpringRT_RestLength.height),0,0,false);
+//			lt.Apply(false);
+//			Color[] ltc = lt.GetPixels();
+//			
+//			bool iss = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RFloat);
+//			Debug.Log(iss);
+//			
+//			for (int i=0;i<springNum;i++) {
+//				Spring2D sp = sim.getSpring(i);
+//				int ax = (int)(abuv[i].r * PositionRT.width);
+//				int ay = (int)(abuv[i].g * PositionRT.height);
+//				int bx = (int)(abuv[i].b * PositionRT.width);
+//				int by = (int)(abuv[i].a * PositionRT.height);
+//				Color pa = texp.GetPixel(ax,ay);
+//				Color pb = texp.GetPixel(bx,by);
+//				Vector2 p = new Vector2 (pa.r,pa.g);
+//				//Debug.Log(sim.getSpring(i).ParticleA.Position - p);
+//				Vector2 rl = sp.ParticleA.Position - sp.ParticleB.Position;
+//				Debug.Log(sp.restLength2 - ltc[i].r);
+//				
+////				float l1 = (pa.r - pb.r) * (pa.r - pb.r) + (pa.g - pb.g) * (pa.g - pb.g);
+////				Debug.Log(l1 - ltc[i].r);
+				
+			//}
+			
+			//Debug.Break();
+			
 		}
 		
 		void GenerateAngleMesh () {
 			angleMesh = PointMesh( sim.numberOfAngleConstraints());
 			int angleCount = sim.numberOfAngleConstraints();
 			
-			Vector3[] vtc = new Vector3[angleCount];
-			Vector2[] uv = new Vector2[angleCount];//pa uv
-			Color[] color = new Color[angleCount];//pb uv pm uv
+			Vector3[] vtc = new Vector3[angleCount];//xy = AngleRT uv
+			Vector2[] uv = new Vector2[angleCount];//pa-uv
+			Color[] color = new Color[angleCount];//pb-uv pm-uv
 			//Color[] color = new Color[angleCount];
 //			for (int i=0;i<angleCount;i++) {
 //				AngleConstraint2D angleC = sim.getAngleConstraint(i);
@@ -295,13 +397,15 @@ namespace ParticlePhysics2D {
 //				color[i] = new Color (pbUV.x,pbUV.y,pmUV.x,pmUV.y);
 //			}
 			int count = 0;
+			float halfPixelOffsetX = 0.5f / (float)AngleRT_AB.width;
+			float halfPixelOffsetY = 0.5f / (float)AngleRT_AB.height;
 			for (int i=0;i<AngleRT_AB.height;i++) {
 				for (int j=0;j<AngleRT_AB.width;j++) {
 					if (count<angleCount) {
-						vtc[count].x = j / AngleRT_AB.width;
-						vtc[count].y = i / AngleRT_AB.height;
+						vtc[count].x = (float)j / (float)AngleRT_AB.width + halfPixelOffsetX;
+						vtc[count].y = (float)i / (float)AngleRT_AB.height + halfPixelOffsetY;
 						vtc[count].z = 0f;
-						AngleConstraint2D angleC = sim.getAngleConstraint(i);
+						AngleConstraint2D angleC = sim.getAngleConstraint(count);
 						Vector2 paUV = particleUV[ sim.getParticleIndex(angleC.ParticleA) ];
 						uv[count].x = paUV.x;
 						uv[count].y = paUV.y;
@@ -314,18 +418,22 @@ namespace ParticlePhysics2D {
 					count++;
 				}
 			}
-			angleMesh.vertices = vtc;//vertex.xy = pa,vertex.z = fixed angle; color.rg = pb;color.ba = pm;
+			//vertex.xy = angle rt uv, uv = pa uv, color.xy = pb uc, color.zw = pmuv;
+			angleMesh.vertices = vtc;
 			angleMesh.colors = color;//particle b and m
 			angleMesh.uv = uv;//particle a
-			angleMesh.UploadMeshData(true);
+			//angleMesh.UploadMeshData(true);
 			
 		}
 		
 		void GenerateAngleRT() {
-			Texture2D tempAngleRT;
-			tempAngleRT = new Texture2D (AngleRT_AB.width,AngleRT_AB.height,TextureFormat.RGBAFloat,false);
-			tempAngleRT.filterMode = FilterMode.Point;
-			tempAngleRT.anisoLevel = 0;
+			Texture2D tempAngleRT_AB,tempAngleRT_M;
+			tempAngleRT_AB = new Texture2D (AngleRT_AB.width,AngleRT_AB.height,TextureFormat.RGBAFloat,false);
+			tempAngleRT_AB.filterMode = FilterMode.Point;
+			
+			tempAngleRT_M = new Texture2D  (AngleRT_AB.width,AngleRT_AB.height,TextureFormat.RGBAFloat,false);
+			tempAngleRT_M.filterMode = FilterMode.Point;
+			//tempAngleRT.anisoLevel = 0;
 			
 			int angleNum = sim.numberOfAngleConstraints();
 			int count = 0;
@@ -339,18 +447,19 @@ namespace ParticlePhysics2D {
 						int b = sim.getParticleIndex(angle.ParticleB);
 						int m = sim.getParticleIndex(angle.ParticleM);
 						posab[count] = new Color (particleUV[a].x,particleUV[a].y,particleUV[b].x,particleUV[b].y);
-						posm[count] = new Color (particleUV[m].x,particleUV[m].y,angle.angle_Fixed);
+						posm[count] = new Color (particleUV[m].x,particleUV[m].y,angle.angle_Fixed,0f);
 					} else {
 						posab[count] = posm[count] = Color.clear;
 					}
 					count++;
 				}
 			}
-			tempAngleRT.SetPixels(posab);
-			tempAngleRT.Apply(false);
-			Graphics.Blit(tempAngleRT,AngleRT_AB);
-			tempAngleRT.SetPixels(posm);
-			Graphics.Blit(tempAngleRT,AngleRT_M);
+			tempAngleRT_AB.SetPixels(posab);
+			tempAngleRT_AB.Apply(false);
+			Graphics.Blit(tempAngleRT_AB,AngleRT_AB);
+			tempAngleRT_M.SetPixels(posm);
+			tempAngleRT_M.Apply(false);
+			Graphics.Blit(tempAngleRT_M,AngleRT_M);
 		}
 		
 		//geenrate a full screen quad for manual blit in CommandBuffer
@@ -372,7 +481,7 @@ namespace ParticlePhysics2D {
 			uv[2] = new Vector2 (1f,0f);
 			uv[3] = new Vector2 (0f,0f);
 			quadMesh.uv = uv;
-			quadMesh.UploadMeshData(true);
+			//quadMesh.UploadMeshData(true);
 		}
 		
 		#endregion
@@ -383,51 +492,23 @@ namespace ParticlePhysics2D {
 		// 1. angle delta :
 		// 
 		public void Update(Material springMtl, Material springDeltaMtl, Material angleMtl, Material angleDeltaMtl, Material verletMtl) {
-			
-//			//in the previous step we have get all the data from cpu to GPU, in PositionRT
-//			RenderTexture pRT_spring = TemporaryPositionRT;
-//			RenderTexture pRT_angle = TemporaryPositionRT;
-//			RenderTexture pRT_verlet = TemporaryPositionRT;
-//			
-//			cBuffer.Clear();
-//			
-//			//prepare
-//			springMpb.SetTexture(ID_PositionRT,PositionRT);
-//			angleMpb.SetTexture(ID_PositionRT,pRT_spring);
-//		
-//			
-//			//spring
-//			cBuffer.Blit(PositionRT as Texture,pRT_spring);
-//			cBuffer.SetRenderTarget(pRT_spring);
-//			cBuffer.DrawMesh(springMesh,Matrix4x4.identity,springMtl,0,-1,springMpb);
-//			
-////			//angle
-////			cBuffer.SetRenderTarget(pRT_angle);
-////			cBuffer.DrawMesh(angleMesh,Matrix4x4.identity,angleMtl,0,-1,angleMpb);
-////			
-////			//verlet
-////			cBuffer.SetRenderTarget(pRT_verlet);
-////			cBuffer.DrawMesh(verletMesh,Matrix4x4.identity,verletMtl,0,-1,verletMpb);
-//			
-//			Graphics.ExecuteCommandBuffer(cBuffer);
-//			
-//			PositionRT.DiscardContents();
-//			//PositionOldRT.DiscardContents();
-//			Graphics.Blit(pRT_spring,PositionRT);
-//			Graphics.Blit(pRT_angle,PositionOldRT);
-//			
-//			RenderTexture.ReleaseTemporary(pRT_verlet);
-//			RenderTexture.ReleaseTemporary(pRT_spring);
-//			RenderTexture.ReleaseTemporary(pRT_angle);
-			
-			//Debug.Break();
+		
 			//======================================================================
 			
 			RenderTexture springDeltaRT = TemporaryDeltaRT;
 			RenderTexture angleDeltaRT = TemporaryDeltaRT;
+			RenderTexture tempSpDeltaRT = TemporaryPositionRT;
 			
+			//RenderTexture tempRT = RenderTexture.GetTemporary(PositionRT.width,PositionRT.height,0,RenderTextureFormat.RGFloat);
+			
+			angleDeltaMpb.SetFloat("_AngleRelaxPercent",sim.angleRelaxPercent);
 			verletMpb.SetTexture(ID_PositionRT,PositionOldRT[next]);
 			verletMpb.SetTexture(ID_PositionCache,PositionOldRT[curr]);
+			
+			springDeltaMpb.SetFloat("_SpringConstant",sim.springConstant);
+			springMpb.SetTexture("_SpringDeltaRT",springDeltaRT);
+			angleMpb.SetTexture("_AngleDeltaRT",angleDeltaRT);
+			verletMpb.SetFloat("_Damping",sim.damping);
 			
 			cBuffer.Clear();
 			
@@ -436,38 +517,80 @@ namespace ParticlePhysics2D {
 			// 3. first sample springrt, get the uv for pa and pb,then sample positionrt get the position of pa and pb
 			// 4. then sample the restlengthrt, to get the restlength2;
 			// 5. then output the delta to the deltaRT
+			
+			//======================================================================
+			
 			//spring delta
 			cBuffer.SetRenderTarget(springDeltaRT);
 			cBuffer.DrawMesh(quadMesh,Matrix4x4.identity,springDeltaMtl,0,-1,springDeltaMpb);
+			cBuffer.Blit(springDeltaRT as Texture,DebugRT.Instance.springDeltaRT);//debug
+			
 			
 			//apply spring delta
 			// 1. draw mesh of the spring pt
 			// 2. get the delta from prev result by sampling SpringDeltaRT
 			// 3. move spring pt to particle a's uv then output delta by blending with existing positionRT
 			// 4. move to b
-			cBuffer.SetRenderTarget(PositionRT);
-			cBuffer.DrawMesh(springMesh,Matrix4x4.identity,springMtl,0,0,springMpb);//particle a = pass 0
-			cBuffer.DrawMesh(springMesh,Matrix4x4.identity,springMtl,0,1,springMpb);//particle b = pass 1
 			
-			//angle delta
+			cBuffer.SetRenderTarget(PositionRT);
+			cBuffer.DrawMesh(springMesh,Matrix4x4.identity,springMtl,0,-1,springMpb);//Two pass: particle a = pass 0;//particle b = pass 1
+			cBuffer.Blit(PositionRT as Texture , DebugRT.Instance.spDeltaPos);//debug
+			//======================================================================
+			
+			//======================================================================
+			//angle delta 1
 			cBuffer.SetRenderTarget(angleDeltaRT);
 			cBuffer.DrawMesh(quadMesh,Matrix4x4.identity,angleDeltaMtl,0,-1,angleDeltaMpb);
 			
 			//apply angle delta
+			cBuffer.Blit(PositionRT as Texture,PositionOldRT[next]);
 			cBuffer.SetRenderTarget(PositionOldRT[next]);
-			cBuffer.ClearRenderTarget(false,true,Color.clear);
-			cBuffer.DrawMesh(angleMesh,Matrix4x4.identity,angleMtl,0,0,angleMpb);//pa
-			cBuffer.DrawMesh(angleMesh,Matrix4x4.identity,angleMtl,0,1,angleMpb);//pb
-			cBuffer.DrawMesh(angleMesh,Matrix4x4.identity,angleMtl,0,2,angleMpb);//pm
+			cBuffer.DrawMesh(angleMesh,Matrix4x4.identity,angleMtl,0,-1,angleMpb);//pa pb and pm
 			
-			//verlet
+			//
+			cBuffer.Blit(PositionOldRT[next] as Texture, PositionRT);
+			
+			
+			
+			
+			//======================================================================
+			//angle delta 2
+			cBuffer.SetRenderTarget(angleDeltaRT);
+			cBuffer.DrawMesh(quadMesh,Matrix4x4.identity,angleDeltaMtl,0,-1,angleDeltaMpb);
+			//cBuffer.Blit(angleDeltaRT as Texture , DebugRT.Instance.angleDelta);//debug
+ 
+ 			//apply angle delta
+			//cBuffer.Blit(PositionRT as Texture,PositionOldRT[next]);
+			cBuffer.SetRenderTarget(PositionOldRT[next]);
+			cBuffer.DrawMesh(angleMesh,Matrix4x4.identity,angleMtl,0,-1,angleMpb);//pa pb and pm
+			
+			
+			//======================================================================
+			cBuffer.Blit(PositionOldRT[next] as Texture, PositionRT);
+			//======================================================================
+			//spring delta
+			cBuffer.SetRenderTarget(springDeltaRT);
+			cBuffer.DrawMesh(quadMesh,Matrix4x4.identity,springDeltaMtl,0,-1,springDeltaMpb);
+			cBuffer.SetRenderTarget(PositionOldRT[next]);
+			cBuffer.DrawMesh(springMesh,Matrix4x4.identity,springMtl,0,-1,springMpb);
+			
+			
+			//======================================================================
+
+//			//verlet
 			cBuffer.SetRenderTarget(PositionRT);
 			cBuffer.ClearRenderTarget(false,true,Color.clear);
 			cBuffer.DrawMesh(quadMesh,Matrix4x4.identity,verletMtl,0,-1,verletMpb);
 			
 			Graphics.ExecuteCommandBuffer(cBuffer);
+			
+			//debug spring delta
+			//DebugRT.Instance.DebugSpringDelta(springDeltaRT);
+			
+			
 			RenderTexture.ReleaseTemporary(springDeltaRT);
 			RenderTexture.ReleaseTemporary(angleDeltaRT);
+			RenderTexture.ReleaseTemporary(tempSpDeltaRT);
 			
 			int temp = next;
 			next = curr;
@@ -481,9 +604,9 @@ namespace ParticlePhysics2D {
 		void SendToGPU_ParticleState ( ) {
 			
 			
-			Texture2D state2d = new Texture2D (width,height,TextureFormat.RHalf,false,false);
+			Texture2D state2d = new Texture2D (width,height,TextureFormat.RFloat,false,false);
 			state2d.filterMode = FilterMode.Point;
-			state2d.anisoLevel = 0;
+			//state2d.anisoLevel = 0;
 			Color[] pc = new Color[width * height];
 			int counter = 0;
 			for (int i=0;i<height;i++) {
@@ -533,8 +656,8 @@ namespace ParticlePhysics2D {
 			
 			Graphics.Blit(tempPos,PositionRT);
 			
-			dbgrt = GameObject.FindObjectOfType<DebugRT>();
-			dbgrt.rt = PositionRT;
+			//debug the positionRT before it's processed by gpu
+			DebugRT.Instance.DebugSendToGPUPositionRT(PositionRT);
 		}
 		
 		DebugRT dbgrt;
@@ -546,6 +669,10 @@ namespace ParticlePhysics2D {
 			tempPos.ReadPixels(tempRect,0,0,false);
 			tempPos.Apply(false);
 			RenderTexture.active = null;
+			
+			//debug position rt after it;s processed by gpu
+			//Graphics.Blit(PositionRT,DebugRT.Instance.SendToCPU_PositionRT);
+			
 			PositionRT.DiscardContents();
 			
 			Color[] pc;

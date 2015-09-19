@@ -113,20 +113,37 @@ namespace ParticlePhysics2D {
 		
 		public void applyThreaded()
 		{	
-			if ( on && ( a.IsFree || b.IsFree ) )
+			if (on)
 			{
-				//faster square root approx from Advanced Character Physics
-				Vector2 delta = a.Position - b.Position;
-				delta *= restLength2 /(delta.sqrMagnitude + restLength2) - 0.5f;
-			
-				if (a.IsFree) {
-					Extension.InterlockAddFloat(ref a.Position.x, delta.x * sim.springConstant);
-					Extension.InterlockAddFloat(ref a.Position.y, delta.y * sim.springConstant);
+				
+				if (a.IsFree || b.IsFree) {
+					Vector2 delta;
+					//lock(a) lock(b) {
+						//faster square root approx from Advanced Character Physics
+						delta = a.Position - b.Position;
+					//}
+					
+					delta *= restLength2 /(delta.sqrMagnitude + restLength2) - 0.5f;
+					
+					if (a.IsFree) {
+						//lock(a) {
+							//a.Position += delta * sim.springConstant;
+							Extension.InterlockAddFloat(ref a.Position.x,delta.x * sim.springConstant);
+							Extension.InterlockAddFloat(ref a.Position.y,delta.y * sim.springConstant);
+						//}
+						
+					}
+					if (b.IsFree) {
+						//lock (b) {
+							//b.Position -= delta * sim.springConstant;
+							Extension.InterlockAddFloat(ref b.Position.x,-delta.x * sim.springConstant);
+							Extension.InterlockAddFloat(ref b.Position.y,-delta.y * sim.springConstant);
+						//}
+					}
 				}
-				if (b.IsFree) {
-					Extension.InterlockAddFloat(ref b.Position.x, -delta.x * sim.springConstant);
-					Extension.InterlockAddFloat(ref b.Position.y, -delta.y * sim.springConstant);
-				}
+					
+				
+				
 			}
 		}
 		
