@@ -60,9 +60,10 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 			s.makeSpring(p,temp);
 			if (b.branchA!=null) CopyBranchTopology (temp,b.branchA,ref s);
 			if (b.branchB!=null) CopyBranchTopology (temp,b.branchB,ref s);
-			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchA.springIndex));
-			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchB.springIndex));
-
+			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchA.springIndex),AngleConstraintTye.Rotation,false,true);
+			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchB.springIndex),AngleConstraintTye.Rotation,false,true);
+			//it seems that even without angle-spring, the system is still stable after a small modification made to angle-rotation constraint
+			//s.makeAngleConstraint(sim.getSpring(b.branchA.springIndex),sim.getSpring(b.branchB.springIndex),AngleConstraintTye.Spring,true,true);
 		} 
 		//if it's a leaf branch
 		else {

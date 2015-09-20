@@ -96,11 +96,8 @@ namespace ParticlePhysics2D {
 				if (branch.boundingCircle.OverlapsResults(targetPos,cc.radius,out dir)){
 					if (isDebugCollidingOn) branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.magenta);
 					//apply collision
-					//sim.getParticle(branch.leafIndex).Position -= Vector2.ClampMagnitude (dir * leafForceFeedback , maxPositionChange);
 					Particle2D pp = sim.getParticle(branch.leafIndex);
-					//lock (pp) {
-						pp.Position -= dir * leafForceFeedback;
-					//}
+					pp.Position -= dir * leafForceFeedback;
 					dir = transform.TransformDirection(dir);
 					targetRb2D.AddForce(dir * targetForceFeedback,ForceMode2D.Force);
 					

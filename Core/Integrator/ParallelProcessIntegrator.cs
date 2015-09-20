@@ -44,7 +44,7 @@ namespace ParticlePhysics2D {
 			int index = start;
 			for (int i=0;i<count;i++) {
 				if (index+1 <= springCount) sim.getSpring(index).applyThreaded();
-				else sim.getAngleConstraint(index - springCount).applyThreaded();
+				else sim.getAngleConstraint(index - springCount).apply();
 				index++;
 			}
 		}

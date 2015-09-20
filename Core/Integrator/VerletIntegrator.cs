@@ -26,6 +26,7 @@ namespace ParticlePhysics2D {
 		
 		
 		void applyConstraints() {
+
 		
 			//gravity
 			if ( sim.getGravity() != Vector2.zero )
@@ -45,22 +46,16 @@ namespace ParticlePhysics2D {
 					sim.getSpring(i).apply();
 				}
 				
-				if (sim.applySpring)
-					for ( int i = sim.numberOfSprings()-1; i >=0 ; i-- )
+				if (sim.applyAngle)
+				for ( int i = 0; i < sim.numberOfAngleConstraints(); i++ )
+				{
+					sim.getAngleConstraint(i).apply();
+				}
+				
+				if (sim.applySpring) 
+					for ( int i = 0; i < sim.numberOfSprings(); i++ )
 				{
 					sim.getSpring(i).apply();
-				}
-				
-				if (sim.applyAngle)
-					for ( int i = sim.numberOfAngleConstraints()-1; i >=0 ; i-- )
-				{
-					sim.getAngleConstraint(i).apply();
-				}
-				
-				if (sim.applyAngle)
-					for ( int i = 0; i < sim.numberOfAngleConstraints(); i++ )
-				{
-					sim.getAngleConstraint(i).apply();
 				}
 			}
 		}

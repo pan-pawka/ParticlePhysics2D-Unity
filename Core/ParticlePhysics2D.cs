@@ -44,10 +44,13 @@ namespace ParticlePhysics2D {
 		public float damping = 0.95f;//used by verlet
 		
 		[Range(0.005f,0.99f)]
-		public float springConstant = 0.8f;//used by verlet
+		public float springConstant = 0.8f;
 		
 		[Range(0.001f,0.9f)]
-		public float angleRelaxPercent = 0.02f;//used by verlet
+		public float angleRelaxPercent = 0.02f;
+		
+		[Range(0.001f,2f)]
+		public float angleSpringConstant = 0.999f;
 		
 		public void setIntegrator()
 		{
@@ -202,7 +205,7 @@ namespace ParticlePhysics2D {
 		
 		public Particle2D getParticle( int i )
 		{
-			i = Mathf.Clamp(i,0,particles.Count-1);
+			//i = Mathf.Clamp(i,0,particles.Count-1);
 			return particles[i];
 		}
 		
@@ -298,9 +301,17 @@ namespace ParticlePhysics2D {
 		#endregion
 		
 		#region Angle Constraints
-		public AngleConstraint2D makeAngleConstraint( Spring2D s1, Spring2D s2, float offset = 0f)
+		public AngleConstraint2D makeAngleConstraint( Spring2D s1, Spring2D s2,AngleConstraintTye type = AngleConstraintTye.Rotation, bool moveA = true,bool moveB = true)
 		{
-			AngleConstraint2D angle = new AngleConstraint2D (this,s1,s2,offset);
+			AngleConstraint2D angle = new AngleConstraint2D (this,s1,s2,type,moveA,moveB);
+			angles.Add( angle );
+			return angle;
+		}
+		
+		//make a angle-spring constraint between two particles
+		public AngleConstraint2D makeAngleConstraint( Particle2D s1, Particle2D s2)
+		{
+			AngleConstraint2D angle = new AngleConstraint2D (this,s1,s2);
 			angles.Add( angle );
 			return angle;
 		}
@@ -357,9 +368,10 @@ namespace ParticlePhysics2D {
 		#endregion
 		
 		#region Debug
+		public Color springColor;
 		public void DebugSpring(Matrix4x4 local2World) {
 			for (int t=0;t<springs.Count;t++) {
-				springs[t].DebugSpring(local2World);
+				springs[t].DebugSpring(local2World,springColor);
 			}
 		}
 		

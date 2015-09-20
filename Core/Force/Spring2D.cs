@@ -41,9 +41,7 @@ namespace ParticlePhysics2D {
 			this.sim = sim;
 			a = sim.getParticle(indexA);
 			b = sim.getParticle(indexB);
-			//this.springConstant = springConstant;
 			this.restLength2 = restLength * restLength;
-			//Debug.Log(restLength2);
 			on = true;
 		}
 		
@@ -147,19 +145,22 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		static Color springColor = Color.cyan - new Color (0f,0f,0f,0.5f);
-		public void DebugSpring(Matrix4x4 local2World){
+		//static Color springColor = Color.cyan - new Color (0f,0f,0f,0.5f);
+		public void DebugSpring(Matrix4x4 local2World, Color springColor = default(Color)){
+			if (springColor == default(Color)) 
+				springColor = Color.cyan - new Color (0f,0f,0f,0.5f);
+			
 			Vector2 aPos = local2World.MultiplyPoint3x4(a.Position);
 			Vector2 bPos = local2World.MultiplyPoint3x4(b.Position);
 			Debug.DrawLine(aPos,bPos,springColor);
 			//if (a.IsLeaf) DebugExtension.DebugCircle(aPos,Vector3.forward,Color.red,0.1f);
 			//if (b.IsLeaf) DebugExtension.DebugCircle(bPos,Vector3.forward,Color.red,0.1f);
 		}
-		public void DebugSpring(){
-			Debug.DrawLine(a.Position,b.Position,springColor);
-			if (a.IsLeaf) DebugExtension.DebugCircle(a.Position,Vector3.forward,Color.red,1f);
-			if (b.IsLeaf) DebugExtension.DebugCircle(b.Position,Vector3.forward,Color.red,1f);
-		}
+//		public void DebugSpring(){
+//			Debug.DrawLine(a.Position,b.Position,springColor);
+//			if (a.IsLeaf) DebugExtension.DebugCircle(a.Position,Vector3.forward,Color.red,1f);
+//			if (b.IsLeaf) DebugExtension.DebugCircle(b.Position,Vector3.forward,Color.red,1f);
+//		}
 	
 	}
 }

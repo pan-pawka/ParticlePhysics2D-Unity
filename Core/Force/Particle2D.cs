@@ -62,8 +62,6 @@ namespace ParticlePhysics2D {
 		
 		public bool IsFree {get{return !isFixed;}}
 		
-		//public Vector2 Position {get {return position;}set{position = value;}}
-		
 		public Vector2 PositionOld {get{return positionOld;}set{positionOld = value;}}
 	
 		public float Mass {get{return mass;}}
