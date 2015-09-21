@@ -23,6 +23,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	public float length = 20f;
 	
 	public bool debugSpring = true,debugAngles = false,debugParticleIndex = false,debugSpringIndex = false;
+	public bool debugSpringConvID = false,debugAngleConvID = false;
 	
 	//branch generation params
 	[HideInInspector] public float lengthExitRatio;
@@ -60,8 +61,8 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 			s.makeSpring(p,temp);
 			if (b.branchA!=null) CopyBranchTopology (temp,b.branchA,ref s);
 			if (b.branchB!=null) CopyBranchTopology (temp,b.branchB,ref s);
-			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchA.springIndex),AngleConstraintTye.Rotation,false,true);
-			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchB.springIndex),AngleConstraintTye.Rotation,false,true);
+			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchA.springIndex));
+			s.makeAngleConstraint(sim.getSpring(b.springIndex),sim.getSpring(b.branchB.springIndex));
 			//it seems that even without angle-spring, the system is still stable after a small modification made to angle-rotation constraint
 			//s.makeAngleConstraint(sim.getSpring(b.branchA.springIndex),sim.getSpring(b.branchB.springIndex),AngleConstraintTye.Spring,true,true);
 		} 
@@ -90,6 +91,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		start.makeFixed();
 		CopyBranchTopology(start,branch,ref sim);
 		sim.getParticle(1).makeFixed();
+		sim.RecalculateConvergenceGroupID();
 		sim.ShuffleSprings();
 		sim.ShuffleAngles();
 		if (Application.isEditor) OnDrawGizmosUpdate();
@@ -114,8 +116,9 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	
 	public void OnDrawGizmosUpdate() {
 		if (sim!=null) {
-			if (debugSpring) sim.DebugSpring(transform.localToWorldMatrix);
-			if (debugAngles) sim.DebugAngles(transform.localToWorldMatrix);
+			if (debugSpring) sim.DebugSpring(transform.localToWorldMatrix,debugSpringConvID);
+			if (debugAngles) sim.DebugAngles(transform.localToWorldMatrix,debugAngleConvID);
+			
 		}
 		if (BinaryTree.debugBranch) {
 			if (branch!=null) branch.DebugRender(transform.localToWorldMatrix);

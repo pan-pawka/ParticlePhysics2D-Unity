@@ -27,6 +27,12 @@ namespace ParticlePhysics2D {
 		[NonSerialized] Particle2D a;
 		[NonSerialized] Particle2D b;
 		
+		/// <summary>
+		/// The convergence group ID, used in gpu solver to group springs which need to be process in parallel
+		/// In cpu solver, this is not needed. 0 means no id is assigned, range 0-255
+		/// </summary>
+		public byte convergenceGroupID = 0;
+		
 		// you need to SetSimulation in Simualtion class's OnAfterDeserialize() callback. this is a hack
 		public void SetParticles(Simulation sim) {
 			this.sim = sim;

@@ -10,9 +10,7 @@ namespace ParticlePhysics2D {
 	[System.Serializable]
 	public class AngleConstraint2D : IForce {
 		
-		public AngleConstraintTye type;
-		public bool isAMovable,isBMovable;
-		
+		//only b rotates around m
 		[NonSerialized] Particle2D particleA, particleM, particleB;
 		[SerializeField] int indexA,indexM,indexB;
 		
@@ -24,6 +22,12 @@ namespace ParticlePhysics2D {
 		
 		[NonSerialized] Simulation sim;
 		
+		/// <summary>
+		/// The convergence group ID, used in gpu solver to group springs which need to be process in parallel
+		/// In cpu solver, this is not needed. 0 means no id is assigned, range 0-255
+		/// </summary>
+		public byte convergenceGroupID = 0;
+		
 		// you need to SetSimulation in Simualtion class's OnAfterDeserialize() callback. this is a hack
 		//becaue unity serializaiton does not keep references.
 		public void SetParticles(Simulation sim) {
@@ -34,10 +38,8 @@ namespace ParticlePhysics2D {
 		}
 		
 		//setup by sticks
-		public AngleConstraint2D(Simulation sim, Spring2D _spring1, Spring2D _spring2, AngleConstraintTye type, bool moveA = true, bool moveB = true) {
-			this.type = type;
-			this.isAMovable = moveA;
-			this.isBMovable = moveB;
+		//only b rotates around m, if you need a rotate around m, just make another angle constraint
+		public AngleConstraint2D(Simulation sim, Spring2D _spring1, Spring2D _spring2) {
 			this.on = true;
 			this.sim = sim;
 			if (_spring1.ParticleA == _spring2.ParticleA) { SetTopology(_spring1.ParticleB,_spring1.ParticleA,_spring2.ParticleB); return; }
@@ -56,20 +58,6 @@ namespace ParticlePhysics2D {
 			angle_Fixed = GetAngleRadian(pA.Position,pM.Position,pB.Position);
 			angle_RestLength2 = Vector2.SqrMagnitude(pA.Position - pB.Position);
 		}
-		
-		//only angle-spring
-		public AngleConstraint2D (Simulation sim,Particle2D a,Particle2D b, bool moveA = true, bool moveB = true) {
-			this.type = AngleConstraintTye.Spring;
-			this.isAMovable = moveA;
-			this.isBMovable = moveB;
-			this.sim = sim;
-			particleA = a;
-			particleB = b;
-			this.indexA = sim.getParticleIndex(particleA);
-			this.indexB = sim.getParticleIndex(particleB);
-			angle_RestLength2 = Vector2.SqrMagnitude(particleA.Position - particleB.Position);
-		}
-		
 		
 		public bool ContainSpring(Spring2D spring){
 			return ContainParticle(spring.ParticleA) && ContainParticle(spring.ParticleB);
@@ -121,56 +109,25 @@ namespace ParticlePhysics2D {
 		
 		public void apply(){
 			if (on) {
-				switch (type) {
-				case AngleConstraintTye.Spring:
-					AngleSpring();
-					break;
-				case AngleConstraintTye.Rotation:
-					AngleRotation();
-					break;
-				defaut:
-					break;
+				angle_Cur = GetAngleRadian(particleA.Position,particleM.Position,particleB.Position);
+				float deltaAngle = GetDeltaAngle();
+				
+				if (deltaAngle==0f || Mathf.Abs(deltaAngle)<0.01f) return;
+				else {
+					Vector2 posB = particleB.Position;
+					Vector2 posM = particleM.Position;
+					if (particleB.IsFree) {
+						posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
+						particleB.Position = posB;
+					}
+					if (particleM.IsFree) {
+						posM = Mathp.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent);
+						particleM.Position = posM;
+					}
 				}
 			}
 		}
 		
-		void AngleSpring() {
-			if ( particleA.IsFree || particleB.IsFree )
-			{
-				//faster square root approx from Advanced Character Physics
-				Vector2 delta = particleA.Position - particleB.Position;
-				delta *= angle_RestLength2 /(delta.sqrMagnitude + angle_RestLength2) - 0.5f;
-				if (particleA.IsFree && isAMovable) particleA.Position += delta * sim.angleSpringConstant;
-				if (particleB.IsFree && isBMovable) particleB.Position -= delta * sim.angleSpringConstant;
-			}
-		}
-		
-		void AngleRotation() {
-			
-			angle_Cur = GetAngleRadian(particleA.Position,particleM.Position,particleB.Position);
-			float deltaAngle = GetDeltaAngle();
-			
-			if (deltaAngle==0f || Mathf.Abs(deltaAngle)<0.01f) return;
-			else {
-				Vector2 posA = particleA.Position;
-				Vector2 posB = particleB.Position;
-				Vector2 posM = particleM.Position;
-				if (particleA.IsFree && isAMovable) {
-					posA = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent);
-					particleA.Position = posA;
-				}
-				if (particleB.IsFree && isBMovable) {
-					posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
-					particleB.Position = posB;
-				}
-				if (particleM.IsFree &&(isBMovable||isAMovable)) {
-					if (isAMovable) posM = Mathp.RotateVector2(posM,posA, deltaAngle * sim.angleRelaxPercent);
-					if (isBMovable) posM = Mathp.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent);
-					particleM.Position = posM;
-				}
-			}
-			
-		}
 		
 		public void applyThreaded(){
 			if (on) {
@@ -231,13 +188,9 @@ namespace ParticlePhysics2D {
 			return  angle_Cur - angle_Fixed;
 		}
 
-		
-		static Color angleColor = Color.red;
-		public void DebugDraw(Matrix4x4 local2World) {
-			//Vector2 pa = (particleA.Position + particleM.Position) / 2f;
-			//Vector2 pb = (particleB.Position + particleM.Position) / 2f;
-			Vector2 pa = particleA.Position;
-			Vector2 pb = particleB.Position;
+		public void DebugDraw(Matrix4x4 local2World,Color angleColor) {
+			Vector2 pa = particleM.Position + (particleA.Position - particleM.Position).normalized;
+			Vector2 pb = particleM.Position + (particleB.Position - particleM.Position).normalized;
 			pa = local2World.MultiplyPoint3x4(pa);
 			pb = local2World.MultiplyPoint3x4(pb);
 			Debug.DrawLine(pa,pb,angleColor);

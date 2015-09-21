@@ -12,6 +12,9 @@ namespace ParticlePhysics2D {
 	[System.Serializable]
 	public class Simulation  : ISerializationCallbackReceiver {
 
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Fields and Properties
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
 		protected static float DEFAULT_GRAVITY = 0f;
 		
 		[HideInInspector] [SerializeField] List <Particle2D> particles;
@@ -40,6 +43,10 @@ namespace ParticlePhysics2D {
 		[SerializeField]
 		Vector2 gravity;
 		
+		[SerializeField]
+		[ReadOnlyAttribute]
+		int maxSpringConvergenceID = 0,maxAngleConvergenceID = 0;
+		
 		[Range(0.01f,0.99f)]
 		public float damping = 0.95f;//used by verlet
 		
@@ -49,8 +56,9 @@ namespace ParticlePhysics2D {
 		[Range(0.001f,0.9f)]
 		public float angleRelaxPercent = 0.02f;
 		
-		[Range(0.001f,2f)]
-		public float angleSpringConstant = 0.999f;
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// Methods
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		public void setIntegrator()
 		{
@@ -86,10 +94,125 @@ namespace ParticlePhysics2D {
 		/// Init this instance. Call this inside Start() to instantiate the integrator
 		/// otherwise, it'll be created in the Property in the first frame
 		/// </summary>
-//		public void Init () {
-//			setIntegrator();
-//		}
-	
+		public void Init () {
+			setIntegrator();
+		}
+		
+		#region Convergence Group ID
+		/// <summary>
+		/// Recalculates the convergence group according to the topology of the data form
+		/// use this method after you have set up the data form as a meaningful shape.
+		/// a convergence group id will be assgined to spring2d and angle2d.
+		/// then in gpu solver, springs or angles in a same group will be made into a same RT.
+		/// Note that it is best to shuffle the spring and anle list after you complete this method.
+		/// otherwise I dont know if this method will return a valida result. However if you dont need GPU solver
+		/// then this method is of no use.
+		/// </summary>
+		public void RecalculateConvergenceGroupID () {
+			this.maxAngleConvergenceID = this.maxSpringConvergenceID = 0;
+			int pNum = this.numberOfParticles();
+			for (int i=0;i<pNum;i++) {
+				this.CalcConvergenceID(i);
+			}
+		}
+		
+		/// <summary>
+		/// Calculates the convergence ID of the springs and angles that are connected to particle specified by particleIndex
+		/// </summary>
+		/// <param name="particleIndex">Particle index.</param>
+		private void CalcConvergenceID(int particleIndex) {
+			Particle2D pp = this.getParticle(particleIndex);
+			
+			//Spring
+			List<Spring2D> sp = new List<Spring2D> (10);//the conencted spring for particle index
+			int springNum = this.numberOfSprings();
+			//get the connected spring
+			for (int i=0;i<springNum;i++) {
+				Spring2D s = this.getSpring(i);
+				Particle2D a = s.ParticleA;
+				Particle2D b = s.ParticleB;
+				if (a == pp || b == pp) {
+					sp.Add(s);
+				}
+			}
+			//calc the convergence id for the springs which connects to this particle
+			List<byte> IDinUse = new List<byte> (10);
+			for (int i=0;i<sp.Count;i++) if (sp[i].convergenceGroupID != 0) IDinUse.Add(sp[i].convergenceGroupID);
+			for (int i=0;i<sp.Count;i++) {
+				if (sp[i].convergenceGroupID == 0) {
+					byte id = 1;
+					while (IDinUse.Contains(id)) id++;
+					sp[i].convergenceGroupID = id;
+					IDinUse.Add(id);
+					if (id>this.maxSpringConvergenceID) this.maxSpringConvergenceID = id;
+				}
+			}
+			
+			//angle
+			List<AngleConstraint2D> ag = new List<AngleConstraint2D> (10);
+			int angleNum = this.numberOfAngleConstraints();
+			//get the connected angles
+			for (int i=0;i<angleNum;i++) {
+				AngleConstraint2D angle = this.getAngleConstraint(i);
+				Particle2D b = angle.ParticleB;
+				Particle2D m = angle.ParticleM;
+				if (b == pp || m == pp) ag.Add(angle);
+			}
+			//recalc the convergence id for the angles that are connected to this particle
+			IDinUse.Clear();
+			for (int i=0;i<ag.Count;i++) if (ag[i].convergenceGroupID != 0) IDinUse.Add(ag[i].convergenceGroupID);
+			for (int i=0;i<ag.Count;i++) {
+				if (ag[i].convergenceGroupID == 0) {
+					byte id = 1;
+					while (IDinUse.Contains(id)) id++;
+					ag[i].convergenceGroupID = id;
+					IDinUse.Add(id);
+					if (id>this.maxAngleConvergenceID) this.maxAngleConvergenceID = id;
+				}
+			}
+		}
+		
+		/// <summary>
+		/// Numbers the of springs by conv ID.
+		/// </summary>
+		/// <returns>The number of springs by conv ID.</returns>
+		/// <param name="convID">Convergence Group ID.</param>
+		public int numberOfSpringsByConvID(byte convID)
+		{
+			if (convID ==0) return numberOfSprings(); 
+			else if (convID > maxSpringConvergenceID) {
+				Debug.LogError("The input convID is larger that the max convID");
+				return 0;
+			} else {
+				int num = 0;
+				for (int i=0;i<springs.Count;i++) {
+					if (springs[i].convergenceGroupID == convID) num++;
+				}
+				return num;
+			}
+		}
+		
+		/// <summary>
+		/// Numbers the of angles by conv ID.
+		/// </summary>
+		/// <returns>The number of angles by conv ID.</returns>
+		/// <param name="convID">Conv Group ID.</param>
+		public int numberOfAnglesByConvID(byte convID)
+		{
+			if (convID ==0) return numberOfAngleConstraints(); 
+			else if (convID > maxAngleConvergenceID) {
+				Debug.LogError("The input convID is larger that the max convID");
+				return 0;
+			} else {
+				int num = 0;
+				for (int i=0;i<angles.Count;i++) {
+					if (angles[i].convergenceGroupID == convID) num++;
+				}
+				return num;
+			}
+		}
+		#endregion
+		
 		#region Serialization
 		public void OnBeforeSerialize()  {}
 		//this is a hack, because unity does not serialize custom class properly. Mainly because of ref lost.
@@ -263,6 +386,8 @@ namespace ParticlePhysics2D {
 			particles.Remove( p );
 		}
 		
+		
+		
 		#endregion
 		
 		#region Spring
@@ -280,9 +405,10 @@ namespace ParticlePhysics2D {
 			return springs.Count;
 		}
 		
+		
+		
 		public Spring2D getSpring( int i )
 		{
-			//i = Mathf.Clamp(i,0,springs.Count-1);
 			return springs[i];
 		}
 		
@@ -301,15 +427,7 @@ namespace ParticlePhysics2D {
 		#endregion
 		
 		#region Angle Constraints
-		public AngleConstraint2D makeAngleConstraint( Spring2D s1, Spring2D s2,AngleConstraintTye type = AngleConstraintTye.Rotation, bool moveA = true,bool moveB = true)
-		{
-			AngleConstraint2D angle = new AngleConstraint2D (this,s1,s2,type,moveA,moveB);
-			angles.Add( angle );
-			return angle;
-		}
-		
-		//make a angle-spring constraint between two particles
-		public AngleConstraint2D makeAngleConstraint( Particle2D s1, Particle2D s2)
+		public AngleConstraint2D makeAngleConstraint( Spring2D s1, Spring2D s2)
 		{
 			AngleConstraint2D angle = new AngleConstraint2D (this,s1,s2);
 			angles.Add( angle );
@@ -320,6 +438,8 @@ namespace ParticlePhysics2D {
 		{
 			return angles.Count;
 		}
+		
+		
 		
 		public AngleConstraint2D getAngleConstraint( int i )
 		{
@@ -369,17 +489,20 @@ namespace ParticlePhysics2D {
 		
 		#region Debug
 		public Color springColor;
-		public void DebugSpring(Matrix4x4 local2World) {
+		public void DebugSpring(Matrix4x4 local2World,bool byConvID) {
 			for (int t=0;t<springs.Count;t++) {
-				springs[t].DebugSpring(local2World,springColor);
+				springs[t].DebugSpring(local2World,(byConvID) ? convIDColor[springs[t].convergenceGroupID] : springColor);
+			}
+		}
+		public Color angleColor = Color.magenta;
+		public void DebugAngles(Matrix4x4 local2World,bool byConvID) {
+			for (int i=0;i<angles.Count;i++) {
+				angles[i].DebugDraw(local2World, (byConvID) ? convIDColor[angles[i].convergenceGroupID] : angleColor);
 			}
 		}
 		
-		public void DebugAngles(Matrix4x4 local2World) {
-			for (int i=0;i<angles.Count;i++) {
-				angles[i].DebugDraw(local2World);
-			}
-		}
+		//max 9 diff. id
+		static Color[] convIDColor = new Color[] {Color.blue,Color.yellow,Color.red,Color.green,Color.cyan,Color.magenta,Color.white,Color.grey,Color.black};
 	
 		#endregion
 		
