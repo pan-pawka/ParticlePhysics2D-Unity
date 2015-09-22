@@ -118,10 +118,12 @@ namespace ParticlePhysics2D {
 					Vector2 posM = particleM.Position;
 					if (particleB.IsFree) {
 						posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
+						//posB = Verlet_MathUtility.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
 						particleB.Position = posB;
 					}
 					if (particleM.IsFree) {
 						posM = Mathp.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent);
+						//posM = Verlet_MathUtility.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent);
 						particleM.Position = posM;
 					}
 				}

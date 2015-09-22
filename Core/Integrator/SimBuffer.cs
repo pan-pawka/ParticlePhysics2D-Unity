@@ -523,7 +523,7 @@ namespace ParticlePhysics2D {
 			//spring delta
 			cBuffer.SetRenderTarget(springDeltaRT);
 			cBuffer.DrawMesh(quadMesh,Matrix4x4.identity,springDeltaMtl,0,-1,springDeltaMpb);
-			cBuffer.Blit(springDeltaRT as Texture,DebugRT.Instance.springDeltaRT);//debug
+			//cBuffer.Blit(springDeltaRT as Texture,DebugRT.Instance.springDeltaRT);//debug
 			
 			
 			//apply spring delta
@@ -534,7 +534,7 @@ namespace ParticlePhysics2D {
 			
 			cBuffer.SetRenderTarget(PositionRT);
 			cBuffer.DrawMesh(springMesh,Matrix4x4.identity,springMtl,0,-1,springMpb);//Two pass: particle a = pass 0;//particle b = pass 1
-			cBuffer.Blit(PositionRT as Texture , DebugRT.Instance.spDeltaPos);//debug
+			//cBuffer.Blit(PositionRT as Texture , DebugRT.Instance.spDeltaPos);//debug
 			//======================================================================
 			
 			//======================================================================
@@ -545,35 +545,10 @@ namespace ParticlePhysics2D {
 			//apply angle delta
 			cBuffer.Blit(PositionRT as Texture,PositionOldRT[next]);
 			cBuffer.SetRenderTarget(PositionOldRT[next]);
-			cBuffer.DrawMesh(angleMesh,Matrix4x4.identity,angleMtl,0,-1,angleMpb);//pa pb and pm
-			
-			//
-			cBuffer.Blit(PositionOldRT[next] as Texture, PositionRT);
+//			cBuffer.DrawMesh(angleMesh,Matrix4x4.identity,angleMtl,0,-1,angleMpb);//pa pb and pm
 			
 			
-			
-			
-			//======================================================================
-			//angle delta 2
-			cBuffer.SetRenderTarget(angleDeltaRT);
-			cBuffer.DrawMesh(quadMesh,Matrix4x4.identity,angleDeltaMtl,0,-1,angleDeltaMpb);
-			//cBuffer.Blit(angleDeltaRT as Texture , DebugRT.Instance.angleDelta);//debug
- 
- 			//apply angle delta
 			//cBuffer.Blit(PositionRT as Texture,PositionOldRT[next]);
-			cBuffer.SetRenderTarget(PositionOldRT[next]);
-			cBuffer.DrawMesh(angleMesh,Matrix4x4.identity,angleMtl,0,-1,angleMpb);//pa pb and pm
-			
-			
-			//======================================================================
-			cBuffer.Blit(PositionOldRT[next] as Texture, PositionRT);
-			//======================================================================
-			//spring delta
-			cBuffer.SetRenderTarget(springDeltaRT);
-			cBuffer.DrawMesh(quadMesh,Matrix4x4.identity,springDeltaMtl,0,-1,springDeltaMpb);
-			cBuffer.SetRenderTarget(PositionOldRT[next]);
-			cBuffer.DrawMesh(springMesh,Matrix4x4.identity,springMtl,0,-1,springMpb);
-			
 			
 			//======================================================================
 
