@@ -19,7 +19,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	[SerializeField] Simulation sim;
 	public Simulation GetSimulation { get {return sim;}}
 	
-	[Range(20f,150f)]
+	[Range(1f,50f)]
 	public float length = 20f;
 	
 	public bool debugSpring = true,debugAngles = false,debugParticleIndex = false,debugSpringIndex = false;
@@ -128,7 +128,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	
 	//a gizmo that is handy to pick up
 	 void OnDrawGizmos() {
-		Gizmos.DrawSphere(transform.position,5f);
+		Gizmos.DrawWireSphere(transform.position,5f);
 		
 	}
 	

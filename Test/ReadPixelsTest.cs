@@ -29,7 +29,7 @@ public class ReadPixelsTest : MonoBehaviour {
 	
 		s = new Stopwatch ();
 		
-		rt = new RenderTexture (2048,2048,0,RenderTextureFormat.Default);
+		rt = new RenderTexture (128,256,0,RenderTextureFormat.Default);
 		rt.Create();
 		
 		rtt = new RenderTexture[16] ;
@@ -72,7 +72,7 @@ public class ReadPixelsTest : MonoBehaviour {
 	
 	IEnumerator ReadPixels() {
 		yield return new WaitForEndOfFrame();
-		Test();
+		OnRenderObject2();
 	}
 	
 	void Test () {

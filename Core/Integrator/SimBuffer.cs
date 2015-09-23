@@ -111,6 +111,8 @@ namespace ParticlePhysics2D {
 			//initialize the rect for readpixels
 			tempRect = new Rect (0f,0f,(float)width,(float)height);
 			
+			particlePositionColor = new Color[width * height];
+			
 			
 			SendToGPU_ParticlePosition();
 			
@@ -501,14 +503,16 @@ namespace ParticlePhysics2D {
 			
 			//RenderTexture tempRT = RenderTexture.GetTemporary(PositionRT.width,PositionRT.height,0,RenderTextureFormat.RGFloat);
 			
-			angleDeltaMpb.SetFloat("_AngleRelaxPercent",sim.angleRelaxPercent);
+		
 			verletMpb.SetTexture(ID_PositionRT,PositionOldRT[next]);
 			verletMpb.SetTexture(ID_PositionCache,PositionOldRT[curr]);
+			verletMpb.SetFloat("_Damping",sim.damping);
 			
 			springDeltaMpb.SetFloat("_SpringConstant",sim.springConstant);
+			angleDeltaMpb.SetFloat("_AngleRelaxPercent",sim.angleRelaxPercent);
 			springMpb.SetTexture("_SpringDeltaRT",springDeltaRT);
 			angleMpb.SetTexture("_AngleDeltaRT",angleDeltaRT);
-			verletMpb.SetFloat("_Damping",sim.damping);
+			
 			
 			cBuffer.Clear();
 			
@@ -607,8 +611,8 @@ namespace ParticlePhysics2D {
 		/// <summary>
 		/// this will get all the particle position into PositionRT, usually after collision response
 		/// </summary>
+		Color[] particlePositionColor;
 		public void SendToGPU_ParticlePosition() {
-			Color[] pc = new Color[width * height];
 			int counter = 0;
 			for (int i=0;i<height;i++) {
 				for (int j=0;j<width;j++) {
@@ -618,21 +622,18 @@ namespace ParticlePhysics2D {
 					} else {
 						pPos = Vector2.zero;
 					}
-					pc[counter] = new Color (pPos.x,pPos.y,0f);
+					particlePositionColor[counter].r = pPos.x;
+					particlePositionColor[counter].g = pPos.y;
 					counter++;
 				}
 			}
 			
-			tempPos.SetPixels(pc);
+			tempPos.SetPixels(particlePositionColor);
 			tempPos.Apply(false);
-			
-			//if (PositionRT != null ) RenderTexture.ReleaseTemporary(PositionRT);
-			//PositionRT = TemporaryPositionRT;
-			
 			Graphics.Blit(tempPos,PositionRT);
 			
 			//debug the positionRT before it's processed by gpu
-			DebugRT.Instance.DebugSendToGPUPositionRT(PositionRT);
+			//DebugRT.Instance.DebugSendToGPUPositionRT(PositionRT);
 		}
 		
 		DebugRT dbgrt;
@@ -649,14 +650,12 @@ namespace ParticlePhysics2D {
 			//Graphics.Blit(PositionRT,DebugRT.Instance.SendToCPU_PositionRT);
 			
 			PositionRT.DiscardContents();
-			
-			Color[] pc;
-			pc = tempPos.GetPixels();
+			particlePositionColor = tempPos.GetPixels();
 			int counter = 0;
 			for (int i=0;i<height;i++) {
 				for (int j=0;j<width;j++) {
 					if (counter<sim.numberOfParticles()) {
-						Vector2 pos = new Vector2 (pc[counter].r,pc[counter].g);
+						Vector2 pos = new Vector2 (particlePositionColor[counter].r,particlePositionColor[counter].g);
 						sim.getParticle(counter).Position = pos;
 					}
 					counter++;
