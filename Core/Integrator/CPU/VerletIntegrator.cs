@@ -40,27 +40,35 @@ namespace ParticlePhysics2D {
 			
 			//iterations
 			for (int iter=0;iter<sim.ITERATIONS;iter++) {
-				if (sim.applySpring) 
-				for ( int i = 0; i < sim.numberOfSprings(); i++ )
-				{
-					sim.getSpring(i).apply();
+				if (sim.applySpring) {
+					for ( int p = 1 ; p<=sim.maxSpringConvergenceID ; p++ ) 
+					for ( int i = 0; i < sim.numberOfSprings(); i++ ){
+						Spring2D sp = sim.getSpring(i);
+						if (sp.convergenceGroupID == p) 
+							sp.apply();
+					}
 				}
 				
-				if (sim.applyAngle)
-				for ( int i = 0; i < sim.numberOfAngleConstraints(); i++ )
-				{
-					sim.getAngleConstraint(i).apply();
-				}
-				
-				if (sim.applySpring) 
-					for ( int i = 0; i < sim.numberOfSprings(); i++ )
-				{
-					sim.getSpring(i).apply();
+				if (sim.applyAngle) {
+					for ( int p = 1 ; p<=sim.maxAngleConvergenceID ; p++ ) {
+						for ( int i = 0; i < sim.numberOfAngleConstraints(); i++ ){
+							AngleConstraint2D ag = sim.getAngleConstraint(i);
+							if (ag.convergenceGroupID == p) 
+								ag.GetDelta();
+						}
+						
+						for ( int i = 0; i < sim.numberOfAngleConstraints(); i++ ){
+							AngleConstraint2D ag = sim.getAngleConstraint(i);
+							if (ag.convergenceGroupID == p) 
+								ag.apply();
+						}
+					}
+					
 				}
 			}
 		}
 		
-//		//Original Verlet:
+//		Original Verlet:
 //		xi+1 = xi + (xi - xi-1) + a * dt * dt
 //		Time-Corrected Verlet:
 //		xi+1 = xi + (xi - xi-1) * (dti / dti-1) + a * dti * dti
