@@ -26,6 +26,8 @@ The system of ParticlePhysics2D bascially includes three layers of implementatio
 3. Unity editor tool to create more meaningful shapes by implementing Form Layer
 4. Imporve the stability of current GPU vert-frag integrator
 5. Option to enable Multi-threaded CPU Integrator
+6. Collision detection on GPU
+7. Optimize how data is transfer from GPU to CPU
 
 
 
