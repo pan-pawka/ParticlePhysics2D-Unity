@@ -35,7 +35,7 @@ public struct FVector2 {
 	public static implicit operator Vector2 (FVector2 p) {return new Vector2(p.x,p.y);}
 	public static implicit operator Vector3 (FVector2 p) {return new Vector3(p.x,p.y,0f);}
 	
-	//cross product
+	//product
 	public static float operator * (FVector2 a , FVector2 b) {return a.x * b.y - a.y * b.x;}//Dot Product
 	public static float operator * (FVector2 a , Vector2 b) {return a.x * b.y - a.y * b.x;}//Dot Product
 	public static float operator * (Vector2 a , FVector2 b) {return a.x * b.y - a.y * b.x;}//Dot Product
