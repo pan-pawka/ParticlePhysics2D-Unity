@@ -18,47 +18,32 @@ namespace ParticlePhysics2D {
 	public class GPUVerletIntegrator : IntegratorBase {
 		
 		SimBuffer simbuffer;
-		static Material springMtl,angleMtl,verletMtl;
-		static Material springDeltaMtl,angleDeltaMtl;
+		public static Material springMtl,angleMtl,verletMtl;
+		public static Material angleDeltaMtl;
 		
 		YieldInstruction eof;
 		
 		public GPUVerletIntegrator (Simulation sim) : base(sim) {
 			//remember to add these shader in the pre loaded assets
-			if (springMtl==null) springMtl = new Material (Shader.Find("ParticlePhysics2D/SpringConstraint"));
-			if (angleMtl==null) angleMtl = new Material (Shader.Find("ParticlePhysics2D/AngleConstraint"));
+			if (springMtl==null) springMtl = new Material (Shader.Find("ParticlePhysics2D/Spring"));
+			if (angleMtl==null) angleMtl = new Material (Shader.Find("ParticlePhysics2D/Angle"));
 			if (verletMtl==null) verletMtl = new Material (Shader.Find("ParticlePhysics2D/VerletGPUIntegrator"));
-			if (springDeltaMtl==null) springDeltaMtl = new Material (Shader.Find("ParticlePhysics2D/SpringDelta"));
 			if (angleDeltaMtl==null) angleDeltaMtl = new Material (Shader.Find("ParticlePhysics2D/AngleDelta"));
-//			if (springMtl==null) Debug.LogError("SpringMtl null");
-//			if (angleMtl==null) Debug.LogError("angleMtl null");
-//			if (verletMtl==null) Debug.LogError("verletMtl null");
-//			if (springDeltaMtl==null) Debug.LogError("springDeltaMtl null");
-//			if (angleDeltaMtl==null) Debug.LogError("angleDeltaMtl null");
 			simbuffer = SimBuffer.Create(sim);
 			eof = new WaitForEndOfFrame();
 		}
 		
 		protected sealed override void StepMethod(){
-			
-			//SimulationManager.Instance.StopCoroutine(GPUStep());
+			SimulationManager.Instance.StopCoroutine(GPUStep());
 			SimulationManager.Instance.StartCoroutine(GPUStep());
-			
 		}
 		
 		IEnumerator GPUStep () {
 		
-			//get the position of particles to PositionRT
-			simbuffer.SendToGPU_ParticlePosition();
-			
-			//this step is disabled to debug
-			simbuffer.Update(springMtl,springDeltaMtl, angleMtl,angleDeltaMtl, verletMtl);
-		
-			//wait till the end of the frame, then read RT into particle Position list,i.e., from gpu to cpu
-			yield return eof;
-			
-			//get PositionRT 's data into particles position
-			simbuffer.SendToCPU_ParticlePosition();
+			simbuffer.SendToGPU_ParticlePosition();//get the position of particles to PositionRT
+			simbuffer.Update();//this step is disabled to debug
+			yield return eof;//wait till the end of the frame, then read RT into particle Position list,i.e., from gpu to cpu
+			simbuffer.SendToCPU_ParticlePosition();//get PositionRT 's data into particles position
 			
 		}
 		

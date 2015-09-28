@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
-using UnityEditor;
+//using UnityEditor;
 
 public class MeshPointDrawTest : MonoBehaviour {
 	
@@ -55,10 +55,7 @@ public class MeshPointDrawTest : MonoBehaviour {
 		o.Optimize();
 		o.UploadMeshData(false);
 		
-		AssetDatabase.CreateAsset(o, "Assets/PointMesh.asset");
-		AssetDatabase.SaveAssets();
-		AssetDatabase.Refresh();
-		
+
 		return o;
 	}
 	

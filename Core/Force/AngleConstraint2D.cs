@@ -26,7 +26,7 @@ namespace ParticlePhysics2D {
 		/// The convergence group ID, used in gpu solver to group springs which need to be process in parallel
 		/// In cpu solver, this is not needed. 0 means no id is assigned, range 0-255
 		/// </summary>
-		public byte convergenceGroupID = 0;
+		public int convergenceGroupID = 0;
 		
 		// you need to SetSimulation in Simualtion class's OnAfterDeserialize() callback. this is a hack
 		//becaue unity serializaiton does not keep references.
@@ -107,25 +107,22 @@ namespace ParticlePhysics2D {
 		
 		public float angle_RestLength2;
 		
+		public float delta;
+		public void GetDelta() {
+			delta = GetDeltaAngle();
+		}
+		
 		public void apply(){
 			if (on) {
-				angle_Cur = GetAngleRadian(particleA.Position,particleM.Position,particleB.Position);
-				float deltaAngle = GetDeltaAngle();
 				
-				if (deltaAngle==0f || Mathf.Abs(deltaAngle)<0.01f) return;
+				//float deltaAngle = GetDeltaAngle();
+				
+				if (delta==0f || Mathf.Abs(delta)<0.01f) return;
 				else {
 					Vector2 posB = particleB.Position;
 					Vector2 posM = particleM.Position;
-					if (particleB.IsFree) {
-						posB = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
-						//posB = Verlet_MathUtility.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
-						particleB.Position = posB;
-					}
-					if (particleM.IsFree) {
-						posM = Mathp.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent);
-						//posM = Verlet_MathUtility.RotateVector2(posM,posB,-deltaAngle * sim.angleRelaxPercent);
-						particleM.Position = posM;
-					}
+					if (particleB.IsFree) particleB.Position = Mathp.RotateVector2(posB,posM,-delta * sim.angleRelaxPercent);
+					if (particleM.IsFree) particleM.Position = Mathp.RotateVector2(posM,posB,-delta * sim.angleRelaxPercent);
 				}
 			}
 		}
@@ -187,6 +184,7 @@ namespace ParticlePhysics2D {
 		}
 		
 		float GetDeltaAngle(){
+			angle_Cur = GetAngleRadian(particleA.Position,particleM.Position,particleB.Position);
 			return  angle_Cur - angle_Fixed;
 		}
 

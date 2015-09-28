@@ -16,6 +16,8 @@ public class DebugRT : Singleton<DebugRT> {
 	
 	public RenderTexture angleDelta;
 	
+	public Mesh deltamesh;
+	
 	public Material debugMtl;
 
 	// Use this for initialization

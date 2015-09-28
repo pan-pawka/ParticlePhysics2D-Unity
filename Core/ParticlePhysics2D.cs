@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace ParticlePhysics2D {
 
-	public enum IntegrationMedthod {Verlet, ThreadedVerlet, GPUVerlet}
+	public enum IntegrationMedthod {Verlet, GPUVerlet}
 
 	[System.Serializable]
 	public class Simulation  : ISerializationCallbackReceiver {
@@ -45,7 +45,7 @@ namespace ParticlePhysics2D {
 		
 		[SerializeField]
 		[ReadOnlyAttribute]
-		int maxSpringConvergenceID = 0,maxAngleConvergenceID = 0;
+		public int maxSpringConvergenceID = 0,maxAngleConvergenceID = 0;
 		
 		[Range(0.01f,0.99f)]
 		public float damping = 0.95f;//used by verlet
@@ -70,9 +70,9 @@ namespace ParticlePhysics2D {
 			case IntegrationMedthod.GPUVerlet:
 				this._integrator = new GPUVerletIntegrator(this) as IntegratorBase;
 				break;
-			case IntegrationMedthod.ThreadedVerlet:
-				this._integrator = new ParallelProcessIntegrator(this) as IntegratorBase;
-				break;
+			//case IntegrationMedthod.ThreadedVerlet:
+			//	this._integrator = new ParallelProcessIntegrator(this) as IntegratorBase;
+			//	break;
 			default:
 				break;
 			}
@@ -136,11 +136,11 @@ namespace ParticlePhysics2D {
 				}
 			}
 			//calc the convergence id for the springs which connects to this particle
-			List<byte> IDinUse = new List<byte> (10);
+			List<int> IDinUse = new List<int> (10);
 			for (int i=0;i<sp.Count;i++) if (sp[i].convergenceGroupID != 0) IDinUse.Add(sp[i].convergenceGroupID);
 			for (int i=0;i<sp.Count;i++) {
 				if (sp[i].convergenceGroupID == 0) {
-					byte id = 1;
+					int id = 1;
 					while (IDinUse.Contains(id)) id++;
 					sp[i].convergenceGroupID = id;
 					IDinUse.Add(id);
@@ -163,7 +163,7 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<ag.Count;i++) if (ag[i].convergenceGroupID != 0) IDinUse.Add(ag[i].convergenceGroupID);
 			for (int i=0;i<ag.Count;i++) {
 				if (ag[i].convergenceGroupID == 0) {
-					byte id = 1;
+					int id = 1;
 					while (IDinUse.Contains(id)) id++;
 					ag[i].convergenceGroupID = id;
 					IDinUse.Add(id);
@@ -177,7 +177,7 @@ namespace ParticlePhysics2D {
 		/// </summary>
 		/// <returns>The number of springs by conv ID.</returns>
 		/// <param name="convID">Convergence Group ID.</param>
-		public int numberOfSpringsByConvID(byte convID)
+		public int numberOfSpringsByConvID(int convID)
 		{
 			if (convID ==0) return numberOfSprings(); 
 			else if (convID > maxSpringConvergenceID) {
@@ -197,7 +197,7 @@ namespace ParticlePhysics2D {
 		/// </summary>
 		/// <returns>The number of angles by conv ID.</returns>
 		/// <param name="convID">Conv Group ID.</param>
-		public int numberOfAnglesByConvID(byte convID)
+		public int numberOfAnglesByConvID(int convID)
 		{
 			if (convID ==0) return numberOfAngleConstraints(); 
 			else if (convID > maxAngleConvergenceID) {
