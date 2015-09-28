@@ -72,7 +72,7 @@ namespace ParticlePhysics2D {
 				List<Vector2> uv = new List<Vector2> (agbyid);//delta rt uv;
 				
 				//init rt
-				paramRT[i] = new RenderTexture (width,height,0,RenderTextureFormat.ARGBFloat);
+				paramRT[i] = new RenderTexture (width,height,0,RTFormat.ARGB);
 				paramRT[i].Create();
 				
 				//prepare temp color
@@ -141,7 +141,7 @@ namespace ParticlePhysics2D {
 			
 			//get temp RT
 			for (int i=0;i<tempRT.Length;i++) tempRT[i] = SimBuffer.GetTempRT(destPosRT);
-			for (int i=0;i<tempDeltaRT.Length;i++) tempDeltaRT[i] = SimBuffer.GetTempRT(deltaRTWidth,deltaRTHeight,RenderTextureFormat.RFloat);
+			for (int i=0;i<tempDeltaRT.Length;i++) tempDeltaRT[i] = SimBuffer.GetTempRT(deltaRTWidth,deltaRTHeight,RTFormat.R);
 			
 			//init mpb positionRT;
 			for (int i=0;i<sim.maxAngleConvergenceID;i++) {

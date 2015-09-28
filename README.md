@@ -28,6 +28,8 @@ The system of ParticlePhysics2D bascially includes three layers of implementatio
 5. Option to enable Multi-threaded CPU Integrator
 6. Collision detection on GPU
 7. Optimize how data is transfer from GPU to CPU
+8. Shader keywords to switch between high precision float (32-bit) and half float (16-bit)
+9. GPU integrator only works with OpenGL now, need to make it work with DX as well.
 
 
 

@@ -30,7 +30,7 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<sim.maxSpringConvergenceID;i++) {
 			
 				//init rt
-				rt[i] = new RenderTexture (width,height,0,RenderTextureFormat.ARGBFloat);
+				rt[i] = new RenderTexture (width,height,0,RTFormat.ARGB);
 				rt[i].Create();
 				
 				//prepare temp color

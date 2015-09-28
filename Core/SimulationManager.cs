@@ -74,7 +74,7 @@ namespace ParticlePhysics2D {
 		void Update() {
 			if (UpdatePerSecond_Collision != _updatePerSecond_Collision) {
 				_updatePerSecond_Collision = UpdatePerSecond_Collision;
-				this.FixedTimestep_Collision = 1f/this.UpdatePerSecond_Collision;;
+				this.FixedTimestep_Collision = 1f/this.UpdatePerSecond_Collision;
 			}
 			
 			if (UpdatePerSecond_Verlet != _updatePerSecond_Verlet) {

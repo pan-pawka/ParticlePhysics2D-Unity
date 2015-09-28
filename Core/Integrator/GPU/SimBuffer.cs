@@ -9,7 +9,7 @@ using System.Collections;
 using UnityEngine.Rendering;
 
 namespace ParticlePhysics2D {
-
+	
 	public partial class SimBuffer {
 		
 		
@@ -45,12 +45,7 @@ namespace ParticlePhysics2D {
 		MaterialPropertyBlock verletMpb;
 		CommandBuffer cBuffer;
 		
-		static class RTFormat {
-			public static RenderTextureFormat RG = RenderTextureFormat.RGFloat;
-			public static RenderTextureFormat ARGB = RenderTextureFormat.ARGBFloat;
-			public static RenderTextureFormat R = RenderTextureFormat.RFloat;
-			public static RenderTextureFormat R8 = RenderTextureFormat.R8;
-		}
+		
 		
 		#region Ctor
 		
@@ -158,8 +153,17 @@ namespace ParticlePhysics2D {
 			RenderTexture.ReleaseTemporary(PositionOldRT[next]);
 			Extension.ObjDestroy(tempPos);
 		}
-		
 	}
+	
+	//
+	public static class RTFormat {
+		public static bool isHighPrecisionOn = false;
+		public static RenderTextureFormat RG = (isHighPrecisionOn) ? RenderTextureFormat.RGFloat : RenderTextureFormat.RGHalf;
+		public static RenderTextureFormat ARGB = (isHighPrecisionOn) ? RenderTextureFormat.ARGBFloat : RenderTextureFormat.ARGBHalf;
+		public static RenderTextureFormat R = (isHighPrecisionOn) ? RenderTextureFormat.RFloat : RenderTextureFormat.RHalf;
+		public static RenderTextureFormat R8 = RenderTextureFormat.R8;
+	}
+	
 	
 	
 }

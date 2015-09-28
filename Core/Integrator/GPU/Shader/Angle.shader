@@ -24,7 +24,6 @@ Shader "ParticlePhysics2D/Angle" {
 				(cosA * (t.x - c.x) - sinA * (t.y - c.y) + c.x),
 				(sinA * (t.x - c.x) + cosA * (t.y - c.y) + c.y)
 			);
-			
 		}
 			
 	ENDCG
