@@ -105,6 +105,7 @@ namespace ParticlePhysics2D {
 			
 			cBuffer = new CommandBuffer ();
 			cBuffer.name = "SimBufferCommand";
+			cBuffer.Clear();
 			
 			verletMpb = new MaterialPropertyBlock ();
 		}
@@ -123,11 +124,15 @@ namespace ParticlePhysics2D {
 			springRT = TemporaryPositionRT;
 			
 			simSpring.Blit(ref cBuffer,ref PositionRT,ref springRT);
-			simAngle.Blit(ref cBuffer , ref springRT , ref PositionOldRT[next]);
+			simAngle.Blit(ref cBuffer, ref springRT , ref PositionOldRT[next]);
+			
+			
+			//simSpring.Blit(ref cBuffer,ref PositionRT,ref PositionOldRT[next]);
+			
 			
 			//verlet
 			cBuffer.SetRenderTarget(PositionRT);
-			cBuffer.ClearRenderTarget(false,true,Color.clear);
+			cBuffer.ClearRenderTarget(false,true,Color.clear);//no harm
 			cBuffer.DrawMesh(quadMesh,Matrix4x4.identity,GPUVerletIntegrator.verletMtl,0,-1,verletMpb);
 			
 			Graphics.ExecuteCommandBuffer(cBuffer);

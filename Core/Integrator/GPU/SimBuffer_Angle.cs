@@ -21,6 +21,8 @@ namespace ParticlePhysics2D {
 		
 		Mesh[] deltaMesh;
 		
+		
+		
 		public SimBuffer_Angle (Simulation sim,Vector2[] particleUV,int width,int height) {
 		
 			this.sim = sim;
@@ -29,7 +31,10 @@ namespace ParticlePhysics2D {
 			
 			//angle uv
 			float usage = 0f;
-			SimBuffer.GetTexDimension(angleNum,out deltaRTWidth,out deltaRTHeight, out usage);
+			if (!SimBuffer.GetTexDimension(angleNum,out deltaRTWidth,out deltaRTHeight, out usage)) {
+				Debug.LogError("Cannot create SimBuffer Angle deltaw rt with wrong dimesnion!");
+				return;
+			}
 			angleUV = new Vector2[angleNum];
 			int count = 0;
 			float halfW = 0.5f/deltaRTWidth;
@@ -57,9 +62,7 @@ namespace ParticlePhysics2D {
 			Color[] paramRTColor = new Color[width * height];
 			Texture2D tempTex = new Texture2D (width,height,TextureFormat.RGBAFloat,false,false);
 			
-			
-			
-			for (int i=0;i<sim.maxSpringConvergenceID;i++) {
+			for (int i=0;i<sim.maxAngleConvergenceID;i++) {
 				
 				//delta mesh
 				int agbyid = sim.numberOfAnglesByConvID(i+1);
@@ -118,7 +121,7 @@ namespace ParticlePhysics2D {
 				deltaMesh[i].vertices = vtc.ToArray();
 				deltaMesh[i].colors = cl.ToArray();
 				deltaMesh[i].uv = uv.ToArray();
-				deltaMesh[i].UploadMeshData(true);
+				//deltaMesh[i].UploadMeshData(true);
 			}
 			
 			Object.Destroy(tempTex);
@@ -128,10 +131,8 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<sim.maxAngleConvergenceID;i++) {
 				mpb[i] = new MaterialPropertyBlock ();
 				mpb[i].SetTexture(ID_AngleParamRT,paramRT[i]);
-				mpb[i].SetFloat(ID_AngleConstant,sim.springConstant);
+				mpb[i].SetFloat(ID_AngleConstant,sim.angleRelaxPercent);
 			}
-			
-			
 			
 		}
 		
@@ -139,11 +140,11 @@ namespace ParticlePhysics2D {
 		public void Blit(ref CommandBuffer cBuffer, ref RenderTexture sourcePosRT, ref RenderTexture destPosRT) {
 			
 			//get temp RT
-			for (int i=0;i<tempRT.Length;i++) tempRT[i] = RenderTexture.GetTemporary(destPosRT.width,destPosRT.height,0,destPosRT.format);
-			for (int i=0;i<tempDeltaRT.Length;i++) tempDeltaRT[i] = RenderTexture.GetTemporary(deltaRTWidth,deltaRTHeight,0,RenderTextureFormat.RFloat);
+			for (int i=0;i<tempRT.Length;i++) tempRT[i] = SimBuffer.GetTempRT(destPosRT);
+			for (int i=0;i<tempDeltaRT.Length;i++) tempDeltaRT[i] = SimBuffer.GetTempRT(deltaRTWidth,deltaRTHeight,RenderTextureFormat.RFloat);
 			
 			//init mpb positionRT;
-			for (int i=0;i<sim.maxSpringConvergenceID;i++) {
+			for (int i=0;i<sim.maxAngleConvergenceID;i++) {
 				if (i==0) mpb[i].SetTexture(ID_PositionRT,sourcePosRT);
 				else mpb[i].SetTexture(ID_PositionRT,tempRT[i-1]);
 				mpb[i].SetTexture(ID_AngleDeltaRT,tempDeltaRT[i]);
@@ -158,6 +159,8 @@ namespace ParticlePhysics2D {
 				else cBuffer.SetRenderTarget(tempRT[i]);
 				cBuffer.DrawMesh(SimBuffer.quadMesh,Matrix4x4.identity,GPUVerletIntegrator.angleMtl,0,-1,mpb[i]);
 			}
+			
+			
 		}
 		
 		public void ReleaseTempRT() {

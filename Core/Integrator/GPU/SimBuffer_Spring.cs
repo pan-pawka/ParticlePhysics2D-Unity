@@ -83,9 +83,10 @@ namespace ParticlePhysics2D {
 		
 		//called from SimBuffer
 		public void Blit(ref CommandBuffer cBuffer, ref RenderTexture sourcePosRT, ref RenderTexture destPosRT) {
-			
+		
 			//get temp RT
-			for (int i=0;i<tempRT.Length;i++) tempRT[i] = RenderTexture.GetTemporary(destPosRT.width,destPosRT.height,0,destPosRT.format);
+			for (int i=0;i<tempRT.Length;i++) 
+				tempRT[i] = SimBuffer.GetTempRT(destPosRT);
 			
 			//init mpb positionRT;
 			for (int i=0;i<sim.maxSpringConvergenceID;i++) {

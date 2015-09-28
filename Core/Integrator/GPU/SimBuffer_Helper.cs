@@ -144,7 +144,7 @@ namespace ParticlePhysics2D {
 			uv[2] = new Vector2 (1f,0f);
 			uv[3] = new Vector2 (0f,0f);
 			quadMesh.uv = uv;
-			quadMesh.UploadMeshData(true);
+			//quadMesh.UploadMeshData(true);
 		}
 		
 		#region Data Transfer
@@ -246,6 +246,16 @@ namespace ParticlePhysics2D {
 				return true;
 			}
 			
+		}
+		
+		public static RenderTexture GetTempRT(int w,int h,RenderTextureFormat format) {
+			RenderTexture nrt = RenderTexture.GetTemporary(w,h,0,format);
+			nrt.filterMode = FilterMode.Point;
+			return nrt;
+		}
+		
+		public static RenderTexture GetTempRT(RenderTexture rt) {
+			return GetTempRT(rt.width,rt.height,rt.format);
 		}
 		
 	}

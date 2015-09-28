@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace ParticlePhysics2D {
 
-	public enum IntegrationMedthod {Verlet, ThreadedVerlet, GPUVerlet}
+	public enum IntegrationMedthod {Verlet, GPUVerlet}
 
 	[System.Serializable]
 	public class Simulation  : ISerializationCallbackReceiver {
@@ -70,9 +70,9 @@ namespace ParticlePhysics2D {
 			case IntegrationMedthod.GPUVerlet:
 				this._integrator = new GPUVerletIntegrator(this) as IntegratorBase;
 				break;
-			case IntegrationMedthod.ThreadedVerlet:
-				this._integrator = new ParallelProcessIntegrator(this) as IntegratorBase;
-				break;
+			//case IntegrationMedthod.ThreadedVerlet:
+			//	this._integrator = new ParallelProcessIntegrator(this) as IntegratorBase;
+			//	break;
 			default:
 				break;
 			}

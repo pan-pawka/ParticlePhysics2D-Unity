@@ -20,6 +20,7 @@ Shader "ParticlePhysics2D/AngleDelta" {
 		fog {mode off}
 		ColorMask R
 		lighting off
+		//cull off
 		
 		Pass {
 			
@@ -43,7 +44,7 @@ Shader "ParticlePhysics2D/AngleDelta" {
 			struct v2f
 			{
 				half4 pos : SV_POSITION;
-				half3 uv : TEXCOORD0;//xy = a uv,z = fixed angle
+				half4 uv : TEXCOORD0;//xy = a uv,z = fixed angle
 				half4 cl : COLOR;//rg = b uv, ba = m uv
 			};
 			
@@ -58,7 +59,8 @@ Shader "ParticlePhysics2D/AngleDelta" {
 			v2f vert( appdata v )
 			{
 				v2f o;
-				o.uv = half3(v.texcoord,v.vertex.z);
+				o.uv = half4(v.texcoord.x,v.texcoord.y,v.vertex.z,0);
+				v.vertex.z = 0;//this is where I was caught by a bug....have to explicitly set it to 0 before mul with mvp
 				o.pos = mul ( UNITY_MATRIX_MVP , v.vertex);
 				o.pos.xy = v.vertex.xy * 2 -1;
 				o.cl = v.cl;

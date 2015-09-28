@@ -51,8 +51,9 @@ Shader "ParticlePhysics2D/Spring" {
 				float2 posA = tex2D (_PositionRT , i.uv);
 				float2 posB = tex2D (_PositionRT , params.xy);
 				float2 delta = posA - posB;
-				delta *= params.y / ( sqrMagnitude(delta) + params.y ) - 0.5;
-				return posA + delta * params.z;
+				float2 deltaM = delta * (params.z / ( sqrMagnitude(delta) + params.z ) - 0.5);
+				return posA + deltaM * params.w * _SpringConstant;
+				
 			}
 			
 			ENDCG
