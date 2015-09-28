@@ -50,12 +50,13 @@ Shader "ParticlePhysics2D/Angle" {
 			#pragma vertex vert_quadblit
 			#pragma fragment frag
 			
-			float2 frag(v2f_quadblit i) : SV_Target {
+			float4 frag(v2f_quadblit i) : SV_Target {
 				float4 params = tex2D (_AngleParamRT , i.uv );
 				float2 posB = tex2D (_PositionRT , i.uv);//this end
 				float2 posM = tex2D (_PositionRT , params.xy);//the other end
 				float delta = tex2D ( _AngleDeltaRT , params.zw);
-				return RotatePoint2D ( posB , posM , -delta);
+				float result = RotatePoint2D ( posB , posM , -delta);
+				return float4(result,0,0,0);
 			}
 			
 			ENDCG

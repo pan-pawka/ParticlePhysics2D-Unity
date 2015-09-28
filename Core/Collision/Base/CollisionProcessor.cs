@@ -53,14 +53,14 @@ namespace ParticlePhysics2D {
 		int updateCount;
 		public void Update(float deltaTime) {
 			if (objs.Count<=0) return;
-			float f = Mathf.Clamp01(deltaTime / SimulationManager.Instance.FixedTimestep);
+			float f = Mathf.Clamp01(deltaTime / SimulationManager.Instance.FixedTimestep_Collision);
 			updateCount = Mathf.Clamp((int)(objs.Count * f) , 1 , maxProcessNumber);
 			float timeNow = Time.realtimeSinceStartup;
 			for (int i=0;i<updateCount;i++) {
 				CollisionObject obj = objs[UpdateHead];
-				while (timeNow - obj.lastUpdateTime > SimulationManager.Instance.FixedTimestep) {
+				while (timeNow - obj.lastUpdateTime > SimulationManager.Instance.FixedTimestep_Collision) {
 					obj.UpdateMethod();
-					obj.lastUpdateTime += SimulationManager.Instance.FixedTimestep;
+					obj.lastUpdateTime += SimulationManager.Instance.FixedTimestep_Collision;
 				}
 			}
 		}

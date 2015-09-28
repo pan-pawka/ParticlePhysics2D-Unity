@@ -16,14 +16,31 @@ namespace ParticlePhysics2D {
 		}
 		
 		//global parameters
+		
+		///////////////////////////////////////////////////////////////////
+		//// Collision Update Params									///
+		///////////////////////////////////////////////////////////////////
 		[HideInInspector]
-		public float FixedTimestep = 1f/30f;
+		public float FixedTimestep_Collision = 1f/30f;
 		
 		[Space(10f)]
 		
 		[Range(10,60)]
-		public int UpdatePerSecond = 30;
-		private int _updatePerSecond;
+		public int UpdatePerSecond_Collision = 30;
+		private int _updatePerSecond_Collision;
+		
+		///////////////////////////////////////////////////////////////////
+		//// Verlet Update Params										///
+		///////////////////////////////////////////////////////////////////
+		[HideInInspector]
+		public float FixedTimestep_Verlet = 1f/30f;
+		
+		[Space(10)]
+		
+		[Range(10,60)]
+		public int UpdatePerSecond_Verlet = 60;
+		int _updatePerSecond_Verlet;
+		
 		
 		public bool IsDebugOn = false;
 		CollisionProcessor bpProcessor = new CollisionProcessor ();	//broad phase processor
@@ -47,14 +64,22 @@ namespace ParticlePhysics2D {
 		}
 		
 		void Start() {
-			_updatePerSecond = this.UpdatePerSecond;
-			this.FixedTimestep = 1f/this.UpdatePerSecond;
+			_updatePerSecond_Collision = this.UpdatePerSecond_Collision;
+			this.FixedTimestep_Collision = 1f/this.UpdatePerSecond_Collision;
+			
+			_updatePerSecond_Verlet = this.UpdatePerSecond_Verlet;
+			this.FixedTimestep_Verlet = 1f/this.UpdatePerSecond_Verlet;
 		}
 		
 		void Update() {
-			if (UpdatePerSecond != _updatePerSecond) {
-				_updatePerSecond = UpdatePerSecond;
-				this.FixedTimestep = 1f/UpdatePerSecond;
+			if (UpdatePerSecond_Collision != _updatePerSecond_Collision) {
+				_updatePerSecond_Collision = UpdatePerSecond_Collision;
+				this.FixedTimestep_Collision = 1f/this.UpdatePerSecond_Collision;;
+			}
+			
+			if (UpdatePerSecond_Verlet != _updatePerSecond_Verlet) {
+				_updatePerSecond_Verlet = UpdatePerSecond_Verlet;
+				this.FixedTimestep_Verlet = 1f/this.UpdatePerSecond_Verlet;
 			}
 		}
 		
