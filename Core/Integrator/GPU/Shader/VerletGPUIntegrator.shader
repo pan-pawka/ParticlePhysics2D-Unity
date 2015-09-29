@@ -32,11 +32,11 @@ Shader "ParticlePhysics2D/VerletGPUIntegrator" {
 			uniform sampler2D _PositionCache;
 			uniform float _Damping;
 			
-			float4 frag(v2f_quadblit i) : SV_Target {
+			float2 frag(v2f_quadblit i) : SV_Target {
 				float2 curPos = tex2D ( _PositionRT , i.uv );
 				float2 prePos = tex2D ( _PositionCache , i.uv );
 				float2 result = curPos + (curPos - prePos) * _Damping;
-				return float4(result.x,result.y,0,0);
+				return result;
 			}
 			
 			ENDCG

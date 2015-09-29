@@ -67,7 +67,7 @@ namespace ParticlePhysics2D {
 				
 			}
 			
-			Object.Destroy(tempTex);
+			Extension.ObjDestroy(tempTex);
 			
 			//mpb
 			mpb = new MaterialPropertyBlock[sim.maxSpringConvergenceID];

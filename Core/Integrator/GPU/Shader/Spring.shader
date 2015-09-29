@@ -46,14 +46,14 @@ Shader "ParticlePhysics2D/Spring" {
 //			delta *= restLength2 /(delta.sqrMagnitude + restLength2) - 0.5f;
 //			if (a.IsFree) a.Position += delta * sim.springConstant;
 //			if (b.IsFree) b.Position -= delta * sim.springConstant;
-			float4 frag(v2f_quadblit i) : SV_Target {
+			float2 frag(v2f_quadblit i) : SV_Target {
 				float4 params = tex2D (_SpringParamRT , i.uv );
 				float2 posA = tex2D (_PositionRT , i.uv);
 				float2 posB = tex2D (_PositionRT , params.xy);
 				float2 delta = posA - posB;
 				float2 deltaM = delta * (params.z / ( sqrMagnitude(delta) + params.z ) - 0.5);
 				float2 result = posA + deltaM * params.w * _SpringConstant;
-				return float4(result.x,result.y,0,0);
+				return result;
 				
 			}
 			

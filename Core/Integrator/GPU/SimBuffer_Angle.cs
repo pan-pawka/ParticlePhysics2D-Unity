@@ -124,7 +124,7 @@ namespace ParticlePhysics2D {
 				//deltaMesh[i].UploadMeshData(true);
 			}
 			
-			Object.Destroy(tempTex);
+			Extension.ObjDestroy(tempTex);
 			
 			//mpb
 			mpb = new MaterialPropertyBlock[sim.maxSpringConvergenceID];

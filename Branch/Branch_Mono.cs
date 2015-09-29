@@ -43,6 +43,10 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 			branch = EasySerializer.DeserializeObjectFromBytes(serializedBranch) as BinaryTree;
 	}
 	
+	void Start() {
+		sim.Init();
+	}
+	
 	void LateUpdate(){
 		sim.tick();
 #if UNITY_EDITOR

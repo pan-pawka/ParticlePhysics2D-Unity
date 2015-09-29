@@ -8,7 +8,6 @@ namespace ParticlePhysics2D {
 	
 		protected Simulation sim;
 		float lastUpdateTime;
-		//protected System.Action StepMethodDelegate;//set the stepmethod when implement this class
 		
 		protected IntegratorBase(Simulation sim) {
 			this.sim = sim;

@@ -68,7 +68,7 @@ Shader "ParticlePhysics2D/AngleDelta" {
 				return o;
 			}
 			
-			float4 frag(v2f i) : SV_Target {
+			float frag(v2f i) : SV_Target {
 				float2 posA = tex2D ( _PositionRT , i.uv.xy);
 				float2 posB = tex2D ( _PositionRT , i.cl.rg);
 				float2 posM = tex2D ( _PositionRT , i.cl.ba);

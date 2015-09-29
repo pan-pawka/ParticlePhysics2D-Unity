@@ -118,17 +118,22 @@ namespace ParticlePhysics2D {
 			
 			springRT = TemporaryPositionRT;
 			
+			//cBuffer.Blit(PositionRT as Texture , PositionOldRT[next]);
+			
 			simSpring.Blit(ref cBuffer,ref PositionRT,ref springRT);
+			
+			//cBuffer.Blit(springRT as Texture , DebugRT.Instance.springRT);
+			
 			simAngle.Blit(ref cBuffer, ref springRT , ref PositionOldRT[next]);
 			
-			
-			//simSpring.Blit(ref cBuffer,ref PositionRT,ref PositionOldRT[next]);
-			
+			//cBuffer.Blit(PositionOldRT[next] as Texture , DebugRT.Instance.SendToGPU_PositionRT);
 			
 			//verlet
 			cBuffer.SetRenderTarget(PositionRT);
 			cBuffer.ClearRenderTarget(false,true,Color.clear);//no harm
 			cBuffer.DrawMesh(quadMesh,Matrix4x4.identity,GPUVerletIntegrator.verletMtl,0,-1,verletMpb);
+			
+			//cBuffer.Blit(PositionRT as Texture , DebugRT.Instance.SendToCPU_PositionRT);
 			
 			Graphics.ExecuteCommandBuffer(cBuffer);
 			
@@ -157,7 +162,7 @@ namespace ParticlePhysics2D {
 	
 	//
 	public static class RTFormat {
-		public static bool isHighPrecisionOn = false;
+		public static bool isHighPrecisionOn = true;
 		public static RenderTextureFormat RG = (isHighPrecisionOn) ? RenderTextureFormat.RGFloat : RenderTextureFormat.RGHalf;
 		public static RenderTextureFormat ARGB = (isHighPrecisionOn) ? RenderTextureFormat.ARGBFloat : RenderTextureFormat.ARGBHalf;
 		public static RenderTextureFormat R = (isHighPrecisionOn) ? RenderTextureFormat.RFloat : RenderTextureFormat.RHalf;

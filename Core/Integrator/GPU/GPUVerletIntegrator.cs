@@ -34,7 +34,7 @@ namespace ParticlePhysics2D {
 		}
 		
 		protected sealed override void StepMethod(){
-			SimulationManager.Instance.StopCoroutine(GPUStep());
+			//SimulationManager.Instance.StopCoroutine(GPUStep());
 			SimulationManager.Instance.StartCoroutine(GPUStep());
 		}
 		

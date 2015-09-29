@@ -95,7 +95,9 @@ namespace ParticlePhysics2D {
 		/// otherwise, it'll be created in the Property in the first frame
 		/// </summary>
 		public void Init () {
-			setIntegrator();
+			
+			if (Application.isPlaying) setIntegrator();
+			else return;
 		}
 		
 		#region Convergence Group ID
