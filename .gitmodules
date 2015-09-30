@@ -1,0 +1,3 @@
+[submodule "GLNative"]
+	path = GLNative
+	url = https://paraself@github.com/paraself/unity-linewidth-plugin.git
