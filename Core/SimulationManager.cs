@@ -15,6 +15,9 @@ namespace ParticlePhysics2D {
 			set { mInstance = value;}
 		}
 		
+		//GPU Sim Shader
+		public ShaderVariantCollection GPUSimulationShaders;
+		
 		//global parameters
 		
 		///////////////////////////////////////////////////////////////////
@@ -41,6 +44,9 @@ namespace ParticlePhysics2D {
 		public int UpdatePerSecond_Verlet = 60;
 		int _updatePerSecond_Verlet;
 		
+		[Range(0.5f,10f)]
+		public float globalLineWidth = 1.5f;
+		
 		
 		public bool IsDebugOn = false;
 		CollisionProcessor bpProcessor = new CollisionProcessor ();	//broad phase processor
@@ -63,12 +69,16 @@ namespace ParticlePhysics2D {
 			npProcessor.RemoveObject(obj);
 		}
 		
+		bool isGLNativeInited = false;
+		
 		void Start() {
 			_updatePerSecond_Collision = this.UpdatePerSecond_Collision;
 			this.FixedTimestep_Collision = 1f/this.UpdatePerSecond_Collision;
 			
 			_updatePerSecond_Verlet = this.UpdatePerSecond_Verlet;
 			this.FixedTimestep_Verlet = 1f/this.UpdatePerSecond_Verlet;
+			
+			if (GPUSimulationShaders!=null) if (GPUSimulationShaders.isWarmedUp==false) GPUSimulationShaders.WarmUp();
 		}
 		
 		void Update() {
@@ -81,11 +91,21 @@ namespace ParticlePhysics2D {
 				_updatePerSecond_Verlet = UpdatePerSecond_Verlet;
 				this.FixedTimestep_Verlet = 1f/this.UpdatePerSecond_Verlet;
 			}
+			
 		}
 		
 		void FixedUpdate () {
 			bpProcessor.Update(Time.deltaTime);
 			npProcessor.Update(Time.deltaTime);
+		}
+		
+		void OnRenderObject () {
+			if (isGLNativeInited==false) {
+				GLNative.Init();
+				GLNative.SetGlobalLineWidth(globalLineWidth);
+				isGLNativeInited = true;
+			}
+				
 		}
 	}
 }

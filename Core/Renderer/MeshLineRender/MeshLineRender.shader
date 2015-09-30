@@ -22,8 +22,9 @@ Shader "ParticlePhysics2D/MeshLineRender"
 		Lighting Off
 		ZWrite Off
 		fog {mode off}
-		Blend One OneMinusSrcAlpha
-
+		//Blend One OneMinusSrcAlpha
+		Blend SrcAlpha OneMinusSrcAlpha
+		
 		Pass
 		{
 		CGPROGRAM
@@ -61,9 +62,10 @@ Shader "ParticlePhysics2D/MeshLineRender"
 
 			fixed4 frag(v2f IN) : SV_Target
 			{
-				fixed4 c = _Color;
-				c.rgb *= c.a;
-				return c;
+//				fixed4 c = _Color;
+//				c.rgb *= c.a;
+//				return c;
+				return _Color;
 			}
 		ENDCG
 		}

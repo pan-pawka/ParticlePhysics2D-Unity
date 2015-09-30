@@ -11,6 +11,7 @@ Shader "ParticlePhysics2D/MeshLineRender_Glow11"
 		
 	}
 
+
 	SubShader
 	{
 		Tags
@@ -20,18 +21,18 @@ Shader "ParticlePhysics2D/MeshLineRender_Glow11"
 			"RenderType"="Glow11Transparent" 
 			"RenderEffect"="Glow11Transparent"
 			"PreviewType"="Plane"
-			//"ForceNoShadowCasting" = "True"
+			"ForceNoShadowCasting" = "True"
 		}
 
 		Cull Off
 		Lighting Off
 		ZWrite Off
 		fog {mode off}
-		Blend One OneMinusSrcAlpha
+		Blend SrcAlpha OneMinusSrcAlpha
 
 		Pass
 		{
-		CGPROGRAM
+			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
 			#include "UnityCG.cginc"
@@ -66,11 +67,12 @@ Shader "ParticlePhysics2D/MeshLineRender_Glow11"
 
 			fixed4 frag(v2f IN) : SV_Target
 			{
-				fixed4 c = _Color;
-				c.rgb *= c.a;
-				return c;
+//				fixed4 c = _Color;
+//				c.rgb *= c.a;
+//				return c;
+				return _Color;
 			}
-		ENDCG
+			ENDCG
 		}
 	}
 	CustomEditor "GlowMatInspector"
