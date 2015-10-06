@@ -27,6 +27,7 @@ Shader "ParticlePhysics2D/MeshLineRender_Glow11"
 		Cull Off
 		Lighting Off
 		ZWrite Off
+		ZTest Always
 		fog {mode off}
 		Blend SrcAlpha OneMinusSrcAlpha
 

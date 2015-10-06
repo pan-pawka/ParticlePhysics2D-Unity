@@ -15,8 +15,6 @@ namespace ParticlePhysics2D {
 			set { mInstance = value;}
 		}
 		
-		//GPU Sim Shader
-		public ShaderVariantCollection GPUSimulationShaders;
 		
 		//global parameters
 		
@@ -78,7 +76,7 @@ namespace ParticlePhysics2D {
 			_updatePerSecond_Verlet = this.UpdatePerSecond_Verlet;
 			this.FixedTimestep_Verlet = 1f/this.UpdatePerSecond_Verlet;
 			
-			if (GPUSimulationShaders!=null) if (GPUSimulationShaders.isWarmedUp==false) GPUSimulationShaders.WarmUp();
+			GLNative.Init();
 		}
 		
 		void Update() {
@@ -100,11 +98,9 @@ namespace ParticlePhysics2D {
 		}
 		
 		void OnRenderObject () {
-			if (isGLNativeInited==false) {
-				GLNative.Init();
-				GLNative.SetGlobalLineWidth(globalLineWidth);
-				isGLNativeInited = true;
-			}
+			
+			GLNative.SetGlobalLineWidth(globalLineWidth);
+			
 				
 		}
 	}

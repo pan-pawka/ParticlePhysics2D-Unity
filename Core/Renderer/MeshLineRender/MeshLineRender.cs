@@ -29,7 +29,7 @@ namespace ParticlePhysics2D {
 		static Material mtl;
 		static Material Mtl {
 			get {
-				if (mtl==null) mtl = new Material (Shader.Find("ParticlePhysics2D/MeshLineRender"));
+				if (mtl==null) mtl = new Material (Shader.Find("ParticlePhysics2D/MeshLineRender_Glow11"));
 				return mtl;
 			}
 		}
@@ -192,6 +192,7 @@ namespace ParticlePhysics2D {
 				mesh.SetIndices(ic,MeshTopology.Lines,0);
 				mesh.RecalculateBounds();
 				mesh.MarkDynamic();
+				mesh.Optimize();
 			}
 			
 		}

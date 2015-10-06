@@ -25,10 +25,10 @@ namespace ParticlePhysics2D {
 		
 		public GPUVerletIntegrator (Simulation sim) : base(sim) {
 			//remember to add these shader in the pre loaded assets
-			if (springMtl==null) springMtl = new Material (Shader.Find("ParticlePhysics2D/Spring"));
-			if (angleMtl==null) angleMtl = new Material (Shader.Find("ParticlePhysics2D/Angle"));
-			if (verletMtl==null) verletMtl = new Material (Shader.Find("ParticlePhysics2D/VerletGPUIntegrator"));
-			if (angleDeltaMtl==null) angleDeltaMtl = new Material (Shader.Find("ParticlePhysics2D/AngleDelta"));
+			if (springMtl==null) springMtl = new Material ( Shader.Find("ParticlePhysics2D/Spring"));
+			if (angleMtl==null) angleMtl = new Material ( Shader.Find("ParticlePhysics2D/Angle"));
+			if (verletMtl==null) verletMtl = new Material ( Shader.Find("ParticlePhysics2D/VerletGPUIntegrator"));
+			if (angleDeltaMtl==null) angleDeltaMtl = new Material ( Shader.Find("ParticlePhysics2D/AngleDelta"));
 			simbuffer = SimBuffer.Create(sim);
 			eof = new WaitForEndOfFrame();
 		}
