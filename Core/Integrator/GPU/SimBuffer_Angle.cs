@@ -131,7 +131,7 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<sim.maxAngleConvergenceID;i++) {
 				mpb[i] = new MaterialPropertyBlock ();
 				mpb[i].SetTexture(ID_AngleParamRT,paramRT[i]);
-				mpb[i].SetFloat(ID_AngleConstant,sim.angleRelaxPercent);
+				mpb[i].SetFloat(ID_AngleConstant,sim.Settings.angleConstant);
 			}
 			
 		}

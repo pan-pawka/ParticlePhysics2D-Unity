@@ -7,11 +7,13 @@ namespace ParticlePhysics2D {
 	public abstract class IntegratorBase  {
 	
 		protected Simulation sim;
+		protected SimSettings setting;
 		float lastUpdateTime;
 		
 		protected IntegratorBase(Simulation sim) {
 			this.sim = sim;
 			this.lastUpdateTime = new System.Random().Next(10000) / 10000f + Time.realtimeSinceStartup;
+			this.setting = sim.Settings;
 		}
 		
 		protected abstract void StepMethod();

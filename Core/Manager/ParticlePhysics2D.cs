@@ -15,13 +15,18 @@ namespace ParticlePhysics2D {
 		//////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Fields and Properties
 		//////////////////////////////////////////////////////////////////////////////////////////////////////
-		protected static float DEFAULT_GRAVITY = 0f;
 		
 		[HideInInspector] [SerializeField] List <Particle2D> particles;
 		
 		[HideInInspector] [SerializeField] List <Spring2D> springs;
 		
 		[HideInInspector] [SerializeField] List<AngleConstraint2D> angles;
+		
+		public bool overrideGlobalSetting;
+		
+		private SimSettings _settings;
+		public SimSettings Settings {get { return _settings;} }
+		
 		
 		private IntegratorBase _integrator;
 		public IntegratorBase Integrator {
@@ -34,27 +39,27 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-		[SerializeField]
-		IntegrationMedthod integrationMedthod = IntegrationMedthod.Verlet;
-		
-		public bool applySpring = true,applyAngle = true;
-		public int ITERATIONS = 2;
-		
-		[SerializeField]
-		Vector2 gravity;
+//		[SerializeField]
+//		IntegrationMedthod integrationMedthod = IntegrationMedthod.Verlet;
+//		
+//		public bool applySpring = true,applyAngle = true;
+//		public int ITERATIONS = 2;
+//		
+//		[SerializeField]
+//		Vector2 gravity;
+//		
+//		[Range(0.01f,0.99f)]
+//		public float damping = 0.95f;//used by verlet
+//		
+//		[Range(0.005f,0.99f)]
+//		public float springConstant = 0.8f;
+//		
+//		[Range(0.001f,0.9f)]
+//		public float angleRelaxPercent = 0.02f;
 		
 		[SerializeField]
 		[ReadOnlyAttribute]
 		public int maxSpringConvergenceID = 0,maxAngleConvergenceID = 0;
-		
-		[Range(0.01f,0.99f)]
-		public float damping = 0.95f;//used by verlet
-		
-		[Range(0.005f,0.99f)]
-		public float springConstant = 0.8f;
-		
-		[Range(0.001f,0.9f)]
-		public float angleRelaxPercent = 0.02f;
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// Methods
@@ -62,7 +67,7 @@ namespace ParticlePhysics2D {
 		
 		public void setIntegrator()
 		{
-			switch ( integrationMedthod )
+			switch ( _settings.integrationMethod )
 			{
 			case IntegrationMedthod.Verlet:
 				this._integrator = new VerletIntegrator(this) as IntegratorBase;
@@ -94,8 +99,12 @@ namespace ParticlePhysics2D {
 		/// Init this instance. Call this inside Start() to instantiate the integrator
 		/// otherwise, it'll be created in the Property in the first frame
 		/// </summary>
-		public void Init () {
-			
+		public void Init (SimSettings setting) {
+			this._settings = setting;
+			if (!overrideGlobalSetting) _settings = SimulationManager.Instance.settings;
+			else {
+				if (_settings == null) _settings = SimulationManager.Instance.settings;
+			}
 			if (Application.isPlaying) setIntegrator();
 			else return;
 		}
@@ -286,23 +295,6 @@ namespace ParticlePhysics2D {
 		
 		#endregion
 		
-		#region Gravity
-		public void setGravity( float x, float y)
-		{
-			gravity = new Vector2 (x,y);
-		}
-		
-		// default gravity is down
-		public void setGravity( float g )
-		{
-			gravity = new Vector2 (0f,g);
-		}
-		
-		public Vector2 getGravity() {
-			return gravity;
-		}
-		#endregion
-		
 		#region Particles
 		public Particle2D makeParticle(  float x, float y)
 		{
@@ -470,36 +462,33 @@ namespace ParticlePhysics2D {
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
-			gravity = new Vector2 (0f,Simulation.DEFAULT_GRAVITY);
 		}
 		
 		public Simulation (float g,IntegrationMedthod integrationMedthod) {
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
-			gravity = new Vector2 (0f,g);
 		}
 		
 		public Simulation (IntegrationMedthod integrationMedthod) {
 			particles = new List<Particle2D> ();
 			springs = new List<Spring2D> ();
 			angles = new List<AngleConstraint2D> ();
-			gravity = new Vector2 (0f,Simulation.DEFAULT_GRAVITY);
 		}
 		
 		#endregion
 		
 		#region Debug
-		public Color springColor;
+		
 		public void DebugSpring(Matrix4x4 local2World,bool byConvID) {
 			for (int t=0;t<springs.Count;t++) {
-				springs[t].DebugSpring(local2World,(byConvID) ? convIDColor[springs[t].convergenceGroupID] : springColor);
+				springs[t].DebugSpring(local2World,(byConvID) ? convIDColor[springs[t].convergenceGroupID] : _settings.springDebugColor);
 			}
 		}
-		public Color angleColor = Color.magenta;
+		
 		public void DebugAngles(Matrix4x4 local2World,bool byConvID) {
 			for (int i=0;i<angles.Count;i++) {
-				angles[i].DebugDraw(local2World, (byConvID) ? convIDColor[angles[i].convergenceGroupID] : angleColor);
+				angles[i].DebugDraw(local2World, (byConvID) ? convIDColor[angles[i].convergenceGroupID] : _settings.angleDebugColor);
 			}
 		}
 		

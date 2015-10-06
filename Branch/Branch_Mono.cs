@@ -19,6 +19,12 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	[SerializeField] Simulation sim;
 	public Simulation GetSimulation { get {return sim;}}
 	
+	//sim setting
+	[HideInInspector]
+	public SimSettings Settings;
+	
+	
+	///Binary Tree Generation
 	[Range(1f,50f)]
 	public float length = 20f;
 	
@@ -44,7 +50,8 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	}
 	
 	void Start() {
-		sim.Init();
+		sim.Init(Settings);
+		Debug.Log("Start is called");
 	}
 	
 	void LateUpdate(){
@@ -88,7 +95,6 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		//Debug.Log("Branches : " + BinaryTree.branchesCount);
 		if (sim==null)
 			sim = new Simulation (0f,IntegrationMedthod.Verlet);
-		sim.setGravity(0f,0f);
 		sim.clear();
 		leafCount = 0;
 		Particle2D start = sim.makeParticle (branch.Position);

@@ -21,32 +21,47 @@ namespace ParticlePhysics2D {
 		///////////////////////////////////////////////////////////////////
 		//// Collision Update Params									///
 		///////////////////////////////////////////////////////////////////
-		[HideInInspector]
-		public float FixedTimestep_Collision = 1f/30f;
-		
 		[Space(10f)]
+		[Header("Collision Setting")]
 		
 		[Range(10,60)]
 		public int UpdatePerSecond_Collision = 30;
 		private int _updatePerSecond_Collision;
 		
+		[HideInInspector]
+		public float FixedTimestep_Collision = 1f/30f;
+		
 		///////////////////////////////////////////////////////////////////
 		//// Verlet Update Params										///
 		///////////////////////////////////////////////////////////////////
-		[HideInInspector]
-		public float FixedTimestep_Verlet = 1f/30f;
-		
-		[Space(10)]
-		
 		[Range(10,60)]
 		public int UpdatePerSecond_Verlet = 60;
 		int _updatePerSecond_Verlet;
+		[HideInInspector]
+		public float FixedTimestep_Verlet = 1f/30f;
 		
+		///////////////////////////////////////////////////////////////////
+		//// Rendering													///
+		///////////////////////////////////////////////////////////////////
+		[Header("Rendering Setting")]
 		[Range(0.5f,10f)]
 		public float globalLineWidth = 1.5f;
 		
+		///////////////////////////////////////////////////////////////////
+		//// Simulation													///
+		///////////////////////////////////////////////////////////////////
+		[Space(10f)]
+		[Header("Simulation")]
+		public SimSettings settings;
 		
+		///////////////////////////////////////////////////////////////////
+		//// Debug														///
+		///////////////////////////////////////////////////////////////////
+		[Header("Deubg Setting")]
 		public bool IsDebugOn = false;
+		
+		
+		
 		CollisionProcessor bpProcessor = new CollisionProcessor ();	//broad phase processor
 		CollisionProcessor npProcessor = new CollisionProcessor ();  //narrow phase processor
 		
@@ -89,6 +104,7 @@ namespace ParticlePhysics2D {
 				_updatePerSecond_Verlet = UpdatePerSecond_Verlet;
 				this.FixedTimestep_Verlet = 1f/this.UpdatePerSecond_Verlet;
 			}
+			
 			
 		}
 		

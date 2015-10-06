@@ -74,7 +74,7 @@ namespace ParticlePhysics2D {
 			for (int i=0;i<sim.maxSpringConvergenceID;i++) {
 				mpb[i] = new MaterialPropertyBlock ();
 				mpb[i].SetTexture(ID_SpringParamRT,rt[i]);
-				mpb[i].SetFloat(ID_SpringConstant,sim.springConstant);
+				mpb[i].SetFloat(ID_SpringConstant,sim.Settings.springConstant);
 			}
 			
 			//tempRT

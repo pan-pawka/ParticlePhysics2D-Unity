@@ -114,7 +114,7 @@ namespace ParticlePhysics2D {
 			
 			verletMpb.SetTexture(ID_PositionRT,PositionOldRT[next]);
 			verletMpb.SetTexture(ID_PositionCache,PositionOldRT[curr]);
-			verletMpb.SetFloat("_Damping",sim.damping);
+			verletMpb.SetFloat("_Damping",sim.Settings.damping);
 			
 			springRT = TemporaryPositionRT;
 			

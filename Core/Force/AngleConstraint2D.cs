@@ -121,8 +121,8 @@ namespace ParticlePhysics2D {
 				else {
 					Vector2 posB = particleB.Position;
 					Vector2 posM = particleM.Position;
-					if (particleB.IsFree) particleB.Position = Mathp.RotateVector2(posB,posM,-delta * sim.angleRelaxPercent);
-					if (particleM.IsFree) particleM.Position = Mathp.RotateVector2(posM,posB,-delta * sim.angleRelaxPercent);
+					if (particleB.IsFree) particleB.Position = Mathp.RotateVector2(posB,posM,-delta * sim.Settings.angleConstant);
+					if (particleM.IsFree) particleM.Position = Mathp.RotateVector2(posM,posB,-delta * sim.Settings.angleConstant);
 				}
 			}
 		}
@@ -143,7 +143,7 @@ namespace ParticlePhysics2D {
 					
 					if (particleA.IsFree) {
 						//lock (particleA) {
-							Vector2 posA2 = Mathp.RotateVector2(posA,posM,deltaAngle * sim.angleRelaxPercent);
+							Vector2 posA2 = Mathp.RotateVector2(posA,posM,deltaAngle * sim.Settings.angleConstant);
 							posA2 = posA2 - posA;
 							Extension.InterlockAddFloat(ref particleA.Position.x,posA2.x);
 							Extension.InterlockAddFloat(ref particleA.Position.y,posA2.y);
@@ -151,7 +151,7 @@ namespace ParticlePhysics2D {
 					}
 					if (particleB.IsFree) {
 						//lock(particleB) {
-							Vector2 posB2 = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.angleRelaxPercent);
+							Vector2 posB2 = Mathp.RotateVector2(posB,posM,-deltaAngle * sim.Settings.angleConstant);
 							posB2 -= posB;
 							Extension.InterlockAddFloat(ref particleB.Position.x,posB2.x);
 							Extension.InterlockAddFloat(ref particleB.Position.y,posB2.y);
@@ -160,8 +160,8 @@ namespace ParticlePhysics2D {
 					}
 					if (particleM.IsFree) {
 						//lock (particleM) {
-							Vector2 posM2 = Mathp.RotateVector2(posM,posA, deltaAngle * sim.angleRelaxPercent);
-							posM2 = Mathp.RotateVector2(posM2,posB,-deltaAngle * sim.angleRelaxPercent);
+							Vector2 posM2 = Mathp.RotateVector2(posM,posA, deltaAngle * sim.Settings.angleConstant);
+							posM2 = Mathp.RotateVector2(posM2,posB,-deltaAngle * sim.Settings.angleConstant);
 							posM2 -= posM;
 							Extension.InterlockAddFloat(ref particleM.Position.x,posM2.x);
 							Extension.InterlockAddFloat(ref particleM.Position.y,posM2.y);

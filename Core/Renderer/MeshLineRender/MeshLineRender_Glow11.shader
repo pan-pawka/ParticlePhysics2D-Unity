@@ -76,6 +76,6 @@ Shader "ParticlePhysics2D/MeshLineRender_Glow11"
 			ENDCG
 		}
 	}
-	CustomEditor "GlowMatInspector"
+	
 }
 

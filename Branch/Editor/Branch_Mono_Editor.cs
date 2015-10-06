@@ -74,8 +74,27 @@ public class Branch_Mono_Editor : Editor {
 
 	public override void OnInspectorGUI ()
 	{
+	
+		
 		DrawDefaultInspector();
-
+	
+		if (sim.overrideGlobalSetting) {
+			if (temp.Settings == null) temp.Settings = new SimSettings ();
+			EditorGUILayout.LabelField("-------------------------------------------------------------------------------------");
+			temp.Settings.integrationMethod = (IntegrationMedthod )EditorGUILayout.EnumPopup("Integration Method",temp.Settings.integrationMethod);
+			temp.Settings.applyString = EditorGUILayout.Toggle("Apply Spring",temp.Settings.applyString,GUILayout.ExpandWidth(true));
+			temp.Settings.applyAngle = EditorGUILayout.Toggle("Apply Angle",temp.Settings.applyAngle,GUILayout.ExpandWidth(true));
+			temp.Settings.iteration = EditorGUILayout.IntSlider("Iteration",temp.Settings.iteration,1,10);
+			temp.Settings.gravity = EditorGUILayout.Vector2Field("Gravity",temp.Settings.gravity);
+			temp.Settings.springConstant = EditorGUILayout.Slider("Spring Constant",temp.Settings.springConstant,0.01f,0.99f);
+			temp.Settings.angleConstant = EditorGUILayout.Slider("Angle Constant",temp.Settings.angleConstant,0.01f,0.2f);
+			temp.Settings.damping = EditorGUILayout.Slider ("Damping", temp.Settings.damping,0.01f,0.99f);
+			temp.Settings.springDebugColor = EditorGUILayout.ColorField("Spring Debug Color",temp.Settings.springDebugColor);
+			temp.Settings.angleDebugColor = EditorGUILayout.ColorField("Angle Debug Color",temp.Settings.angleDebugColor);
+		} else {
+			temp.Settings = null;
+		}
+		
 		//Branch Debug params
 		EditorGUILayout.LabelField("-------------------------------------------------------------------------------------------------");
 		BinaryTree.debugBranch = EditorGUILayout.Toggle("Debug Branch",BinaryTree.debugBranch,GUILayout.ExpandWidth(true));

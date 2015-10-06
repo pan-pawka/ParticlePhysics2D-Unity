@@ -110,8 +110,8 @@ namespace ParticlePhysics2D {
 				//faster square root approx from Advanced Character Physics
 				Vector2 delta = a.Position - b.Position;
 				delta *= restLength2 /(delta.sqrMagnitude + restLength2) - 0.5f;
-				if (a.IsFree) a.Position += delta * sim.springConstant;
-				if (b.IsFree) b.Position -= delta * sim.springConstant;
+				if (a.IsFree) a.Position += delta * sim.Settings.springConstant;
+				if (b.IsFree) b.Position -= delta * sim.Settings.springConstant;
 			}
 		}
 		
@@ -132,16 +132,16 @@ namespace ParticlePhysics2D {
 					if (a.IsFree) {
 						//lock(a) {
 							//a.Position += delta * sim.springConstant;
-							Extension.InterlockAddFloat(ref a.Position.x,delta.x * sim.springConstant);
-							Extension.InterlockAddFloat(ref a.Position.y,delta.y * sim.springConstant);
+							Extension.InterlockAddFloat(ref a.Position.x,delta.x * sim.Settings.springConstant);
+							Extension.InterlockAddFloat(ref a.Position.y,delta.y * sim.Settings.springConstant);
 						//}
 						
 					}
 					if (b.IsFree) {
 						//lock (b) {
 							//b.Position -= delta * sim.springConstant;
-							Extension.InterlockAddFloat(ref b.Position.x,-delta.x * sim.springConstant);
-							Extension.InterlockAddFloat(ref b.Position.y,-delta.y * sim.springConstant);
+							Extension.InterlockAddFloat(ref b.Position.x,-delta.x * sim.Settings.springConstant);
+							Extension.InterlockAddFloat(ref b.Position.y,-delta.y * sim.Settings.springConstant);
 						//}
 					}
 				}

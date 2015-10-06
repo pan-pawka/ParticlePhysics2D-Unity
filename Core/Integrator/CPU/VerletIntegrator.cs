@@ -14,6 +14,7 @@ namespace ParticlePhysics2D {
 		Particle2D p;//temp variable
 		Vector2 temp;
 		
+		
 		public VerletIntegrator( Simulation s ) : base(s)
 		{
 			//base.StepMethodDelegate = this.StepMethod;
@@ -29,18 +30,18 @@ namespace ParticlePhysics2D {
 
 		
 			//gravity
-			if ( sim.getGravity() != Vector2.zero )
+			if ( setting.gravity != Vector2.zero )
 			{
 				for ( int i = 0; i < sim.numberOfParticles(); ++i )
 				{
 					p = sim.getParticle(i);
-					if (p.IsFree) p.Position += sim.getGravity();
+					if (p.IsFree) p.Position += setting.gravity;
 				}
 			}
 			
 			//iterations
-			for (int iter=0;iter<sim.ITERATIONS;iter++) {
-				if (sim.applySpring) {
+			for (int iter=0;iter<setting.iteration;iter++) {
+				if (setting.applyString) {
 					for ( int p = 1 ; p<=sim.maxSpringConvergenceID ; p++ ) 
 					for ( int i = 0; i < sim.numberOfSprings(); i++ ){
 						Spring2D sp = sim.getSpring(i);
@@ -49,7 +50,7 @@ namespace ParticlePhysics2D {
 					}
 				}
 				
-				if (sim.applyAngle) {
+				if (setting.applyAngle) {
 					for ( int p = 1 ; p<=sim.maxAngleConvergenceID ; p++ ) {
 						for ( int i = 0; i < sim.numberOfAngleConstraints(); i++ ){
 							AngleConstraint2D ag = sim.getAngleConstraint(i);
@@ -80,7 +81,7 @@ namespace ParticlePhysics2D {
 				if ( p.IsFree )
 				{
 					temp = p.Position;
-					p.Position += (p.Position - p.PositionOld) * base.sim.damping;
+					p.Position += (p.Position - p.PositionOld) * setting.damping;
 					p.PositionOld = temp;
 					
 				}

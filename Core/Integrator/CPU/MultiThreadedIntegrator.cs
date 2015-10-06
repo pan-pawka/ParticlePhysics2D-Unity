@@ -15,7 +15,7 @@ namespace ParticlePhysics2D {
 			Particle2D pp = base.sim.getParticle(i);
 			if (pp.IsFree) {
 				Vector2 tempv2 = pp.Position;
-				pp.Position += (pp.Position - pp.PositionOld) * base.sim.damping;
+				pp.Position += (pp.Position - pp.PositionOld) * base.sim.Settings.damping;
 				pp.PositionOld = tempv2;
 			}
 		}
@@ -30,20 +30,20 @@ namespace ParticlePhysics2D {
 		
 		protected sealed override void StepMethod() {
 			//gravity
-			if ( base.sim.getGravity() != Vector2.zero )
+			if ( base.sim.Settings.gravity != Vector2.zero )
 			{
 				for ( int i = 0; i < base.sim.numberOfParticles(); ++i )
 				{
 					var p = base.sim.getParticle(i);
-					if (p.IsFree) p.Position += sim.getGravity();
+					if (p.IsFree) p.Position += sim.Settings.gravity;
 				}
 			}
 			
-			for (int iter = 0;iter < sim.ITERATIONS * 2;iter ++ ) {
+			for (int iter = 0;iter < sim.Settings.iteration * 2;iter ++ ) {
 				//spring
-				if (base.sim.applySpring) Parallel.For(0,base.sim.numberOfSprings(),spring);
+				if (base.sim.Settings.applyString) Parallel.For(0,base.sim.numberOfSprings(),spring);
 				//angle
-				if (base.sim.applyAngle) Parallel.For(0,base.sim.numberOfAngleConstraints(),angle);
+				if (base.sim.Settings.applyAngle) Parallel.For(0,base.sim.numberOfAngleConstraints(),angle);
 			}
 			
 			//verlet
