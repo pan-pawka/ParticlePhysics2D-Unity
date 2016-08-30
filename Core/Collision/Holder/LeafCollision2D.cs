@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace ParticlePhysics2D {
 
 	[RequireComponent(typeof(ParticlePhysics2D.IFormLayer))]
-	[ExecuteInEditMode]
+	[ExecuteInEditMode]//so that we can visuallize the leaf particles
 	[AddComponentMenu("ParticlePhysics2D/Collision/LeafCollision2D",13)]
 	public sealed class LeafCollision2D : CollisionHolder2D {
 		
@@ -85,7 +85,7 @@ namespace ParticlePhysics2D {
 					TraverseBinaryTreeForCircle(branch.branchB);	
 				} else {
 					searchCount ++;
-					if (branch.boundingCircle.Overlaps(targetPos,cc.radius)) {
+					if (branch.boundingCircle.Overlaps(this.targetPos,this.cc.radius)) {
 						TraverseBinaryTreeForCircle(branch.branchA);
 						TraverseBinaryTreeForCircle(branch.branchB);
 					}
@@ -93,7 +93,7 @@ namespace ParticlePhysics2D {
 			} else if (branch.branchA==null && branch.branchB == null){
 				Vector2 dir;
 				searchCount ++;
-				if (branch.boundingCircle.OverlapsResults(targetPos,cc.radius,out dir)){
+				if (branch.boundingCircle.OverlapsResults(this.targetPos,this.cc.radius,out dir)){
 					if (isDebugCollidingOn) branch.boundingCircle.DebugDraw(transform.localToWorldMatrix,branch.depth,Color.magenta);
 					//apply collision
 					Particle2D pp = sim.getParticle(branch.leafIndex);

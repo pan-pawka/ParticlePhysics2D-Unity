@@ -108,6 +108,7 @@ namespace ParticlePhysics2D {
 		public float angle_RestLength2;
 		
 		public float delta;
+		//this is called by the integrator in each frame
 		public void GetDelta() {
 			delta = GetDeltaAngle();
 		}

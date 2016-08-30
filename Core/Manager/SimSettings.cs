@@ -4,7 +4,8 @@ using System.Collections;
 namespace ParticlePhysics2D {
 
 	[System.Serializable]
-	public class SimSettings  {
+	public class SimSettings : ScriptableObject {
+
 		public IntegrationMedthod integrationMethod = IntegrationMedthod.Verlet;
 		public bool applyString = true;
 		public bool applyAngle = true;

@@ -31,7 +31,7 @@ public class Singleton<T> : MonoBehaviour where T : Singleton<T> {
 					if(managers.Length == 1)
 					{
 						_mInstance = managers[0];
-						DontDestroyOnLoad(_mInstance);
+						//DontDestroyOnLoad(_mInstance);//this seems not working with unity 5.3
 						//_mInstance.gameObject.name = typeof(T).Name;//dont change the name
 						return _mInstance;
 					} else {

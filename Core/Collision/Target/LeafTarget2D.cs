@@ -21,7 +21,7 @@ namespace ParticlePhysics2D {
 		private int totalSearchCount = 0;
 		private int totalIter = 0;
 		protected override void NarrowPhaseUpdate() {
-			int searchCount = 0;;
+			int searchCount = 0;
 			for (int i=0;i<this.connection.Count;i++) {
 				int _searchCount;
 				connection[i].TraverseBVHForCircle(circleCollider,out _searchCount);

@@ -24,9 +24,9 @@ namespace ParticlePhysics2D {
 		
 		public bool overrideGlobalSetting;
 		
-		private SimSettings _settings;
-		public SimSettings Settings {get { return _settings;} }
-		
+		public SimSettings SettingsSlot;//this is only for users to assign in editor
+		public SimSettings Settings{get{return _Settings;}}
+		SimSettings _Settings;//internally we use this one
 		
 		private IntegratorBase _integrator;
 		public IntegratorBase Integrator {
@@ -39,24 +39,6 @@ namespace ParticlePhysics2D {
 			}
 		}
 		
-//		[SerializeField]
-//		IntegrationMedthod integrationMedthod = IntegrationMedthod.Verlet;
-//		
-//		public bool applySpring = true,applyAngle = true;
-//		public int ITERATIONS = 2;
-//		
-//		[SerializeField]
-//		Vector2 gravity;
-//		
-//		[Range(0.01f,0.99f)]
-//		public float damping = 0.95f;//used by verlet
-//		
-//		[Range(0.005f,0.99f)]
-//		public float springConstant = 0.8f;
-//		
-//		[Range(0.001f,0.9f)]
-//		public float angleRelaxPercent = 0.02f;
-		
 		[SerializeField]
 		[ReadOnlyAttribute]
 		public int maxSpringConvergenceID = 0,maxAngleConvergenceID = 0;
@@ -67,7 +49,7 @@ namespace ParticlePhysics2D {
 		
 		public void setIntegrator()
 		{
-			switch ( _settings.integrationMethod )
+			switch ( _Settings.integrationMethod )
 			{
 			case IntegrationMedthod.Verlet:
 				this._integrator = new VerletIntegrator(this) as IntegratorBase;
@@ -99,11 +81,11 @@ namespace ParticlePhysics2D {
 		/// Init this instance. Call this inside Start() to instantiate the integrator
 		/// otherwise, it'll be created in the Property in the first frame
 		/// </summary>
-		public void Init (SimSettings setting) {
-			this._settings = setting;
-			if (!overrideGlobalSetting) _settings = SimulationManager.Instance.settings;
+		public void Init () {
+			_Settings = SettingsSlot;
+			if (!overrideGlobalSetting) _Settings = SimulationManager.Instance.settings;
 			else {
-				if (_settings == null) _settings = SimulationManager.Instance.settings;
+				if (SettingsSlot == null) _Settings = SimulationManager.Instance.settings;
 			}
 			if (Application.isPlaying) setIntegrator();
 			else return;
@@ -481,14 +463,16 @@ namespace ParticlePhysics2D {
 		#region Debug
 		
 		public void DebugSpring(Matrix4x4 local2World,bool byConvID) {
+			if (springs!=null)
 			for (int t=0;t<springs.Count;t++) {
-				springs[t].DebugSpring(local2World,(byConvID) ? convIDColor[springs[t].convergenceGroupID] : _settings.springDebugColor);
+				springs[t].DebugSpring(local2World,(byConvID) ? convIDColor[springs[t].convergenceGroupID] : _Settings.springDebugColor);
 			}
 		}
 		
 		public void DebugAngles(Matrix4x4 local2World,bool byConvID) {
+			if (angles!=null)
 			for (int i=0;i<angles.Count;i++) {
-				angles[i].DebugDraw(local2World, (byConvID) ? convIDColor[angles[i].convergenceGroupID] : _settings.angleDebugColor);
+				angles[i].DebugDraw(local2World, (byConvID) ? convIDColor[angles[i].convergenceGroupID] : _Settings.angleDebugColor);
 			}
 		}
 		
@@ -496,7 +480,8 @@ namespace ParticlePhysics2D {
 		static Color[] convIDColor = new Color[] {Color.blue,Color.yellow,Color.red,Color.green,Color.cyan,Color.magenta,Color.white,Color.grey,Color.black};
 	
 		#endregion
-		
+
+
 	}
 	
 	

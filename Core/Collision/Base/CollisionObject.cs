@@ -35,8 +35,6 @@ namespace ParticlePhysics2D {
 				if (SimulationManager.Instance.IsDebugOn) Debug.Log(obj1.name + " try to disconnect with " + obj2.name);
 			}
 		}
-		
-	
 	}
 }
 

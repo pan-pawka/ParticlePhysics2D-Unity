@@ -18,12 +18,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	
 	[SerializeField] Simulation sim;
 	public Simulation GetSimulation { get {return sim;}}
-	
-	//sim setting
-	[HideInInspector]
-	public SimSettings Settings;
-	
-	
+
 	///Binary Tree Generation
 	[Range(1f,50f)]
 	public float length = 20f;
@@ -48,10 +43,12 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		if (serializedBranch!=null)
 			branch = EasySerializer.DeserializeObjectFromBytes(serializedBranch) as BinaryTree;
 	}
+
+
 	
 	void Start() {
-		sim.Init(Settings);
-		Debug.Log("Start is called");
+		sim.Init();
+		//Debug.Log("Start is called");
 	}
 	
 	void LateUpdate(){
@@ -104,7 +101,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		sim.RecalculateConvergenceGroupID();
 		sim.ShuffleSprings();
 		sim.ShuffleAngles();
-		if (Application.isEditor) OnDrawGizmosUpdate();
+		//if (Application.isEditor) OnDrawGizmosUpdate();
 		Debug.Log("Serialize branch to bytes");
 		serializedBranch = EasySerializer.SerializeObjectToBytes(branch);
 		
@@ -143,7 +140,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 	}
 	
 	void OnDestroy(){
-
+		
 	}
 	
 	

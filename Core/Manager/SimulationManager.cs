@@ -15,13 +15,15 @@ namespace ParticlePhysics2D {
 			set { mInstance = value;}
 		}
 		
-		
+		//if this manager will be persistent between levels?
+		public bool isPersistent = true;
+
 		//global parameters
 		
 		///////////////////////////////////////////////////////////////////
 		//// Collision Update Params									///
 		///////////////////////////////////////////////////////////////////
-		[Space(10f)]
+		[Space(5f)]
 		[Header("Collision Setting")]
 		
 		[Range(10,60)]
@@ -51,7 +53,7 @@ namespace ParticlePhysics2D {
 		//// Simulation													///
 		///////////////////////////////////////////////////////////////////
 		[Space(10f)]
-		[Header("Simulation")]
+		[Header("Simulation Settings")]
 		public SimSettings settings;
 		
 		///////////////////////////////////////////////////////////////////
@@ -85,6 +87,8 @@ namespace ParticlePhysics2D {
 		bool isGLNativeInited = false;
 		
 		void Start() {
+
+			if (isPersistent) DontDestroyOnLoad(this.gameObject);
 			_updatePerSecond_Collision = this.UpdatePerSecond_Collision;
 			this.FixedTimestep_Collision = 1f/this.UpdatePerSecond_Collision;
 			
