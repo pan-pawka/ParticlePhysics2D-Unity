@@ -95,7 +95,7 @@ namespace ParticlePhysics2D {
 			_updatePerSecond_Verlet = this.UpdatePerSecond_Verlet;
 			this.FixedTimestep_Verlet = 1f/this.UpdatePerSecond_Verlet;
 			
-			GLNative.Init();
+			//GLNative.Init();
 		}
 		
 		void Update() {
@@ -117,12 +117,12 @@ namespace ParticlePhysics2D {
 			npProcessor.Update(Time.deltaTime);
 		}
 		
-		void OnRenderObject () {
-			
-			GLNative.SetGlobalLineWidth(globalLineWidth);
-			
-				
-		}
+//		void OnRenderObject () {
+//			
+//			GLNative.SetGlobalLineWidth(globalLineWidth);
+//			
+//				
+//		}
 	}
 }
 

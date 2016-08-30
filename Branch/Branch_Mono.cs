@@ -139,11 +139,5 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		
 	}
 	
-	void OnDestroy(){
-		
-	}
-	
-	
-	
-	
+
 }
