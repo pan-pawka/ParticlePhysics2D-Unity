@@ -91,7 +91,7 @@ public class Branch_Mono : MonoBehaviour, IFormLayer {
 		branch = BinaryTree.GenerateBranch(length);
 		//Debug.Log("Branches : " + BinaryTree.branchesCount);
 		if (sim==null)
-			sim = new Simulation (0f,IntegrationMedthod.Verlet);
+			sim = new Simulation ();
 		sim.clear();
 		leafCount = 0;
 		Particle2D start = sim.makeParticle (branch.Position);

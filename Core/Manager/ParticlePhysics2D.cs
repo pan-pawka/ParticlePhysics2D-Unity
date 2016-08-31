@@ -380,9 +380,7 @@ namespace ParticlePhysics2D {
 		{
 			return springs.Count;
 		}
-		
-		
-		
+
 		public Spring2D getSpring( int i )
 		{
 			return springs[i];
@@ -414,9 +412,7 @@ namespace ParticlePhysics2D {
 		{
 			return angles.Count;
 		}
-		
-		
-		
+
 		public AngleConstraint2D getAngleConstraint( int i )
 		{
 			return angles[i];
@@ -446,17 +442,17 @@ namespace ParticlePhysics2D {
 			angles = new List<AngleConstraint2D> ();
 		}
 		
-		public Simulation (float g,IntegrationMedthod integrationMedthod) {
-			particles = new List<Particle2D> ();
-			springs = new List<Spring2D> ();
-			angles = new List<AngleConstraint2D> ();
-		}
-		
-		public Simulation (IntegrationMedthod integrationMedthod) {
-			particles = new List<Particle2D> ();
-			springs = new List<Spring2D> ();
-			angles = new List<AngleConstraint2D> ();
-		}
+//		public Simulation (float g,IntegrationMedthod integrationMedthod) {
+//			particles = new List<Particle2D> ();
+//			springs = new List<Spring2D> ();
+//			angles = new List<AngleConstraint2D> ();
+//		}
+//		
+//		public Simulation (IntegrationMedthod integrationMedthod) {
+//			particles = new List<Particle2D> ();
+//			springs = new List<Spring2D> ();
+//			angles = new List<AngleConstraint2D> ();
+//		}
 		
 		#endregion
 		
