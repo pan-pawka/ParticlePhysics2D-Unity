@@ -99,6 +99,8 @@ namespace ParticlePhysics2D {
 		}
 		
 		void Update() {
+
+			//get the latest fixedTimeStep
 			if (UpdatePerSecond_Collision != _updatePerSecond_Collision) {
 				_updatePerSecond_Collision = UpdatePerSecond_Collision;
 				this.FixedTimestep_Collision = 1f/this.UpdatePerSecond_Collision;

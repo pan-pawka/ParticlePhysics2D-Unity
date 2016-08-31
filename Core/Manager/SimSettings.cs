@@ -4,6 +4,7 @@ using System.Collections;
 namespace ParticlePhysics2D {
 
 	[System.Serializable]
+	[CreateAssetMenu(fileName = "SimSetting",menuName = "ParticlePhysics2D/SimSetting")]
 	public class SimSettings : ScriptableObject {
 
 		public IntegrationMedthod integrationMethod = IntegrationMedthod.Verlet;

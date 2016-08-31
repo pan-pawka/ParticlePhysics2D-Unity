@@ -97,8 +97,8 @@ namespace ParticlePhysics2D {
 		/// use this method after you have set up the data form as a meaningful shape.
 		/// a convergence group id will be assgined to spring2d and angle2d.
 		/// then in gpu solver, springs or angles in a same group will be made into a same RT.
-		/// Note that it is best to shuffle the spring and anle list after you complete this method.
-		/// otherwise I dont know if this method will return a valida result. However if you dont need GPU solver
+		/// Note that it is best to shuffle the spring and angle list after you complete this method.
+		/// otherwise I dont know if this method will return a valida result. However if you don't need GPU solver
 		/// then this method is of no use.
 		/// </summary>
 		public void RecalculateConvergenceGroupID () {
@@ -166,7 +166,7 @@ namespace ParticlePhysics2D {
 		}
 		
 		/// <summary>
-		/// Numbers the of springs by conv ID.
+		/// Numbers of the springs by conv ID.
 		/// </summary>
 		/// <returns>The number of springs by conv ID.</returns>
 		/// <param name="convID">Convergence Group ID.</param>
@@ -186,7 +186,7 @@ namespace ParticlePhysics2D {
 		}
 		
 		/// <summary>
-		/// Numbers the of angles by conv ID.
+		/// Numbers of the angles by conv ID.
 		/// </summary>
 		/// <returns>The number of angles by conv ID.</returns>
 		/// <param name="convID">Conv Group ID.</param>

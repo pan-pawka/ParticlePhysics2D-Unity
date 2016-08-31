@@ -1,6 +1,7 @@
 //Yves Wang @ FISH, 2015, All rights reserved
 using UnityEngine;
 using System.Collections;
+using System;
 
 namespace ParticlePhysics2D {
 
@@ -10,12 +11,9 @@ namespace ParticlePhysics2D {
 		[SerializeField]
 		public Vector2 Position;
 		
-		[SerializeField]
-		Vector2 positionOld;
+		[System.NonSerialized]
+		public Vector2 PositionOld;
 
-		[SerializeField]
-		Vector2 force;
-		
 		float mass = 1f;
 		
 		
@@ -34,7 +32,7 @@ namespace ParticlePhysics2D {
 		{
 			this.Position = Vector2.zero;
 			this.isFixed = false;
-			this.force = Vector2.zero;
+			//this.force = Vector2.zero;
 		}
 		
 		public float distanceTo( Particle2D p ){
@@ -61,14 +59,9 @@ namespace ParticlePhysics2D {
 		public bool IsFixed { get { return isFixed;}}
 		
 		public bool IsFree {get{return !isFixed;}}
-		
-		public Vector2 PositionOld {get{return positionOld;}set{positionOld = value;}}
 	
 		public float Mass {get{return mass;}}
-		
-		public Vector2 Force {get{return force;}set{force = value;}}
-		
-		
+
 	
 	}
 		

@@ -20,6 +20,7 @@ namespace ParticlePhysics2D {
 		
 		public void step() {
 			StepMethod();
+//			Using a fixed time step to do verlet update
 //			float timeNow = Time.realtimeSinceStartup;
 //			while (timeNow - this.lastUpdateTime > SimulationManager.Instance.FixedTimestep_Verlet) {
 //				StepMethod();

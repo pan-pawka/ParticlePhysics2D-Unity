@@ -38,6 +38,8 @@ namespace ParticlePhysics2D {
 			this.sim = sim;
 			a = sim.getParticle(indexA);
 			b = sim.getParticle(indexB);
+			a.PositionOld = a.Position;
+			b.PositionOld = b.Position;
 		}
 		
 		public Spring2D( Simulation sim, int indexA, int indexB, float restLength )

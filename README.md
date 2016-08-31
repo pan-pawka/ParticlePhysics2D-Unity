@@ -15,22 +15,49 @@ The system of ParticlePhysics2D bascially includes three layers of implementatio
 
 **Computation layer:** This is the core of ParticlePhysics2D, it computes the result and get the results back to ParticlePhysics2D. You can use differernt intergrator for the computation. Right now CPU Verlet Integrator and GPU Verlet Integrator are supported. GPU Verlet Integration is implemented by using vert-frag pipline and withou using Computer Shader. So it'll be compatible with as many platforms as possible. However, sever performance and stability issues are noticed while using GPU vert-frag intergrator, so probably in some future, when Unity have a wider support of Compute Shader, I'll make another GPU integrator by using compute shader.
 
-**Data layer:** This layer holds all the particles and edges(springs) of ParticlePhysics2D, it performs data validation when used in the Expression layer. It supports basically tree types of data. 1. particles 2. edges(springConstraints) 3.agnleConstraints. 
+**Data layer:** This layer holds all the particles and edges(springs) of ParticlePhysics2D, it performs data validation when used in the form layer. It supports basically three types of data. 1. particles 2. edges(springConstraints) 3.agnleConstraints. 
 
 **Form layer:** This layer utilizes the data contained in the data layer, and turns the data into meaningful forms. Note currently, a binary tree form(shape) is implemented for my own game. Normally end user will likely to work on this layer to create different shapes, and the computational backend should be hidden and transparent to end users. Refer to Branch_Mono.cs to see how to use this tool.
 
+### Usage
+```csharp
+using ParticlePhysics2D;
 
+Simulation sim;
+
+//init the simulation object
+void Start() {
+	sim.Init();
+	//make some shape
+	Particle2D p1 = sim.makeParticle(Vector2.zero);
+	Particle2D p2 = sim.makeParticle(Vector2.one);
+	Particle2D p3 = sim.makeParticle(Vector2.right);
+	Spring2D s1 = sim.makeSpring(p1,p2);
+	Spring2D s2 = sim.makeSpring(p1,p3);
+	sim.makeAngleConstraint(s1,s2);
+}
+
+//update the simulation
+void LateUpdate(){
+	sim.tick();
+}
+```
 ### Todo
 1. More unity compatible.  
 2. GPU Integrator using Compute Shader on platform that Unity supports.
 3. Unity editor tool to create more meaningful shapes by implementing Form Layer
-4. Imporve the stability of current GPU vert-frag integrator
+4. ~~Improve the stability of current GPU vert-frag integrator~~ (Switching to compute shader)
 5. Option to enable Multi-threaded CPU Integrator
 6. Collision detection on GPU
-7. Optimize how data is transfer from GPU to CPU
+7. ~~Optimize how data is transfer from GPU to CPU~~ (Switching to compute shader)
 8. Shader keywords to switch between high precision float (32-bit) and half float (16-bit)
-9. GPU integrator only works with OpenGL now, need to make it work with DX as well.
+9. ~~GPU integrator only works with OpenGL now, need to make it work with DX as well.~~ (Switching to compute shader)
 
+### About GPU Integrator
+I've spend a lot of time making the current vert-frag GPU integrator, however due to some Unity bugs, it is extremely unstable. Therefore the current GPU integration will be dropped. [Unity will support Metal's compute shader soon in this year(2016)](https://blogs.unity3d.com/2016/06/17/wwdc-unity-metal-tessellation-demo/), so hopefully I can use compute shader to make a new GPU integrator.
+
+### About the upcomming multi-threaded integrator
+Bascially there will be a threading mamanger with fixed amount of threads. Everytime when you new a simulation object, it will be assigned to a thread by threading manager.
 
 
 

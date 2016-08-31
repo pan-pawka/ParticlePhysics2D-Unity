@@ -80,10 +80,20 @@ namespace ParticlePhysics2D {
 				p = base.sim.getParticle(i);
 				if ( p.IsFree )
 				{
+					//This is a simplified version
 					temp = p.Position;
 					p.Position += (p.Position - p.PositionOld) * setting.damping;
 					p.PositionOld = temp;
-					
+
+					/* Different versions
+					temp = p.Position;
+					//p.Position = p.Position + (p.Position - p.PositionOld);
+					//p.Position = p.Position + (p.Position - p.PositionOld) * s.damping  * (t / dt) + p.Force / p.Mass * t * t; //With force,mass and time-corrected
+					//p.Position = p.Position + (p.Position - p.PositionOld) * s.damping + p.Force;
+					p.Position += (p.Position - p.PositionOld) * s.damping;
+					p.PositionOld = temp;
+					//dt = t;//dt is the previous deltaTime
+					*/
 				}
 			}
 		}

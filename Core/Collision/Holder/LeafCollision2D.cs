@@ -54,7 +54,7 @@ namespace ParticlePhysics2D {
 			this.GetComponent<IFormLayer>().OnClearForm -= OnClearCollision;
 		}
 		
-		//the broad phase implementation
+		//the broad phase implementation of the base class's abstract method
 		//called by the CollisonProcess in the Manager
 		protected override void BroadPhaseUpdate() {
 			branch.GetBoundingCircle(sim,base.leafRadius);
